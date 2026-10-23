@@ -7,17 +7,22 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
-// Atau jika ingin menggunakan name route:
+// Halaman Login (GET untuk menampilkan halaman)
 Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
 
-// Halaman Login
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login');
+// Proses Login (POST untuk menerima data saat tombol "Masuk" ditekan)
+Route::post('/login', function () {
+    return redirect()->route('dashboard');
+});
 
 // Halaman Register (Daftar)
 Route::get('/register', function () {
     return view('auth.register');
 })->name('register');
+
+// Halaman Dashboard / Detail Cafe
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->name('dashboard');
