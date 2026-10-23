@@ -37,12 +37,15 @@
 
             <!-- Menu Navigasi / Info -->
             <div class="flex items-center gap-3 text-xs md:text-sm font-medium">
-                <span class="bg-[#F2EBE1] px-3 py-1.5 rounded-lg">Jelajahi Kafe</span>
+                <a href="{{ route('explore') }}" class="bg-[#F2EBE1] px-3 py-1.5 rounded-lg hover:bg-[#E5DEC9] transition cursor-pointer">
+                     Jelajahi Kafe
+                </a>
                 <span class="text-[#6E645E]">Koleksi Tersimpan</span>
                 <div class="flex items-center gap-1 bg-[#F2EBE1] px-3 py-1.5 rounded-lg">
                     <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
                     <span>Batam</span>
                 </div>
+            </div>
                 <div class="w-8 h-8 rounded-full bg-[#3D2C24] text-white flex items-center justify-center font-bold text-xs">
                     Profil
                 </div>

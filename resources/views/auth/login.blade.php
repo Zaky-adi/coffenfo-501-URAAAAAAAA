@@ -46,32 +46,31 @@
             
             <!-- Tombol Tab (Masuk / Daftar) -->
             <div class="bg-[#F2EBE1] p-1 rounded-xl flex mb-8">
-                 <!-- Tombol Masuk tetap aktif -->
+                <!-- Tombol Masuk tetap aktif -->
                 <a href="{{ route('login') }}" class="flex-1 py-2 text-center text-sm font-semibold rounded-lg bg-white shadow-sm text-[#3D2C24] flex items-center justify-center gap-1.5 transition">
                     <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span> Masuk
                 </a>
     
-                <!-- Tombol Daftar diubah menjadi link yang mengarah ke halaman register -->
-                <a href="{{ route('register') }}" class="flex-1 py-2 text-center text-sm font-medium text-[#8C827A] hover:text-[#3D2C24] transition">
-                  Daftar
-                 </a>
+                <!-- Tombol Daftar yang mengarah ke halaman register -->
+                <a href="{{ route('register') }}" class="flex-1 py-2 text-center text-sm font-medium text-[#8C827A] hover:text-[#3D2C24] transition flex items-center justify-center">
+                    Daftar
+                </a>
             </div>
-            
 
             <h2 class="text-2xl font-['Playfair_Display'] font-bold mb-1">Senang kamu kembali.</h2>
             <p class="text-xs text-gray-500 mb-6">Masuk untuk menemukan cafe dan berbagi review.</p>
 
-            <!-- Form Input -->
-            <form action="#" method="POST" class="space-y-4">
+            <!-- Form Input (Action diisi ke route login) -->
+            <form action="{{ route('login') }}" method="POST" class="space-y-4">
                 @csrf
                 <div>
                     <label class="block text-xs font-bold mb-1">Email / Username</label>
-                    <input type="text" placeholder="Email atau username kamu" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#3D2C24]">
+                    <input type="text" name="email" required placeholder="Email atau username kamu" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#3D2C24]">
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold mb-1">Kata Sandi</label>
-                    <input type="password" placeholder="Masukkan kata sandi" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#3D2C24]">
+                    <input type="password" name="password" required placeholder="Masukkan kata sandi" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#3D2C24]">
                 </div>
 
                 <div class="text-right">

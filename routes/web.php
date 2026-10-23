@@ -26,3 +26,8 @@ Route::get('/register', function () {
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->name('dashboard');
+
+// Halaman Eksplorasi / Filter Kafe
+Route::get('/explore', function () {
+    return view('explore');
+})->name('explore');
