@@ -46,9 +46,17 @@
             
             <!-- Tombol Tab (Masuk / Daftar) -->
             <div class="bg-[#F2EBE1] p-1 rounded-xl flex mb-8">
-                <button class="flex-1 py-2 text-center text-sm font-semibold rounded-lg bg-white shadow-sm">Masuk</button>
-                <button class="flex-1 py-2 text-center text-sm text-gray-500">Daftar</button>
+                 <!-- Tombol Masuk tetap aktif -->
+                <a href="{{ route('login') }}" class="flex-1 py-2 text-center text-sm font-semibold rounded-lg bg-white shadow-sm text-[#3D2C24] flex items-center justify-center gap-1.5 transition">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span> Masuk
+                </a>
+    
+                <!-- Tombol Daftar diubah menjadi link yang mengarah ke halaman register -->
+                <a href="{{ route('register') }}" class="flex-1 py-2 text-center text-sm font-medium text-[#8C827A] hover:text-[#3D2C24] transition">
+                  Daftar
+                 </a>
             </div>
+            
 
             <h2 class="text-2xl font-['Playfair_Display'] font-bold mb-1">Senang kamu kembali.</h2>
             <p class="text-xs text-gray-500 mb-6">Masuk untuk menemukan cafe dan berbagi review.</p>
