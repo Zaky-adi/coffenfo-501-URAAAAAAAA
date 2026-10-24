@@ -41,3 +41,8 @@ Route::get('/reviews', function () {
 Route::get('/admin/moderation', function () {
     return view('admin.moderation');
 })->name('admin.moderation');
+
+// Halaman Checkout Pesanan
+Route::get('/checkout', function () {
+    return view('checkout');
+})->name('checkout');
