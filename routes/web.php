@@ -36,3 +36,8 @@ Route::get('/explore', function () {
 Route::get('/reviews', function () {
     return view('reviews');
 })->name('reviews');
+
+// Halaman Admin Moderasi Review & Laporan
+Route::get('/admin/moderation', function () {
+    return view('admin.moderation');
+})->name('admin.moderation');
