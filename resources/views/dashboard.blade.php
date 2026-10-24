@@ -85,23 +85,30 @@
                     <h1 class="text-3xl md:text-4xl font-serif-title font-bold">Grind Now Coffee Bar</h1>
                     <span class="bg-[#EEF2DA] text-[#3D2C24] text-xs font-semibold px-2.5 py-1 rounded-md">Buka • 09:00 - 23:00 WIB</span>
                 </div>
-                <div class="flex items-center gap-3 text-xs text-[#6E645E]">
-                    <span class="bg-[#F2EBE1] px-2 py-0.5 rounded font-bold text-[#3D2C24]">4.9</span>
-                    <span>(128 ulasan)</span>
+                <!-- KODE BARU (BISA DIKLIK) -->
+                <div class="flex items-center gap-2 text-xs text-[#6E645E]">
+                    <span class="font-bold text-amber-600">★ 4.9</span>
+                    <a href="{{ route('reviews') }}" class="underline font-semibold hover:text-[#3D2C24] transition">
+                        (128 ulasan)
+                    </a>
                     <span>•</span>
                     <span>Coffee Bar</span>
                 </div>
             </div>
-            <div class="flex items-center gap-2">
-                <button class="px-4 py-2 bg-white border border-[#E5DEC9] rounded-xl text-xs font-semibold hover:bg-gray-50 flex items-center gap-1.5 shadow-xs">
-                    <i data-lucide="bookmark" class="w-4 h-4"></i> Simpan
-                </button>
-                <button class="px-4 py-2 bg-white border border-[#E5DEC9] rounded-xl text-xs font-semibold hover:bg-gray-50 flex items-center gap-1.5 shadow-xs">
-                    <i data-lucide="share-2" class="w-4 h-4"></i> Bagikan
-                </button>
-            </div>
-        </div>
+        <div class="flex items-center gap-2">
+            <!-- Tombol Ke Halaman Review -->
+            <a href="{{ route('reviews') }}" class="px-4 py-2 bg-[#3D2C24] text-white rounded-xl text-xs font-semibold hover:bg-black transition flex items-center gap-1.5">
+                <i data-lucide="message-square" class="w-3.5 h-3.5"></i> Lihat Semua Review
+            </a>
 
+            <button class="px-4 py-2 bg-white border border-[#E5DEC9] rounded-xl text-xs font-medium flex items-center gap-1.5 hover:bg-[#F2EBE1] transition">
+                <i data-lucide="bookmark" class="w-3.5 h-3.5"></i> Simpan
+            </button>
+            <button class="px-4 py-2 bg-white border border-[#E5DEC9] rounded-xl text-xs font-medium flex items-center gap-1.5 hover:bg-[#F2EBE1] transition">
+                <i data-lucide="share-2" class="w-3.5 h-3.5"></i> Bagikan
+            </button>
+        </div>
+        </div>
         <!-- Info Singkat / Deskripsi -->
         <p class="text-sm text-[#6E645E] leading-relaxed mb-8 max-w-4xl">
             Grind Now Coffee Bar adalah tempat nongkrong asyik dengan suasana industrial modern, pilihan biji kopi pilihan, serta barista ramah yang siap meracik kopi terbaik untuk harimu.

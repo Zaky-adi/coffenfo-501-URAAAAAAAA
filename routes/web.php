@@ -31,3 +31,8 @@ Route::get('/dashboard', function () {
 Route::get('/explore', function () {
     return view('explore');
 })->name('explore');
+
+// Halaman Review & Rating Kafe
+Route::get('/reviews', function () {
+    return view('reviews');
+})->name('reviews');
