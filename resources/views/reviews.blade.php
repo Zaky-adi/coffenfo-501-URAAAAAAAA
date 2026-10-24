@@ -8,6 +8,9 @@
     <!-- CDN Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- CDN Alpine.js untuk kontrol Modal Pop-up -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
     <!-- Font Google -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     
@@ -24,10 +27,10 @@
         }
     </style>
 </head>
-<body class="text-[#3D2C24] min-h-screen flex flex-col justify-between">
+<body x-data="{ openModal: false, rating: 4, reviewText: '' }" class="text-[#3D2C24] min-h-screen flex flex-col justify-between relative">
 
     <!-- Navbar Atas -->
-    <header class="bg-[#FCF9F2] border-b border-[#E5DEC9] py-4 px-6 md:px-12 sticky top-0 z-50">
+    <header class="bg-[#FCF9F2] border-b border-[#E5DEC9] py-4 px-6 md:px-12 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <!-- Logo -->
             <div class="flex items-center gap-2">
@@ -112,8 +115,8 @@
                     </div>
                 </div>
 
-                <!-- Tombol Tulis Review -->
-                <button class="w-full bg-[#3D2C24] text-white py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 hover:bg-black transition">
+                <!-- Tombol Tulis Review (Membuka Modal) -->
+                <button @click="openModal = true" class="w-full bg-[#3D2C24] text-white py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 hover:bg-black transition cursor-pointer">
                     <i data-lucide="edit-3" class="w-4 h-4"></i> Tulis Review
                 </button>
             </div>
@@ -209,18 +212,96 @@
                     </div>
                 </div>
 
-                <!-- Tombol Muat Review Lainnya -->
-                <div class="text-center pt-4">
-                    <button class="px-6 py-3 bg-[#FCF9F2] border border-[#E5DEC9] rounded-xl text-xs font-semibold text-[#3D2C24] hover:bg-[#F2EBE1] transition shadow-xs">
-                        Muat Review Lainnya
-                    </button>
-                </div>
-
             </div>
 
         </div>
 
     </main>
+
+    <!-- ================= MODAL REVIEW (POP-UP) ================= -->
+    <div x-show="openModal" 
+         x-transition.opacity
+         class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs"
+         style="display: none;">
+        
+        <div @click.away="openModal = false" 
+             class="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl relative space-y-5 border border-[#E5DEC9]">
+            
+            <!-- Tombol Close (X) -->
+            <button @click="openModal = false" class="absolute top-6 right-6 w-8 h-8 rounded-full bg-[#F2EBE1] text-[#6E645E] flex items-center justify-center hover:bg-[#E5DEC9] transition">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+
+            <!-- Title Modal -->
+            <div>
+                <h3 class="text-xl font-bold font-serif-title">Tulis Review</h3>
+                <p class="text-xs text-[#8C827A] mt-0.5">Lintas Coffee & Space • Batam Center, Batam</p>
+            </div>
+
+            <!-- Pilih Rating -->
+            <div>
+                <label class="block text-xs font-bold mb-2">Beri rating</label>
+                <div class="flex items-center gap-3">
+                    <div class="flex text-amber-400 text-2xl gap-1 cursor-pointer">
+                        <template x-for="i in 5">
+                            <span @click="rating = i" :class="i <= rating ? 'text-amber-400' : 'text-gray-300'">★</span>
+                        </template>
+                    </div>
+                    <span class="text-xs font-medium bg-[#FFF8E7] text-amber-800 px-3 py-1 rounded-full border border-amber-200/60" x-text="rating + ' dari 5 • ' + (rating === 5 ? 'Sangat Bagus' : rating === 4 ? 'Bagus' : rating === 3 ? 'Cukup' : 'Kurang')"></span>
+                </div>
+            </div>
+
+            <!-- Input Ceritakan Pengalaman -->
+            <div>
+                <label class="block text-xs font-bold mb-1.5">Ceritakan pengalamanmu</label>
+                <div class="relative">
+                    <textarea x-model="reviewText" maxlength="500" rows="4" 
+                              placeholder="Bagikan pengalaman kopi dan suasana di cafe ini..." 
+                              class="w-[#100%] w-full p-3.5 border border-[#E5DEC9] rounded-2xl text-xs focus:outline-none focus:border-[#3D2C24] resize-none bg-[#FCF9F2]"></textarea>
+                    <span class="absolute bottom-3 right-3 text-[10px] text-[#8C827A]" x-text="reviewText.length + ' / 500'"></span>
+                </div>
+            </div>
+
+            <!-- Upload Foto Dropzone -->
+            <div>
+                <label class="block text-xs font-bold mb-1.5">Foto (opsional)</label>
+                <div class="border-2 border-dashed border-[#E5DEC9] bg-[#FCF9F2] rounded-2xl p-4 text-center cursor-pointer hover:border-[#3D2C24] transition">
+                    <div class="w-8 h-8 rounded-full bg-[#F2EBE1] text-[#3D2C24] flex items-center justify-center mx-auto mb-2">
+                        <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+                    </div>
+                    <p class="text-xs font-bold text-[#3D2C24]">Unggah Foto Cafe / Kopi</p>
+                    <p class="text-[10px] text-[#8C827A] mt-0.5">Tarik dan lepas foto di sini, atau klik untuk memilih</p>
+                    <p class="text-[9px] text-[#A39B93] mt-1">JPG, PNG • maks. 5 MB • hingga 5 foto</p>
+                </div>
+
+                <!-- Preview Thumbnail Foto -->
+                <div class="flex gap-2 mt-3">
+                    <div class="w-12 h-12 rounded-xl bg-[#3D2C24] relative overflow-hidden flex items-center justify-center text-white text-xs">
+                        ☕
+                        <button class="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full p-0.5 text-[8px]">✕</button>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-[#8C827A] relative overflow-hidden flex items-center justify-center text-white text-xs">
+                        ☕
+                        <button class="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full p-0.5 text-[8px]">✕</button>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl border-2 border-dashed border-[#E5DEC9] flex items-center justify-center text-[#8C827A] text-lg font-light cursor-pointer">
+                        +
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tombol Aksi Modal -->
+            <div class="flex items-center gap-3 pt-2">
+                <button @click="openModal = false" class="w-1/3 py-3 border border-[#E5DEC9] text-[#3D2C24] text-xs font-semibold rounded-xl hover:bg-[#F2EBE1] transition">
+                    Batal
+                </button>
+                <button @click="openModal = false" class="w-2/3 py-3 bg-[#3D2C24] text-white text-xs font-semibold rounded-xl hover:bg-black transition flex items-center justify-center gap-2">
+                    <i data-lucide="send" class="w-3.5 h-3.5"></i> Kirim Review
+                </button>
+            </div>
+
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="bg-[#FCF9F2] border-t border-[#E5DEC9] py-6 px-6 mt-16 text-center text-xs text-[#8C827A]">
