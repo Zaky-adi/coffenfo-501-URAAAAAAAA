@@ -46,3 +46,8 @@ Route::get('/admin/moderation', function () {
 Route::get('/checkout', function () {
     return view('checkout');
 })->name('checkout');
+
+Route::get('/admin/orders', function () {
+    return view('admin.orders');
+})->name('admin.orders');
+
