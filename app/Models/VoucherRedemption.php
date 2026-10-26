@@ -22,6 +22,7 @@ class VoucherRedemption extends Model
         'status',
         'redeemed_at',
         'used_at',
+        'used_order_id',
     ];
 
     protected $casts = [
@@ -46,5 +47,10 @@ class VoucherRedemption extends Model
     public function voucher(): BelongsTo
     {
         return $this->belongsTo(Voucher::class);
+    }
+
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class, 'used_order_id');
     }
 }
