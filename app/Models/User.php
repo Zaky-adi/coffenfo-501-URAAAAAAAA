@@ -84,7 +84,7 @@ class User extends Authenticatable
 
     public function wishlists(): BelongsToMany
     {
-        return $this->belongsToMany(Cafe::class, 'wishlists')->withTimestamps();
+        return $this->belongsToMany(Cafe::class, 'wishlists')->withPivot('created_at');
     }
 
     public function pointTransactions(): HasMany
