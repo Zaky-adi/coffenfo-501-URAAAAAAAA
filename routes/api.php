@@ -19,5 +19,15 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\AccountRecoveryController;
 
-Route::post('/auth/register', [RegisterController::class, '__invoke']);
+Route::post('/v1/auth/register', [RegisterController::class, '__invoke'])
+    ->middleware('throttle:5,60');
+Route::post('/v1/auth/verify-email', [AccountRecoveryController::class, 'verifyEmail'])
+    ->middleware('throttle:10,60');
+Route::post('/v1/auth/resend-verification', [AccountRecoveryController::class, 'resendVerification'])
+    ->middleware(['auth:sanctum', 'throttle:10,60']);
+Route::post('/v1/auth/forgot-password', [AccountRecoveryController::class, 'forgotPassword'])
+    ->middleware('throttle:10,60');
+Route::post('/v1/auth/reset-password', [AccountRecoveryController::class, 'resetPassword'])
+    ->middleware('throttle:10,60');
