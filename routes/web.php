@@ -7,52 +7,57 @@ Route::get('/verify-email/{token}', EmailVerificationLinkController::class)
     ->where('token', '[A-Za-z0-9]+')
     ->name('auth.email.verify.link');
 
-// Mengarahkan halaman utama (/) langsung ke view login
+// 1. Halaman Utama (/) menampilkan Landing Page Coffenfo
 Route::get('/', function () {
-    return view('auth.login');
+    return view('welcome');
 });
 
-// Halaman Login (GET untuk menampilkan halaman)
+// 2. Halaman Login (GET untuk menampilkan formulir login)
 Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
 
-// Proses Login (POST untuk menerima data saat tombol "Masuk" ditekan)
+// 3. Proses Login (POST - Saat pengguna masuk, diarahkan ke Dashboard)
 Route::post('/login', function () {
     return redirect()->route('dashboard');
 });
 
-// Halaman Register (Daftar)
+// 4. Halaman Register (GET untuk menampilkan formulir pendaftaran)
 Route::get('/register', function () {
     return view('auth.register');
 })->name('register');
 
-// Halaman Dashboard / Detail Cafe
+// 5. Proses Register (POST - Setelah berhasil daftar, DIARAHKAN KE HALAMAN LOGIN)
+Route::post('/register', function () {
+    return redirect()->route('login');
+});
+
+// 6. Halaman Dashboard / Detail Cafe
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->name('dashboard');
 
-// Halaman Eksplorasi / Filter Kafe
+// 7. Halaman Eksplorasi / Filter Kafe
 Route::get('/explore', function () {
     return view('explore');
 })->name('explore');
 
-// Halaman Review & Rating Kafe
+// 8. Halaman Review & Rating Kafe
 Route::get('/reviews', function () {
     return view('reviews');
 })->name('reviews');
 
-// Halaman Admin Moderasi Review & Laporan
+// 9. Halaman Admin Moderasi Review & Laporan
 Route::get('/admin/moderation', function () {
     return view('admin.moderation');
 })->name('admin.moderation');
 
-// Halaman Checkout Pesanan
+// 10. Halaman Checkout Pesanan
 Route::get('/checkout', function () {
     return view('checkout');
 })->name('checkout');
 
+// 11. Halaman Kelola Pesanan Masuk Admin
 Route::get('/admin/orders', function () {
     return view('admin.orders');
 })->name('admin.orders');
-
