@@ -8,7 +8,7 @@
     <!-- CDN Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- CDN Alpine.js untuk Interaktif Tab, Filter Kategori, & Stepper (- / +) -->
+    <!-- CDN Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     <!-- Google Fonts -->
@@ -34,10 +34,10 @@
     
     menuItems: [
         { id: 1, name: 'Manual Brew In House Beans', category: 'kopi', desc: 'Signature house selection design for balance clarity', price: 45000, qty: 1, img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=400&q=80' },
-        { id: 2, name: 'Magic Potion', category: 'kopi', desc: 'Iced Latte w/ Unique Berry Hint', price: 40000, qty: 0, img: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=400&q=80' },
-        { id: 3, name: 'Jungle Mint', category: 'kopi', desc: 'Combination From Mango Juice W/ Matcha', price: 44000, qty: 0, img: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=400&q=80' },
-        { id: 4, name: 'Salted Egg Chicken', category: 'makanan', desc: 'Rice Bowl', price: 45000, qty: 1, img: 'https://images.unsplash.com/photo-1543339308-43e59d6b73a6?auto=format&fit=crop&w=400&q=80' },
-        { id: 5, name: 'Meatballs Bolognese', category: 'makanan', desc: 'All Day Food', price: 46000, qty: 0, img: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=400&q=80' },
+        { id: 2, name: 'Magic Potion', category: 'non-kopi', desc: 'Iced Latte w/ Unique Berry Hint', price: 40000, qty: 0, img: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=400&q=80' },
+        { id: 3, name: 'Jungle Mint', category: 'non-kopi', desc: 'Combination From Mango Juice W/ Matcha', price: 44000, qty: 0, img: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=400&q=80' },
+        { id: 4, name: 'Salted Egg Chicken', category: 'camilan', desc: 'Rice Bowl', price: 45000, qty: 1, img: 'https://images.unsplash.com/photo-1543339308-43e59d6b73a6?auto=format&fit=crop&w=400&q=80' },
+        { id: 5, name: 'Meatballs Bolognese', category: 'camilan', desc: 'All Day Food', price: 46000, qty: 0, img: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=400&q=80' },
         { id: 6, name: 'Magic', category: 'kopi', desc: 'Double ristretto w/ custom milk (5oz) hot only!', price: 45000, qty: 0, img: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=400&q=80' }
     ],
 
@@ -64,7 +64,6 @@
                 <a href="{{ url('/') }}" class="text-xl font-bold tracking-tight">coffenfo</a>
             </div>
 
-            <!-- Menu Navigasi Kanan -->
             <div class="flex items-center gap-6 text-xs font-semibold text-[#6E645E]">
                 <a href="{{ route('explore') }}" class="hover:text-[#3D2C24]">Jelajahi Cafe</a>
                 <a href="#" class="hover:text-[#3D2C24]">Cafe Tersimpan</a>
@@ -130,9 +129,8 @@
     <!-- KONTEN UTAMA -->
     <main class="max-w-7xl mx-auto px-6 md:px-12 py-6 w-full space-y-8">
         
-        <!-- BREADCRUMB & GALERI FOTO KAFE (Sesuai Figma Presisi) -->
+        <!-- BREADCRUMB & GALERI -->
         <div class="space-y-4">
-            <!-- Breadcrumb & Tombol Simpan/Bagikan Sejajar -->
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div class="flex items-center gap-2 text-xs text-[#8C827A]">
                     <a href="{{ route('explore') }}" class="hover:underline">Jelajahi Cafe</a>
@@ -150,12 +148,9 @@
                 </div>
             </div>
             
-            <!-- Grid Galeri Foto Utama -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                <!-- Foto Utama Besar di Kiri -->
                 <div class="lg:col-span-8 h-72 md:h-[390px] rounded-3xl overflow-hidden relative shadow-sm bg-[#EAE2D5]">
                     <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=80" class="w-full h-full object-cover">
-                    <!-- Indikator 01/06 di Kiri Bawah -->
                     <div class="absolute bottom-4 left-4 bg-black/70 backdrop-blur-xs text-white text-xs px-3.5 py-1.5 rounded-full flex items-center gap-2">
                         <span>01 / 06</span>
                         <div class="flex gap-1">
@@ -166,14 +161,12 @@
                     </div>
                 </div>
 
-                <!-- Dua Foto Kecil di Kanan -->
                 <div class="lg:col-span-4 flex flex-col gap-4">
                     <div class="h-34 md:h-[187px] rounded-3xl overflow-hidden bg-[#EAE2D5] border border-[#E5DEC9]">
                         <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover">
                     </div>
                     <div class="h-34 md:h-[187px] rounded-3xl overflow-hidden bg-[#EAE2D5] border border-[#E5DEC9] relative">
                         <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover">
-                        <!-- Tombol Panah Navigasi di Pojok Kanan Bawah Foto -->
                         <div class="absolute bottom-3 right-3 flex gap-1.5">
                             <button class="w-7 h-7 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-xs cursor-pointer text-xs font-bold">‹</button>
                             <button class="w-7 h-7 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-xs cursor-pointer text-xs font-bold">›</button>
@@ -182,7 +175,7 @@
                 </div>
             </div>
 
-            <!-- HEADER JUDUL KAFE -->
+            <!-- HEADER JUDUL -->
             <div class="pt-2 space-y-2">
                 <p class="text-[10px] font-bold text-[#8C827A] uppercase tracking-wider">KOPI SPESIALTI • ROASTERY</p>
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -213,7 +206,7 @@
             </div>
         </div>
 
-        <!-- GRID UTAMA (KIRI: KENALI KOPIMU & KATALOG, KANAN: PETA & FASILITAS) -->
+        <!-- GRID UTAMA -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-4">
             
             <!-- SISI KIRI (8 Kolom) -->
@@ -249,7 +242,7 @@
                     </p>
                 </div>
 
-                <!-- CONTENT TABS (Katalog Menu | Review & Rating | Fasilitas) -->
+                <!-- CONTENT TABS -->
                 <div class="flex bg-[#EEE8DC] p-1.5 rounded-2xl border border-[#E0D7C3] gap-2">
                     <button @click="activeTab = 'menu'" :class="activeTab === 'menu' ? 'bg-white text-[#3D2C24] shadow-xs border border-[#E5DEC9]' : 'text-[#8C827A] hover:text-[#3D2C24]'" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer">
                         Katalog Menu
@@ -273,36 +266,32 @@
                             
                             <!-- Filter Kategori Chip -->
                             <div class="flex flex-wrap gap-1.5 text-xs">
-                                <button @click="activeCategory = 'semua'" :class="activeCategory === 'semua' ? 'bg-[#3D2C24] text-white' : 'bg-white border border-[#E5DEC9] text-[#6E645E]'" class="px-3.5 py-1 rounded-full font-medium transition cursor-pointer">Semua</button>
-                                <button @click="activeCategory = 'kopi'" :class="activeCategory === 'kopi' ? 'bg-[#3D2C24] text-white' : 'bg-white border border-[#E5DEC9] text-[#6E645E]'" class="px-3.5 py-1 rounded-full font-medium transition cursor-pointer">Kopi</button>
-                                <button @click="activeCategory = 'makanan'" :class="activeCategory === 'makanan' ? 'bg-[#3D2C24] text-white' : 'bg-white border border-[#E5DEC9] text-[#6E645E]'" class="px-3.5 py-1 rounded-full font-medium transition cursor-pointer">Makanan</button>
+                                <button @click="activeCategory = 'semua'" :class="activeCategory === 'semua' ? 'bg-[#3D2C24] text-white' : 'bg-white border border-[#E5DEC9] text-[#6E645E]'" class="px-3.5 py-1.5 rounded-full font-medium transition cursor-pointer">Semua</button>
+                                <button @click="activeCategory = 'kopi'" :class="activeCategory === 'kopi' ? 'bg-[#3D2C24] text-white' : 'bg-white border border-[#E5DEC9] text-[#6E645E]'" class="px-3.5 py-1.5 rounded-full font-medium transition cursor-pointer">Kopi</button>
+                                <button @click="activeCategory = 'non-kopi'" :class="activeCategory === 'non-kopi' ? 'bg-[#3D2C24] text-white' : 'bg-white border border-[#E5DEC9] text-[#6E645E]'" class="px-3.5 py-1.5 rounded-full font-medium transition cursor-pointer">Non-kopi</button>
+                                <button @click="activeCategory = 'camilan'" :class="activeCategory === 'camilan' ? 'bg-[#3D2C24] text-white' : 'bg-white border border-[#E5DEC9] text-[#6E645E]'" class="px-3.5 py-1.5 rounded-full font-medium transition cursor-pointer">Camilan</button>
                             </div>
                         </div>
 
                         <!-- Grid Menu Cards -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                             <template x-for="item in filteredMenu" :key="item.id">
-                                <div class="bg-white border border-[#E5DEC9] rounded-2xl p-3 shadow-xs flex flex-col justify-between">
+                                <div class="bg-white border border-[#E5DEC9] rounded-3xl p-4 shadow-xs flex flex-col justify-between">
                                     <div>
-                                        <div class="h-32 rounded-xl overflow-hidden bg-[#EAE2D5] mb-3">
+                                        <div class="h-36 rounded-2xl overflow-hidden bg-[#EAE2D5] mb-3">
                                             <img :src="item.img" class="w-full h-full object-cover">
                                         </div>
                                         <h4 class="font-bold text-xs" x-text="item.name"></h4>
                                         <p class="text-[10px] text-[#8C827A] mt-0.5 line-clamp-2" x-text="item.desc"></p>
                                     </div>
-                                    <div class="flex justify-between items-center mt-3 pt-2 border-t border-[#F4EFE6]">
-                                        <span class="text-xs font-bold text-[#C36930]" x-text="formatRupiah(item.price)"></span>
-                                        
-                                        <!-- Tombol Stepper - 0 + Interaktif -->
-                                        <div class="flex items-center gap-2 bg-[#F8F5F0] border border-[#E5DEC9] px-2 py-1 rounded-xl">
-                                            <button @click="if(item.qty > 0) item.qty--" class="text-xs font-bold px-1 text-[#8C827A] hover:text-[#3D2C24] cursor-pointer">-</button>
-                                            <span class="text-xs font-bold w-4 text-center" x-text="item.qty"></span>
-                                            <button @click="item.qty++" class="text-xs font-bold px-1 text-[#8C827A] hover:text-[#3D2C24] cursor-pointer">+</button>
-                                        </div>
+                                    <div class="mt-4 pt-3 border-t border-[#F4EFE6]">
+                                        <span class="text-xs font-bold text-[#3D2C24]" x-text="formatRupiah(item.price)"></span>
                                     </div>
                                 </div>
                             </template>
                         </div>
+                        
+                        <p class="text-[10px] text-[#8C827A] pt-4">Harga contoh per porsi dalam Rupiah. Ketersediaan dan harga dapat berubah.</p>
                     </div>
                 </div>
 
@@ -320,39 +309,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <button class="bg-[#3D2C24] text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-black transition">Tulis ulasan</button>
-                        </div>
-
-                        <div class="pt-4 border-t border-[#E5DEC9] space-y-2">
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-7 h-7 rounded-full bg-[#EAE2D5] flex items-center justify-center font-bold text-xs">NP</div>
-                                    <div>
-                                        <h5 class="text-xs font-bold">Nadia P.</h5>
-                                        <p class="text-[10px] text-[#8C827A]">4 Oktober 2026</p>
-                                    </div>
-                                </div>
-                                <span class="text-xs font-bold text-[#3D2C24]">★ 5.0</span>
-                            </div>
-                            <p class="text-xs text-[#6E645E]">Kopi susunya pas, tidak terlalu manis. Suka suasana hangatnya untuk ngobrol sore. Croissant-nya juga renyah!</p>
-                        </div>
-
-                        <div class="pt-4 border-t border-[#E5DEC9] space-y-2">
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-7 h-7 rounded-full bg-[#EAE2D5] flex items-center justify-center font-bold text-xs">RA</div>
-                                    <div>
-                                        <h5 class="text-xs font-bold">Raika A.</h5>
-                                        <p class="text-[10px] text-[#8C827A]">2 Oktober 2026</p>
-                                    </div>
-                                </div>
-                                <span class="text-xs font-bold text-[#3D2C24]">★ 5.0</span>
-                            </div>
-                            <p class="text-xs text-[#6E645E]">V60 Flores-nya wangi dan bersih. Barista membantu pilih biji sesuai selera. Ada stopkontak untuk kerja santai.</p>
-                        </div>
-
-                        <div class="pt-2">
-                            <a href="#" class="text-xs font-bold text-[#3D2C24] hover:underline">Lihat semua 120 ulasan →</a>
+                            <a href="{{ route('reviews') }}" class="bg-[#3D2C24] text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-black transition">Buka Halaman Review</a>
                         </div>
                     </div>
                 </div>
@@ -369,10 +326,9 @@
 
             </div>
 
-            <!-- SISI KANAN (4 Kolom: Peta & Lokasi, Jam Operasional, Fasilitas) -->
+            <!-- SISI KANAN -->
             <div class="lg:col-span-4 space-y-6">
                 
-                <!-- Peta & Lokasi Card -->
                 <div class="bg-white border border-[#E5DEC9] rounded-3xl p-5 shadow-xs space-y-4">
                     <h3 class="font-bold text-sm">Peta & Lokasi</h3>
                     <div class="h-44 rounded-2xl overflow-hidden bg-[#EAE2D5] border border-[#E5DEC9] relative">
@@ -392,16 +348,8 @@
                     <a href="https://maps.google.com" target="_blank" class="block w-full bg-[#3D2C24] text-white text-center py-2.5 rounded-xl text-xs font-semibold hover:bg-black transition shadow-xs flex items-center justify-center gap-2">
                         <i data-lucide="navigation" class="w-3.5 h-3.5"></i> Petunjuk Arah
                     </a>
-
-                    <div class="pt-3 border-t border-[#F4EFE6] space-y-1">
-                        <div class="flex items-center gap-1.5 text-xs font-bold">
-                            <i data-lucide="clock" class="w-3.5 h-3.5 text-[#8C827A]"></i> Jam operasional
-                        </div>
-                        <p class="text-[11px] text-[#8C827A]">Setiap hari • 09:30 - 24:00 WIB</p>
-                    </div>
                 </div>
 
-                <!-- Fasilitas Grid -->
                 <div class="bg-[#F4EFE6] border border-[#E5DEC9] rounded-3xl p-5 shadow-xs space-y-3">
                     <h3 class="font-bold text-sm">Fasilitas</h3>
                     <div class="grid grid-cols-2 gap-2.5 text-xs text-[#3D2C24]">
@@ -417,12 +365,6 @@
                         <div class="flex items-center gap-2 bg-white p-2.5 rounded-2xl border border-[#E5DEC9]">
                             <i data-lucide="sun" class="w-4 h-4 text-[#8C827A]"></i> Area luar
                         </div>
-                        <div class="flex items-center gap-2 bg-white p-2.5 rounded-2xl border border-[#E5DEC9]">
-                            <i data-lucide="car" class="w-4 h-4 text-[#8C827A]"></i> Parkir tersedia
-                        </div>
-                        <div class="flex items-center gap-2 bg-white p-2.5 rounded-2xl border border-[#E5DEC9]">
-                            <i data-lucide="briefcase" class="w-4 h-4 text-[#8C827A]"></i> Nyaman untuk kerja
-                        </div>
                     </div>
                 </div>
 
@@ -430,8 +372,49 @@
 
         </div>
 
-        <!-- SECTION: CAFE SERUPA YANG MUNGKIN ANDA SUKA -->
-        <section class="space-y-4 pt-8 border-t border-[#E5DEC9]">
+        <!-- SECTION BAWAH 1: REVIEW & RATING (Sesuai Figma) -->
+        <section class="space-y-4 pt-10 border-t border-[#E5DEC9]">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-serif-title font-bold">Review & Rating</h2>
+                <a href="{{ route('reviews') }}" class="text-xs font-bold text-[#3D2C24] hover:underline">Tulis ulasan</a>
+            </div>
+
+            <div class="bg-white border border-[#E5DEC9] rounded-3xl p-6 shadow-xs space-y-5">
+                <div class="flex items-center gap-4">
+                    <div class="text-4xl font-serif-title font-bold">4.9</div>
+                    <div>
+                        <div class="text-amber-500 text-sm">★★★★★</div>
+                        <p class="text-xs text-[#8C827A]">Dari 120+ ulasan pecinta kopi</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-3 border-t border-[#F4EFE6]">
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs font-bold">
+                            <span>Nadia P.</span>
+                            <span class="text-amber-600">★ 5.0</span>
+                        </div>
+                        <p class="text-xs text-[#6E645E]">Kopi susunya pas, tidak terlalu manis. Suka suasana hangatnya untuk ngobrol sore. Croissant-nya juga renyah!</p>
+                        <p class="text-[10px] text-[#8C827A]">4 Oktober 2026</p>
+                    </div>
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs font-bold">
+                            <span>Raika A.</span>
+                            <span class="text-amber-600">★ 5.0</span>
+                        </div>
+                        <p class="text-xs text-[#6E645E]">V60 Flores-nya wangi dan bersih. Barista membantu pilih biji sesuai selera. Ada stopkontak untuk kerja santai.</p>
+                        <p class="text-[10px] text-[#8C827A]">2 Oktober 2026</p>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <a href="{{ route('reviews') }}" class="text-xs font-bold text-[#3D2C24] hover:underline">Lihat semua 128 ulasan →</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION BAWAH 2: CAFE SERUPA YANG MUNGKIN ANDA SUKA (Sesuai Figma) -->
+        <section class="space-y-4 pt-8">
             <div class="flex justify-between items-end">
                 <div>
                     <h2 class="text-xl font-serif-title font-bold">Cafe Serupa yang Mungkin Anda Suka</h2>
@@ -439,7 +422,7 @@
                 </div>
                 <div class="flex gap-1.5">
                     <button class="w-8 h-8 rounded-full bg-white border border-[#E5DEC9] flex items-center justify-center text-[#3D2C24] hover:bg-[#F4EFE6] cursor-pointer">‹</button>
-                    <button class="w-8 h-8 rounded-full bg-white border border-[#E5DEC9] flex items-center justify-center text-[#3D2C24] hover:bg-[#F4EFE6]">›</button>
+                    <button class="w-8 h-8 rounded-full bg-white border border-[#E5DEC9] flex items-center justify-center text-[#3D2C24] hover:bg-[#F4EFE6] cursor-pointer">›</button>
                 </div>
             </div>
 
