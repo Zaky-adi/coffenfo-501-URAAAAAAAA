@@ -3,305 +3,368 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coffenfo - Dashboard & Katalog Cafe</title>
+    <title>Coffenfo - Detail Cafe & Katalog</title>
     
     <!-- CDN Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Font Google -->
+    <!-- CDN Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     
-    <!-- Icon Library (Lucide) -->
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #F5EFEB;
+            background-color: #F8F5F0;
         }
         .font-serif-title {
             font-family: 'Playfair Display', serif;
         }
     </style>
 </head>
-<body class="text-[#3D2C24] min-h-screen flex flex-col justify-between">
+<body class="text-[#3D2C24] min-h-screen flex flex-col justify-between" x-data="{ 
+    activeTab: 'menu', 
+    activeCategory: 'semua',
+    cartOpen: false,
+    
+    menuItems: [
+        { id: 1, name: 'Manual Brew In House Beans', category: 'kopi', desc: 'Signature house selection design for balance clarity', price: 45000, qty: 1, img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=400&q=80' },
+        { id: 2, name: 'Magic Potion', category: 'non-kopi', desc: 'Iced Latte w/ Unique Berry Hint', price: 40000, qty: 0, img: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=400&q=80' },
+        { id: 3, name: 'Jungle Mint', category: 'non-kopi', desc: 'Combination From Mango Juice W/ Matcha', price: 44000, qty: 0, img: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=400&q=80' },
+        { id: 4, name: 'Salted Egg Chicken', category: 'camilan', desc: 'Rice Bowl', price: 45000, qty: 1, img: 'https://images.unsplash.com/photo-1543339308-43e59d6b73a6?auto=format&fit=crop&w=400&q=80' },
+        { id: 5, name: 'Meatballs Bolognese', category: 'camilan', desc: 'All Day Food', price: 46000, qty: 0, img: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=400&q=80' },
+        { id: 6, name: 'Magic', category: 'kopi', desc: 'Double ristretto w/ custom milk (5oz) hot only!', price: 45000, qty: 0, img: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=400&q=80' }
+    ],
 
-    <!-- Navbar Atas -->
-    <header class="bg-[#FCF9F2] border-b border-[#E5DEC9] py-4 px-6 md:px-12 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <!-- Logo -->
+    get filteredMenu() {
+        if (this.activeCategory === 'semua') return this.menuItems;
+        return this.menuItems.filter(i => i.category === this.activeCategory);
+    },
+    get totalCartItems() {
+        return this.menuItems.reduce((sum, item) => sum + item.qty, 0);
+    },
+    get totalPrice() {
+        return this.menuItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    },
+    formatRupiah(value) {
+        return 'Rp ' + value.toLocaleString('id-ID');
+    }
+}">
+
+    <!-- NAVBAR UTAMA -->
+    <header class="bg-[#F8F5F0] border-b border-[#E5DEC9] py-3.5 px-6 md:px-12 sticky top-0 z-45">
+        <div class="max-w-7xl mx-auto flex justify-between items-center gap-4">
             <div class="flex items-center gap-2">
                 <div class="bg-[#3D2C24] text-[#EEF2DA] p-1.5 rounded-lg font-bold text-base w-7 h-7 flex items-center justify-center">c</div>
-                <span class="text-xl font-bold tracking-tight">coffenfo</span>
+                <a href="{{ url('/') }}" class="text-xl font-bold tracking-tight">coffenfo</a>
             </div>
 
-            <!-- Menu Navigasi / Info -->
-            <div class="flex items-center gap-3 text-xs md:text-sm font-medium">
-                <a href="{{ route('explore') }}" class="bg-[#F2EBE1] px-3 py-1.5 rounded-lg hover:bg-[#E5DEC9] transition cursor-pointer">
-                     Jelajahi Kafe
-                </a>
-                <span class="text-[#6E645E]">Koleksi Tersimpan</span>
-                <div class="flex items-center gap-1 bg-[#F2EBE1] px-3 py-1.5 rounded-lg">
-                    <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
-                    <span>Batam</span>
-                </div>
-            </div>
-                <div class="w-8 h-8 rounded-full bg-[#3D2C24] text-white flex items-center justify-center font-bold text-xs">
-                    Profil
+            <div class="flex items-center gap-6 text-xs font-semibold text-[#6E645E]">
+                <a href="{{ route('explore') }}" class="hover:text-[#3D2C24]">Jelajahi Cafe</a>
+                <a href="#" class="hover:text-[#3D2C24]">Cafe Tersimpan</a>
+                <button @click="cartOpen = !cartOpen" class="flex items-center gap-1.5 bg-[#EEE8DC] px-3 py-1.5 rounded-full hover:bg-[#E5DEC9] transition cursor-pointer">
+                    <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+                    <span>Keranjang</span>
+                    <span class="bg-[#C36930] text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold" x-text="totalCartItems"></span>
+                </button>
+                <div class="w-8 h-8 rounded-full bg-[#C36930] text-white flex items-center justify-center text-xs font-bold shadow-xs">
+                    RO
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Konten Utama Dashboard -->
-    <main class="max-w-7xl mx-auto px-4 md:px-12 py-8 w-full">
-        
-        <!-- Breadcrumb & Galeri Foto Kafe -->
-        <div class="mb-6">
-            <p class="text-xs text-[#6E645E] mb-3">Jelajahi Cafe &gt; <span class="font-bold text-[#3D2C24]">Grind Now Coffee Bar</span></p>
-            
-            <!-- Grid Foto -->
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-                <!-- Foto Besar Kiri -->
-                <div class="md:col-span-8 h-[320px] md:h-[400px] rounded-2xl overflow-hidden shadow-sm relative">
-                    <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1000&q=80" alt="Cafe Interior" class="w-full h-full object-cover">
-                </div>
-                <!-- Foto Kecil Kanan -->
-                <div class="md:col-span-4 flex flex-col gap-4">
-                    <div class="h-[152px] md:h-[192px] rounded-2xl overflow-hidden shadow-sm">
-                        <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=600&q=80" alt="Coffee Bar" class="w-full h-full object-cover">
+    <!-- SLIDE-OVER KERJANG -->
+    <div x-show="cartOpen" class="fixed inset-0 z-50 overflow-hidden" style="display: none;">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-xs" @click="cartOpen = false"></div>
+        <div class="absolute inset-y-0 right-0 max-w-full flex pl-10">
+            <div class="w-screen max-w-md bg-[#F8F5F0] border-l border-[#E5DEC9] p-6 shadow-xl flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center pb-4 border-b border-[#E5DEC9]">
+                        <h2 class="font-serif-title font-bold text-lg">Keranjang Pesanan</h2>
+                        <button @click="cartOpen = false" class="p-1 rounded-full hover:bg-[#EEE8DC] cursor-pointer">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
                     </div>
-                    <div class="h-[152px] md:h-[192px] rounded-2xl overflow-hidden shadow-sm">
-                        <img src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=600&q=80" alt="Coffee Cup" class="w-full h-full object-cover">
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Judul Kafe & Tombol Aksi -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-[#E5DEC9] pb-6 mb-6 gap-4">
-            <div>
-                <div class="flex items-center gap-3 mb-1 flex-wrap">
-                    <h1 class="text-3xl md:text-4xl font-serif-title font-bold">Grind Now Coffee Bar</h1>
-                    <span class="bg-[#EEF2DA] text-[#3D2C24] text-xs font-semibold px-2.5 py-1 rounded-md">Buka • 09:00 - 23:00 WIB</span>
+                    <div class="mt-4 space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+                        <template x-for="item in menuItems.filter(i => i.qty > 0)" :key="item.id">
+                            <div class="bg-white border border-[#E5DEC9] p-3 rounded-2xl flex items-center gap-3">
+                                <img :src="item.img" class="w-14 h-14 rounded-xl object-cover">
+                                <div class="flex-1">
+                                    <h4 class="text-xs font-bold" x-text="item.name"></h4>
+                                    <p class="text-xs text-[#8C827A] mt-0.5" x-text="formatRupiah(item.price)"></p>
+                                </div>
+                                <div class="flex items-center gap-2 bg-[#F8F5F0] border border-[#E5DEC9] px-2 py-1 rounded-xl">
+                                    <button @click="if(item.qty > 0) item.qty--" class="text-xs font-bold px-1 hover:text-[#C36930] cursor-pointer">-</button>
+                                    <span class="text-xs font-bold w-4 text-center" x-text="item.qty"></span>
+                                    <button @click="item.qty++" class="text-xs font-bold px-1 hover:text-[#C36930] cursor-pointer">+</button>
+                                </div>
+                            </div>
+                        </template>
+                        <template x-if="totalCartItems === 0">
+                            <p class="text-xs text-center text-[#8C827A] py-10">Keranjang masih kosong.</p>
+                        </template>
+                    </div>
                 </div>
-                <!-- KODE BARU (BISA DIKLIK) -->
-                <div class="flex items-center gap-2 text-xs text-[#6E645E]">
-                    <span class="font-bold text-amber-600">★ 4.9</span>
-                    <a href="{{ route('reviews') }}" class="underline font-semibold hover:text-[#3D2C24] transition">
-                        (128 ulasan)
+
+                <div class="pt-4 border-t border-[#E5DEC9] space-y-3">
+                    <div class="flex justify-between text-sm font-bold">
+                        <span>Total Pesanan:</span>
+                        <span class="text-[#C36930]" x-text="formatRupiah(totalPrice)"></span>
+                    </div>
+                    <a href="{{ route('checkout') }}" class="block w-full bg-[#3D2C24] text-white text-center py-3 rounded-2xl text-xs font-semibold hover:bg-black transition shadow-xs">
+                        Lanjut ke Checkout →
                     </a>
-                    <span>•</span>
-                    <span>Coffee Bar</span>
                 </div>
             </div>
-        <div class="flex items-center gap-2">
-            <!-- Tombol Ke Halaman Review -->
-            <a href="{{ route('reviews') }}" class="px-4 py-2 bg-[#3D2C24] text-white rounded-xl text-xs font-semibold hover:bg-black transition flex items-center gap-1.5">
-                <i data-lucide="message-square" class="w-3.5 h-3.5"></i> Lihat Semua Review
-            </a>
-
-            <button class="px-4 py-2 bg-white border border-[#E5DEC9] rounded-xl text-xs font-medium flex items-center gap-1.5 hover:bg-[#F2EBE1] transition">
-                <i data-lucide="bookmark" class="w-3.5 h-3.5"></i> Simpan
-            </button>
-            <button class="px-4 py-2 bg-white border border-[#E5DEC9] rounded-xl text-xs font-medium flex items-center gap-1.5 hover:bg-[#F2EBE1] transition">
-                <i data-lucide="share-2" class="w-3.5 h-3.5"></i> Bagikan
-            </button>
         </div>
-        </div>
-        <!-- Info Singkat / Deskripsi -->
-        <p class="text-sm text-[#6E645E] leading-relaxed mb-8 max-w-4xl">
-            Grind Now Coffee Bar adalah tempat nongkrong asyik dengan suasana industrial modern, pilihan biji kopi pilihan, serta barista ramah yang siap meracik kopi terbaik untuk harimu.
-        </p>
+    </div>
 
-        <!-- LAYOUT UTAMA KONTEN BAWAH (Grid Kiri & Kanan) -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
-            <!-- SISI KIRI: Kenali Kopimu, Menu, & Review -->
-            <div class="lg:col-span-8 space-y-8">
+    <!-- KONTEN UTAMA -->
+    <main class="max-w-7xl mx-auto px-6 md:px-12 py-6 w-full space-y-8">
+        
+        <!-- BREADCRUMB & GALERI -->
+        <div class="space-y-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="flex items-center gap-2 text-xs text-[#8C827A]">
+                    <a href="{{ route('explore') }}" class="hover:underline">Jelajahi Cafe</a>
+                    <span>›</span>
+                    <span class="text-[#3D2C24] font-medium">Grind Now Coffe Bar</span>
+                </div>
                 
-                <!-- Kenali Kopimu Box -->
-                <div class="bg-[#FCF9F2] border border-[#E5DEC9] rounded-2xl p-6 shadow-xs">
-                    <div class="flex items-center gap-2 mb-4">
-                        <i data-lucide="coffee" class="w-5 h-5 text-[#3D2C24]"></i>
-                        <h3 class="font-bold text-base">Kenali Kopimu</h3>
+                <div class="flex gap-2">
+                    <button class="bg-white border border-[#E5DEC9] px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 shadow-xs hover:bg-[#F4EFE6] cursor-pointer">
+                        <i data-lucide="bookmark" class="w-3.5 h-3.5"></i> Simpan
+                    </button>
+                    <button class="bg-white border border-[#E5DEC9] px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 shadow-xs hover:bg-[#F4EFE6] cursor-pointer">
+                        <i data-lucide="share-2" class="w-3.5 h-3.5"></i> Bagikan
+                    </button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                <div class="lg:col-span-8 h-72 md:h-[390px] rounded-3xl overflow-hidden relative shadow-sm bg-[#EAE2D5]">
+                    <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=80" class="w-full h-full object-cover">
+                    <div class="absolute bottom-4 left-4 bg-black/70 backdrop-blur-xs text-white text-xs px-3.5 py-1.5 rounded-full flex items-center gap-2">
+                        <span>01 / 06</span>
+                        <div class="flex gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-white/50"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-white/50"></span>
+                        </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6 text-xs mb-4">
-                        <div><span class="text-[#6E645E]">Jenis Beans:</span> <span class="font-semibold">Single Origin & Blend</span></div>
-                        <div><span class="text-[#6E645E]">Asal Beans:</span> <span class="font-semibold">Arabika</span></div>
-                        <div><span class="text-[#6E645E]">Roasting Profile:</span> <span class="font-semibold">Light, Medium, Dark</span></div>
-                        <div><span class="text-[#6E645E]">Metode Seduh:</span> <span class="font-semibold">V60, Aeropress, Espresso Style, dan iced brew</span></div>
-                    </div>
-                    <p class="text-xs text-[#6E645E]">Cocok untuk nugas, WFC, or santai bareng teman.</p>
                 </div>
 
-                <!-- Tab Navigasi Menu & Review -->
-                <div>
-                    <div class="flex gap-2 border-b border-[#E5DEC9] pb-4 mb-4 overflow-x-auto">
-                        <button class="px-5 py-2 bg-white border border-[#E5DEC9] rounded-xl text-xs font-semibold shadow-xs">Katalog Menu</button>
-                        <button class="px-5 py-2 text-xs font-medium text-[#8C827A] hover:text-[#3D2C24]">Review & Rating</button>
-                        <button class="px-5 py-2 text-xs font-medium text-[#8C827A] hover:text-[#3D2C24]">Fasilitas</button>
+                <div class="lg:col-span-4 flex flex-col gap-4">
+                    <div class="h-34 md:h-[187px] rounded-3xl overflow-hidden bg-[#EAE2D5] border border-[#E5DEC9]">
+                        <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover">
+                    </div>
+                    <div class="h-34 md:h-[187px] rounded-3xl overflow-hidden bg-[#EAE2D5] border border-[#E5DEC9] relative">
+                        <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover">
+                        <div class="absolute bottom-3 right-3 flex gap-1.5">
+                            <button class="w-7 h-7 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-xs cursor-pointer text-xs font-bold">‹</button>
+                            <button class="w-7 h-7 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-xs cursor-pointer text-xs font-bold">›</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HEADER JUDUL -->
+            <div class="pt-2 space-y-2">
+                <p class="text-[10px] font-bold text-[#8C827A] uppercase tracking-wider">KOPI SPESIALTI • ROASTERY</p>
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <h1 class="text-2xl md:text-3xl font-serif-title font-bold">Grind Now Coffe Bar</h1>
+                    
+                    <div class="flex items-center gap-3">
+                        <span class="bg-[#EAF4E9] text-[#2E7D32] text-xs font-semibold px-3.5 py-1.5 rounded-full flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Buka • 09:30 - 24:00 WIB
+                        </span>
+                        <a href="{{ route('checkout') }}" class="bg-[#3D2C24] text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-black transition shadow-xs flex items-center gap-1.5">
+                            <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i> Pesanan
+                        </a>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 text-xs text-[#8C827A] pt-1">
+                    <span class="bg-[#FEF3D6] text-[#B45309] font-bold px-2.5 py-0.5 rounded-md">★ 4.9</span>
+                    <span>120+ ulasan</span>
+                    <span>•</span>
+                    <span>$$</span>
+                    <span>•</span>
+                    <span>Batam Kota</span>
+                </div>
+
+                <p class="text-xs text-[#6E645E] max-w-3xl pt-1">
+                    Di era kopi serba cepat, Grind Now memilih arah sebaliknya: slow bar satu seduhan, satu perhatian penuh.
+                </p>
+            </div>
+        </div>
+
+        <!-- GRID UTAMA -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-4">
+            
+            <!-- SISI KIRI (8 Kolom) -->
+            <div class="lg:col-span-8 space-y-6">
+                
+                <!-- KARTU "KENALI KOPIMU" -->
+                <div class="bg-[#F4EFE6] border border-[#E5DEC9] rounded-3xl p-6 shadow-xs space-y-4">
+                    <div class="flex items-center gap-2 font-bold text-sm">
+                        <i data-lucide="coffee" class="w-4 h-4 text-[#C36930]"></i>
+                        <span>Kenali kopimu</span>
                     </div>
 
-                    <div class="mb-4">
-                        <h3 class="text-lg font-serif-title font-bold">Dari bar kopi & dapur</h3>
-                        <p class="text-xs text-[#6E645E]">Pilihan Coffenfo untuk rekomendasi terbaikmu.</p>
+                    <div class="grid grid-cols-1 gap-2.5 text-xs">
+                        <div class="flex justify-between border-b border-[#E5DEC9] pb-2">
+                            <span class="text-[#8C827A]">Jenis Beans</span>
+                            <span class="font-semibold">Single Origin / Blend</span>
+                        </div>
+                        <div class="flex justify-between border-b border-[#E5DEC9] pb-2">
+                            <span class="text-[#8C827A]">Asal Beans</span>
+                            <span class="font-semibold">Arabica</span>
+                        </div>
+                        <div class="flex justify-between border-b border-[#E5DEC9] pb-2">
+                            <span class="text-[#8C827A]">Tingkat Roasting</span>
+                            <span class="font-semibold">Light, Medium, Dark</span>
+                        </div>
+                        <div class="flex justify-between border-b border-[#E5DEC9] pb-2">
+                            <span class="text-[#8C827A]">Metode seduh</span>
+                            <span class="font-semibold">V60, Aeropress, Japanese style, espresso, dan cold brew</span>
+                        </div>
                     </div>
+                    <p class="text-[11px] text-[#8C827A] italic pt-1">
+                        Cita rasa: ringan, fruity, tea-like, seimbang.
+                    </p>
+                </div>
 
-                    <!-- Filter Kategori Menu -->
-                    <div class="flex gap-2 mb-6 overflow-x-auto">
-                        <span class="px-4 py-1.5 bg-[#3D2C24] text-white rounded-full text-xs font-semibold whitespace-nowrap">Semua</span>
-                        <span class="px-4 py-1.5 bg-white border border-[#E5DEC9] rounded-full text-xs font-medium text-[#6E645E] whitespace-nowrap">Kopi</span>
-                        <span class="px-4 py-1.5 bg-white border border-[#E5DEC9] rounded-full text-xs font-medium text-[#6E645E] whitespace-nowrap">Non-Kopi</span>
-                        <span class="px-4 py-1.5 bg-white border border-[#E5DEC9] rounded-full text-xs font-medium text-[#6E645E] whitespace-nowrap">Cemilan</span>
-                    </div>
+                <!-- CONTENT TABS -->
+                <div class="flex bg-[#EEE8DC] p-1.5 rounded-2xl border border-[#E0D7C3] gap-2">
+                    <button @click="activeTab = 'menu'" :class="activeTab === 'menu' ? 'bg-white text-[#3D2C24] shadow-xs border border-[#E5DEC9]' : 'text-[#8C827A] hover:text-[#3D2C24]'" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer">
+                        Katalog Menu
+                    </button>
+                    <button @click="activeTab = 'reviews'" :class="activeTab === 'reviews' ? 'bg-white text-[#3D2C24] shadow-xs border border-[#E5DEC9]' : 'text-[#8C827A] hover:text-[#3D2C24]'" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer">
+                        Review & Rating
+                    </button>
+                    <button @click="activeTab = 'info'" :class="activeTab === 'info' ? 'bg-white text-[#3D2C24] shadow-xs border border-[#E5DEC9]' : 'text-[#8C827A] hover:text-[#3D2C24]'" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer">
+                        Fasilitas
+                    </button>
+                </div>
 
-                    <!-- Grid Menu Card (6 Item) -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <!-- TAB 1: KATALOG MENU & DAPUR -->
+                <div x-show="activeTab === 'menu'" class="space-y-6">
+                    <div>
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                            <div>
+                                <h3 class="font-serif-title font-bold text-lg">Dari bar kopi & dapur</h3>
+                                <p class="text-xs text-[#8C827A]">Pilihan favorit untuk menemani ceritamu.</p>
+                            </div>
+                            
+                            <!-- Filter Kategori Chip -->
+                            <div class="flex flex-wrap gap-1.5 text-xs">
+                                <button @click="activeCategory = 'semua'" :class="activeCategory === 'semua' ? 'bg-[#3D2C24] text-white' : 'bg-white border border-[#E5DEC9] text-[#6E645E]'" class="px-3.5 py-1.5 rounded-full font-medium transition cursor-pointer">Semua</button>
+                                <button @click="activeCategory = 'kopi'" :class="activeCategory === 'kopi' ? 'bg-[#3D2C24] text-white' : 'bg-white border border-[#E5DEC9] text-[#6E645E]'" class="px-3.5 py-1.5 rounded-full font-medium transition cursor-pointer">Kopi</button>
+                                <button @click="activeCategory = 'non-kopi'" :class="activeCategory === 'non-kopi' ? 'bg-[#3D2C24] text-white' : 'bg-white border border-[#E5DEC9] text-[#6E645E]'" class="px-3.5 py-1.5 rounded-full font-medium transition cursor-pointer">Non-kopi</button>
+                                <button @click="activeCategory = 'camilan'" :class="activeCategory === 'camilan' ? 'bg-[#3D2C24] text-white' : 'bg-white border border-[#E5DEC9] text-[#6E645E]'" class="px-3.5 py-1.5 rounded-full font-medium transition cursor-pointer">Camilan</button>
+                            </div>
+                        </div>
+
+                        <!-- Grid Menu Cards -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                            <template x-for="item in filteredMenu" :key="item.id">
+                                <div class="bg-white border border-[#E5DEC9] rounded-3xl p-4 shadow-xs flex flex-col justify-between">
+                                    <div>
+                                        <div class="h-36 rounded-2xl overflow-hidden bg-[#EAE2D5] mb-3">
+                                            <img :src="item.img" class="w-full h-full object-cover">
+                                        </div>
+                                        <h4 class="font-bold text-xs" x-text="item.name"></h4>
+                                        <p class="text-[10px] text-[#8C827A] mt-0.5 line-clamp-2" x-text="item.desc"></p>
+                                    </div>
+                                    <div class="mt-4 pt-3 border-t border-[#F4EFE6]">
+                                        <span class="text-xs font-bold text-[#3D2C24]" x-text="formatRupiah(item.price)"></span>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
                         
-                        <!-- Menu 1 -->
-                        <div class="bg-[#FCF9F2] border border-[#E5DEC9] rounded-2xl p-3 shadow-xs flex flex-col justify-between">
-                            <div>
-                                <div class="h-32 rounded-xl overflow-hidden mb-3">
-                                    <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=400&q=80" alt="Menu" class="w-full h-full object-cover">
-                                </div>
-                                <h4 class="font-bold text-sm mb-1">Manual Brew V60 House Blend</h4>
-                                <p class="text-[11px] text-[#6E645E] line-clamp-2 mb-2">Segar dan kaya rasa khas biji pilihan terbaik nusantara.</p>
-                            </div>
-                            <span class="font-bold text-sm text-[#3D2C24]">Rp45.000</span>
-                        </div>
-
-                        <!-- Menu 2 -->
-                        <div class="bg-[#FCF9F2] border border-[#E5DEC9] rounded-2xl p-3 shadow-xs flex flex-col justify-between">
-                            <div>
-                                <div class="h-32 rounded-xl overflow-hidden mb-3">
-                                    <img src="https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=400&q=80" alt="Menu" class="w-full h-full object-cover">
-                                </div>
-                                <h4 class="font-bold text-sm mb-1">Mugh Potion</h4>
-                                <p class="text-[11px] text-[#6E645E] line-clamp-2 mb-2">Es kopi susu signature khas dari Grind Now.</p>
-                            </div>
-                            <span class="font-bold text-sm text-[#3D2C24]">Rp38.000</span>
-                        </div>
-
-                        <!-- Menu 3 -->
-                        <div class="bg-[#FCF9F2] border border-[#E5DEC9] rounded-2xl p-3 shadow-xs flex flex-col justify-between">
-                            <div>
-                                <div class="h-32 rounded-xl overflow-hidden mb-3">
-                                    <img src="https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=400&q=80" alt="Menu" class="w-full h-full object-cover">
-                                </div>
-                                <h4 class="font-bold text-sm mb-1">Jungle Mint</h4>
-                                <p class="text-[11px] text-[#6E645E] line-clamp-2 mb-2">Espresso dengan kesegaran mint dan soda pilihan.</p>
-                            </div>
-                            <span class="font-bold text-sm text-[#3D2C24]">Rp44.000</span>
-                        </div>
-
-                        <!-- Menu 4 -->
-                        <div class="bg-[#FCF9F2] border border-[#E5DEC9] rounded-2xl p-3 shadow-xs flex flex-col justify-between">
-                            <div>
-                                <div class="h-32 rounded-xl overflow-hidden mb-3">
-                                    <img src="https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=400&q=80" alt="Menu" class="w-full h-full object-cover">
-                                </div>
-                                <h4 class="font-bold text-sm mb-1">Salted Egg Chicken</h4>
-                                <p class="text-[11px] text-[#6E645E] line-clamp-2 mb-2">Nasi ayam saus telur asin gurih nan nikmat.</p>
-                            </div>
-                            <span class="font-bold text-sm text-[#3D2C24]">Rp48.000</span>
-                        </div>
-
-                        <!-- Menu 5 -->
-                        <div class="bg-[#FCF9F2] border border-[#E5DEC9] rounded-2xl p-3 shadow-xs flex flex-col justify-between">
-                            <div>
-                                <div class="h-32 rounded-xl overflow-hidden mb-3">
-                                    <img src="https://images.unsplash.com/photo-1621996346565-e3d5d6281298?auto=format&fit=crop&w=400&q=80" alt="Menu" class="w-full h-full object-cover">
-                                </div>
-                                <h4 class="font-bold text-sm mb-1">Meatballs Bolognese</h4>
-                                <p class="text-[11px] text-[#6E645E] line-clamp-2 mb-2">Pasta lezat dengan saus tomat khas Italia dan bakso.</p>
-                            </div>
-                            <span class="font-bold text-sm text-[#3D2C24]">Rp46.000</span>
-                        </div>
-
-                        <!-- Menu 6 -->
-                        <div class="bg-[#FCF9F2] border border-[#E5DEC9] rounded-2xl p-3 shadow-xs flex flex-col justify-between">
-                            <div>
-                                <div class="h-32 rounded-xl overflow-hidden mb-3">
-                                    <img src="https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=400&q=80" alt="Menu" class="w-full h-full object-cover">
-                                </div>
-                                <h4 class="font-bold text-sm mb-1">Caffe Latte</h4>
-                                <p class="text-[11px] text-[#6E645E] line-clamp-2 mb-2">Perpaduan espresso dan steamed milk yang lembut.</p>
-                            </div>
-                            <span class="font-bold text-sm text-[#3D2C24]">Rp37.000</span>
-                        </div>
-
+                        <p class="text-[10px] text-[#8C827A] pt-4">Harga contoh per porsi dalam Rupiah. Ketersediaan dan harga dapat berubah.</p>
                     </div>
                 </div>
 
-                <!-- Review & Rating Section -->
-                <div>
-                    <h3 class="text-lg font-serif-title font-bold mb-4">Review & Rating</h3>
-                    <div class="bg-[#FCF9F2] border border-[#E5DEC9] rounded-2xl p-5 mb-4 shadow-xs flex items-center gap-6">
-                        <div class="text-center">
-                            <span class="text-4xl font-bold font-serif-title">4.9</span>
-                            <div class="flex text-amber-500 text-xs mt-1 justify-center">★★★★★</div>
-                        </div>
-                        <div class="text-xs text-[#6E645E]">
-                            <p class="font-semibold text-[#3D2C24]">Dari 128 ulasan pengunjung lokal</p>
-                            <p>Sebagian besar pengunjung memuji kenyamanan tempat dan kualitas kopinya.</p>
+                <!-- TAB 2: REVIEW & RATING -->
+                <div x-show="activeTab === 'reviews'" class="space-y-4" style="display: none;">
+                    <div class="bg-white border border-[#E5DEC9] p-6 rounded-3xl space-y-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-serif-title font-bold text-lg">Review & Rating</h3>
+                                <div class="flex items-center gap-3 mt-2">
+                                    <span class="text-3xl font-bold">4.9</span>
+                                    <div>
+                                        <div class="text-amber-500 text-sm">★★★★★</div>
+                                        <p class="text-xs text-[#8C827A]">Dari 120+ ulasan pecinta kopi</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="{{ route('reviews') }}" class="bg-[#3D2C24] text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-black transition">Buka Halaman Review</a>
                         </div>
                     </div>
+                </div>
 
-                    <!-- List Ulasan -->
-                    <div class="space-y-3">
-                        <div class="bg-[#FCF9F2] border border-[#E5DEC9] rounded-xl p-4 text-xs">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="font-bold">Nadya P.</span>
-                                <span class="text-amber-600 font-bold">★ 5.0</span>
-                            </div>
-                            <p class="text-[#6E645E]">Tempatnya cozy banget, cocok buat kerja atau nugas. Baristanya ramah dan kopinya enak!</p>
-                        </div>
-                        <div class="bg-[#FCF9F2] border border-[#E5DEC9] rounded-xl p-4 text-xs">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="font-bold">Raka A.</span>
-                                <span class="text-amber-600 font-bold">★ 5.0</span>
-                            </div>
-                            <p class="text-[#6E645E]">Rekomendasi manual brew-nya juara. Suasana malam hari juga adem dan estetik.</p>
-                        </div>
+                <!-- TAB 3: FASILITAS -->
+                <div x-show="activeTab === 'info'" class="space-y-4" style="display: none;">
+                    <div class="bg-white border border-[#E5DEC9] p-6 rounded-3xl space-y-3 text-xs">
+                        <h3 class="font-serif-title font-bold text-lg mb-2">Fasilitas Lengkap</h3>
+                        <p><strong>Alamat:</strong> Permata Regency, Blok DD No. 9, Baloi Indah, Batam</p>
+                        <p><strong>Jam Operasional:</strong> Setiap hari • 09:30 - 24:00 WIB</p>
+                        <p><strong>Fasilitas:</strong> Wi-Fi gratis, Ruangan ber-AC, Parkir tersedia, Nyaman untuk kerja.</p>
                     </div>
                 </div>
 
             </div>
 
-            <!-- SISI KANAN: Peta & Lokasi + Fasilitas -->
+            <!-- SISI KANAN -->
             <div class="lg:col-span-4 space-y-6">
                 
-                <!-- Peta & Lokasi Box -->
-                <div class="bg-[#FCF9F2] border border-[#E5DEC9] rounded-2xl p-5 shadow-xs">
-                    <h3 class="font-bold text-sm mb-3">Peta & Lokasi</h3>
-                    <!-- Dummy Map Image -->
-                    <div class="h-36 rounded-xl overflow-hidden mb-3 border border-[#E5DEC9] relative">
-                        <img src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&w=500&q=80" alt="Map" class="w-full h-full object-cover">
+                <div class="bg-white border border-[#E5DEC9] rounded-3xl p-5 shadow-xs space-y-4">
+                    <h3 class="font-bold text-sm">Peta & Lokasi</h3>
+                    <div class="h-44 rounded-2xl overflow-hidden bg-[#EAE2D5] border border-[#E5DEC9] relative">
+                        <img src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&w=500&q=80" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black/10 flex items-center justify-center">
+                            <div class="bg-[#3D2C24] text-white p-2 rounded-full shadow-lg">
+                                <i data-lucide="map-pin" class="w-4 h-4"></i>
+                            </div>
+                        </div>
                     </div>
-                    <p class="font-bold text-xs mb-1">Grind Now Coffee Bar</p>
-                    <p class="text-[11px] text-[#6E645E] mb-4">Komplek Batam Centre, No. 20, Batam Kota, Batam</p>
-                    
-                    <button class="w-full bg-[#3D2C24] text-white py-2.5 rounded-xl text-xs font-semibold hover:bg-black transition flex items-center justify-center gap-1.5 mb-4 shadow-sm">
-                        <i data-lucide="navigation" class="w-3.5 h-3.5"></i> Petunjuk Arah
-                    </button>
 
-                    <div class="border-t border-[#E5DEC9] pt-3 flex items-center gap-2 text-[11px] text-[#6E645E]">
-                        <i data-lucide="clock" class="w-3.5 h-3.5 text-[#3D2C24]"></i>
-                        <span>Buka operasional: 09:00 - 23:00 WIB</span>
+                    <div>
+                        <h4 class="font-bold text-xs">Grind Now Coffe Bar</h4>
+                        <p class="text-[11px] text-[#8C827A] mt-0.5">Permata Regency, Blok DD No. 9, Baloi Indah, Batam</p>
                     </div>
+
+                    <a href="https://maps.google.com" target="_blank" class="block w-full bg-[#3D2C24] text-white text-center py-2.5 rounded-xl text-xs font-semibold hover:bg-black transition shadow-xs flex items-center justify-center gap-2">
+                        <i data-lucide="navigation" class="w-3.5 h-3.5"></i> Petunjuk Arah
+                    </a>
                 </div>
 
-                <!-- Fasilitas Box -->
-                <div class="bg-[#FCF9F2] border border-[#E5DEC9] rounded-2xl p-5 shadow-xs">
-                    <h3 class="font-bold text-sm mb-4">Fasilitas</h3>
-                    <div class="grid grid-cols-2 gap-3 text-xs text-[#6E645E]">
-                        <div class="flex items-center gap-2"><i data-lucide="wifi" class="w-4 h-4 text-[#3D2C24]"></i><span>Wi-Fi Gratis</span></div>
-                        <div class="flex items-center gap-2"><i data-lucide="sun" class="w-4 h-4 text-[#3D2C24]"></i><span>Outdoor Area</span></div>
-                        <div class="flex items-center gap-2"><i data-lucide="wind" class="w-4 h-4 text-[#3D2C24]"></i><span>Ruangan AC</span></div>
-                        <div class="flex items-center gap-2"><i data-lucide="utensils" class="w-4 h-4 text-[#3D2C24]"></i><span>Food Bar</span></div>
-                        <div class="flex items-center gap-2"><i data-lucide="car" class="w-4 h-4 text-[#3D2C24]"></i><span>Parkir Luas</span></div>
-                        <div class="flex items-center gap-2"><i data-lucide="zap" class="w-4 h-4 text-[#3D2C24]"></i><span>Colokan Listrik</span></div>
+                <div class="bg-[#F4EFE6] border border-[#E5DEC9] rounded-3xl p-5 shadow-xs space-y-3">
+                    <h3 class="font-bold text-sm">Fasilitas</h3>
+                    <div class="grid grid-cols-2 gap-2.5 text-xs text-[#3D2C24]">
+                        <div class="flex items-center gap-2 bg-white p-2.5 rounded-2xl border border-[#E5DEC9]">
+                            <i data-lucide="wifi" class="w-4 h-4 text-[#8C827A]"></i> Wi-Fi gratis
+                        </div>
+                        <div class="flex items-center gap-2 bg-white p-2.5 rounded-2xl border border-[#E5DEC9]">
+                            <i data-lucide="zap" class="w-4 h-4 text-[#8C827A]"></i> Stopkontak
+                        </div>
+                        <div class="flex items-center gap-2 bg-white p-2.5 rounded-2xl border border-[#E5DEC9]">
+                            <i data-lucide="wind" class="w-4 h-4 text-[#8C827A]"></i> Ruangan ber-AC
+                        </div>
+                        <div class="flex items-center gap-2 bg-white p-2.5 rounded-2xl border border-[#E5DEC9]">
+                            <i data-lucide="sun" class="w-4 h-4 text-[#8C827A]"></i> Area luar
+                        </div>
                     </div>
                 </div>
 
@@ -309,72 +372,131 @@
 
         </div>
 
-        <!-- BAGIAN BAWAH: Cafe Serupa yang Mungkin Anda Suka -->
-        <div class="mt-16 border-t border-[#E5DEC9] pt-10">
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h3 class="text-xl font-serif-title font-bold">Cafe Serupa yang Mungkin Anda Suka</h3>
-                    <p class="text-xs text-[#6E645E]">Tempat baru, cerita kopi berikutnya.</p>
+        <!-- SECTION BAWAH 1: REVIEW & RATING (Sesuai Figma) -->
+        <section class="space-y-4 pt-10 border-t border-[#E5DEC9]">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-serif-title font-bold">Review & Rating</h2>
+                <a href="{{ route('reviews') }}" class="text-xs font-bold text-[#3D2C24] hover:underline">Tulis ulasan</a>
+            </div>
+
+            <div class="bg-white border border-[#E5DEC9] rounded-3xl p-6 shadow-xs space-y-5">
+                <div class="flex items-center gap-4">
+                    <div class="text-4xl font-serif-title font-bold">4.9</div>
+                    <div>
+                        <div class="text-amber-500 text-sm">★★★★★</div>
+                        <p class="text-xs text-[#8C827A]">Dari 120+ ulasan pecinta kopi</p>
+                    </div>
                 </div>
-                <div class="flex gap-2">
-                    <button class="w-8 h-8 rounded-full border border-[#E5DEC9] bg-white flex items-center justify-center text-xs hover:bg-gray-50">&lt;</button>
-                    <button class="w-8 h-8 rounded-full border border-[#E5DEC9] bg-white flex items-center justify-center text-xs hover:bg-gray-50">&gt;</button>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-3 border-t border-[#F4EFE6]">
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs font-bold">
+                            <span>Nadia P.</span>
+                            <span class="text-amber-600">★ 5.0</span>
+                        </div>
+                        <p class="text-xs text-[#6E645E]">Kopi susunya pas, tidak terlalu manis. Suka suasana hangatnya untuk ngobrol sore. Croissant-nya juga renyah!</p>
+                        <p class="text-[10px] text-[#8C827A]">4 Oktober 2026</p>
+                    </div>
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs font-bold">
+                            <span>Raika A.</span>
+                            <span class="text-amber-600">★ 5.0</span>
+                        </div>
+                        <p class="text-xs text-[#6E645E]">V60 Flores-nya wangi dan bersih. Barista membantu pilih biji sesuai selera. Ada stopkontak untuk kerja santai.</p>
+                        <p class="text-[10px] text-[#8C827A]">2 Oktober 2026</p>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <a href="{{ route('reviews') }}" class="text-xs font-bold text-[#3D2C24] hover:underline">Lihat semua 128 ulasan →</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION BAWAH 2: CAFE SERUPA YANG MUNGKIN ANDA SUKA (Sesuai Figma) -->
+        <section class="space-y-4 pt-8">
+            <div class="flex justify-between items-end">
+                <div>
+                    <h2 class="text-xl font-serif-title font-bold">Cafe Serupa yang Mungkin Anda Suka</h2>
+                    <p class="text-xs text-[#8C827A]">Tempat baru, cerita kopi berikutnya.</p>
+                </div>
+                <div class="flex gap-1.5">
+                    <button class="w-8 h-8 rounded-full bg-white border border-[#E5DEC9] flex items-center justify-center text-[#3D2C24] hover:bg-[#F4EFE6] cursor-pointer">‹</button>
+                    <button class="w-8 h-8 rounded-full bg-white border border-[#E5DEC9] flex items-center justify-center text-[#3D2C24] hover:bg-[#F4EFE6] cursor-pointer">›</button>
                 </div>
             </div>
 
-            <!-- Grid 3 Cafe Serupa -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 
-                <!-- Cafe 1 -->
-                <div class="bg-[#FCF9F2] border border-[#E5DEC9] rounded-2xl p-3 shadow-xs">
-                    <div class="h-44 rounded-xl overflow-hidden mb-3 relative">
-                        <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=500&q=80" alt="Cafe" class="w-full h-full object-cover">
+                <!-- Rekomendasi 1 -->
+                <div class="bg-white border border-[#E5DEC9] rounded-3xl p-3.5 shadow-xs space-y-3" x-data="{ bookmarked: false }">
+                    <div class="h-44 rounded-2xl overflow-hidden relative bg-[#EAE2D5]">
+                        <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover">
+                        <button @click="bookmarked = !bookmarked" :class="bookmarked ? 'bg-[#3D2C24] text-white' : 'bg-white/90 text-[#3D2C24] hover:bg-white'" class="absolute top-2.5 right-2.5 p-2 rounded-full transition shadow-xs cursor-pointer">
+                            <i data-lucide="bookmark" class="w-3.5 h-3.5"></i>
+                        </button>
                     </div>
-                    <div class="flex justify-between items-center mb-1">
-                        <h4 class="font-bold text-sm">Temu Kopi</h4>
-                        <span class="text-xs font-bold bg-[#EEF2DA] px-2 py-0.5 rounded">★ 4.8</span>
+                    <div class="flex justify-between items-start">
+                        <h3 class="font-bold text-sm">Temu Kopi</h3>
+                        <span class="text-xs font-bold text-[#3D2C24]">★ 4.8</span>
                     </div>
-                    <p class="text-[11px] text-[#6E645E] mb-3">Batam Kota • $$</p>
-                    <span class="inline-block px-3 py-1 bg-white border border-[#E5DEC9] rounded-lg text-[10px] font-medium text-[#6E645E]">Rekomendasi</span>
+                    <p class="text-[11px] text-[#8C827A]">Batam Kota • $$</p>
+                    <div>
+                        <span class="bg-[#F8F5F0] border border-[#E5DEC9] text-[#6E645E] text-[10px] px-2.5 py-1 rounded-lg font-medium">Kopi spesialti</span>
+                    </div>
                 </div>
 
-                <!-- Cafe 2 -->
-                <div class="bg-[#FCF9F2] border border-[#E5DEC9] rounded-2xl p-3 shadow-xs">
-                    <div class="h-44 rounded-xl overflow-hidden mb-3 relative">
-                        <img src="https://images.unsplash.com/photo-1559925393-8be0ec4767c8?auto=format&fit=crop&w=500&q=80" alt="Cafe" class="w-full h-full object-cover">
+                <!-- Rekomendasi 2 -->
+                <div class="bg-white border border-[#E5DEC9] rounded-3xl p-3.5 shadow-xs space-y-3" x-data="{ bookmarked: true }">
+                    <div class="h-44 rounded-2xl overflow-hidden relative bg-[#EAE2D5]">
+                        <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover">
+                        <button @click="bookmarked = !bookmarked" :class="bookmarked ? 'bg-[#3D2C24] text-white' : 'bg-white/90 text-[#3D2C24] hover:bg-white'" class="absolute top-2.5 right-2.5 p-2 rounded-full transition shadow-xs cursor-pointer">
+                            <i data-lucide="bookmark" class="w-3.5 h-3.5"></i>
+                        </button>
                     </div>
-                    <div class="flex justify-between items-center mb-1">
-                        <h4 class="font-bold text-sm">Ruang Seduh</h4>
-                        <span class="text-xs font-bold bg-[#EEF2DA] px-2 py-0.5 rounded">★ 4.7</span>
+                    <div class="flex justify-between items-start">
+                        <h3 class="font-bold text-sm">Ruang Seduh</h3>
+                        <span class="text-xs font-bold text-[#3D2C24]">★ 4.7</span>
                     </div>
-                    <p class="text-[11px] text-[#6E645E] mb-3">Lubuk Baja • $$</p>
-                    <span class="inline-block px-3 py-1 bg-white border border-[#E5DEC9] rounded-lg text-[10px] font-medium text-[#6E645E]">Suasana adem & santai</span>
+                    <p class="text-[11px] text-[#8C827A]">Lubuk Baja • $$</p>
+                    <div>
+                        <span class="bg-[#F8F5F0] border border-[#E5DEC9] text-[#6E645E] text-[10px] px-2.5 py-1 rounded-lg font-medium">Nyaman untuk kerja</span>
+                    </div>
                 </div>
 
-                <!-- Cafe 3 -->
-                <div class="bg-[#FCF9F2] border border-[#E5DEC9] rounded-2xl p-3 shadow-xs">
-                    <div class="h-44 rounded-xl overflow-hidden mb-3 relative">
-                        <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=500&q=80" alt="Cafe" class="w-full h-full object-cover">
+                <!-- Rekomendasi 3 -->
+                <div class="bg-white border border-[#E5DEC9] rounded-3xl p-3.5 shadow-xs space-y-3" x-data="{ bookmarked: false }">
+                    <div class="h-44 rounded-2xl overflow-hidden relative bg-[#EAE2D5]">
+                        <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover">
+                        <button @click="bookmarked = !bookmarked" :class="bookmarked ? 'bg-[#3D2C24] text-white' : 'bg-white/90 text-[#3D2C24] hover:bg-white'" class="absolute top-2.5 right-2.5 p-2 rounded-full transition shadow-xs cursor-pointer">
+                            <i data-lucide="bookmark" class="w-3.5 h-3.5"></i>
+                        </button>
                     </div>
-                    <div class="flex justify-between items-center mb-1">
-                        <h4 class="font-bold text-sm">Senja Coffee House</h4>
-                        <span class="text-xs font-bold bg-[#EEF2DA] px-2 py-0.5 rounded">★ 4.6</span>
+                    <div class="flex justify-between items-start">
+                        <h3 class="font-bold text-sm">Senja Coffee House</h3>
+                        <span class="text-xs font-bold text-[#3D2C24]">★ 4.8</span>
                     </div>
-                    <p class="text-[11px] text-[#6E645E] mb-3">Sekupang • $$</p>
-                    <span class="inline-block px-3 py-1 bg-white border border-[#E5DEC9] rounded-lg text-[10px] font-medium text-[#6E645E]">Suasana senja</span>
+                    <p class="text-[11px] text-[#8C827A]">Sekupang • $$</p>
+                    <div>
+                        <span class="bg-[#F8F5F0] border border-[#E5DEC9] text-[#6E645E] text-[10px] px-2.5 py-1 rounded-lg font-medium">Suasana santai</span>
+                    </div>
                 </div>
 
             </div>
-        </div>
+        </section>
 
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-[#FCF9F2] border-t border-[#E5DEC9] py-6 px-6 mt-16 text-center text-xs text-[#8C827A]">
-        © 2026 Coffenfo. Platform review kafe terbaik di Batam.
+    <!-- FOOTER -->
+    <footer class="bg-[#F8F5F0] border-t border-[#E5DEC9] py-8 px-6 md:px-12 mt-16 flex flex-col md:flex-row justify-between items-center text-xs text-[#8C827A] gap-4">
+        <p>© 2026 Coffenfo • Diracik untuk pecinta kopi</p>
+        <div class="flex gap-6">
+            <a href="#" class="hover:underline">Kebijakan Privasi</a>
+            <a href="#" class="hover:underline">Butuh bantuan?</a>
+        </div>
     </footer>
 
-    <!-- Script Init Icon -->
+    <!-- Init Lucide Icons -->
     <script>
         lucide.createIcons();
     </script>
