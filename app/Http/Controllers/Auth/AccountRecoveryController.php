@@ -151,11 +151,15 @@ class AccountRecoveryController extends Controller
             }
 
             DB::table('user_tokens')->where('id', $token->id)->update(['used_at' => now()]);
-            $user->forceFill(['password' => Hash::make($newPassword)])->save();
+            $user->forceFill([
+                'password' => Hash::make($newPassword),
+                'password_changed_at' => now(),
+            ])->save();
             DB::table('refresh_tokens')
                 ->where('user_id', $user->id)
                 ->whereNull('revoked_at')
                 ->update(['revoked_at' => now()]);
+            $user->tokens()->delete();
             DB::table('audit_logs')->insert([
                 'actor_user_id' => $user->id,
                 'actor_role' => $user->role,

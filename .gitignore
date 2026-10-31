@@ -21,6 +21,5 @@ API_RULES.md
 DATABASE.md
 log.md
 PRD.md
-api_tasks.md
-log_api.md
-Coffenfo.postman_collection.json
+api_task.md
+Coffenfo.postman_collection.js

@@ -21,7 +21,7 @@ class PasswordResetLinkNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $resetUrl = rtrim(config('app.url'), '/') . '/reset-password/' . urlencode($this->token);
+        $resetUrl = route('auth.password.reset.link', ['token' => $this->token]);
 
         return (new MailMessage())
             ->subject('Reset kata sandi Coffenfo')

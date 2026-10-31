@@ -1,0 +1,400 @@
+{
+  "info": {
+    "_postman_id": "68fdc96b-51eb-4eef-9c61-cd7dd5437bd5",
+    "name": "Coffenfo API",
+    "description": "Auth requests. Login tests require login_identifier and login_password for an existing account. Run against a migrated local database and working mail transport. Copy email tokens into verification_token or reset_token before calling the corresponding endpoint. Resend verification requires a valid access_token. For sessions, run Login → Refresh → Logout; run Login again before Logout all.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000" },
+    { "key": "register_email", "value": "" },
+    { "key": "first_register_data", "value": "" },
+    { "key": "verification_token", "value": "" },
+    { "key": "reset_token", "value": "" },
+    { "key": "access_token", "value": "" },
+    { "key": "login_identifier", "value": "" },
+    { "key": "login_invalid_identifier", "value": "unknown-login@example.test" },
+    { "key": "login_password", "value": "" },
+    { "key": "login_device_id", "value": "postman-android-device" },
+    { "key": "refresh_token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth / Register / new account",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set('register_email', `register-${Date.now()}-${Math.floor(Math.random() * 100000)}@example.test`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Accepted with generic 202 response', () => pm.response.to.have.status(202));",
+              "const body = pm.response.json();",
+              "pm.test('Response uses the standard success envelope', () => { pm.expect(body.success).to.eql(true); pm.expect(body.data.message).to.be.a('string'); pm.expect(body.request_id).to.be.a('string'); });",
+              "pm.test('Response does not expose internal or public user identifiers', () => { pm.expect(body.data).not.to.have.property('user_public_id'); pm.expect(body.data).not.to.have.property('id'); });",
+              "pm.collectionVariables.set('first_register_data', JSON.stringify(body.data));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"full_name\": \"Postman Test User\",\n  \"email\": \"{{register_email}}\",\n  \"password\": \"Coffenfo-Test-2026!\",\n  \"username\": \"postman_{{$timestamp}}\",\n  \"bean_type_id\": null,\n  \"roast_level_id\": null,\n  \"personalization_enabled\": false\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/api/v1/auth/register", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "auth", "register" ] }
+      }
+    },
+    {
+      "name": "Auth / Register / duplicate email is not disclosed",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Duplicate email receives the same accepted status', () => pm.response.to.have.status(202));",
+              "const body = pm.response.json();",
+              "pm.test('Duplicate response uses the generic success envelope', () => { pm.expect(body.success).to.eql(true); pm.expect(body.request_id).to.be.a('string'); pm.expect(JSON.stringify(body.data)).to.eql(pm.collectionVariables.get('first_register_data')); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"full_name\": \"Postman Test User\",\n  \"email\": \"{{register_email}}\",\n  \"password\": \"Coffenfo-Test-2026!\",\n  \"personalization_enabled\": false\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/api/v1/auth/register", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "auth", "register" ] }
+      }
+    },
+    {
+      "name": "Auth / Register / rejects short password and client role",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Validation fails with 422', () => pm.response.to.have.status(422));",
+              "const body = pm.response.json();",
+              "pm.test('Validation uses the standard error envelope and rejects role', () => { pm.expect(body.success).to.eql(false); pm.expect(body.error.code).to.eql('VALIDATION_ERROR'); pm.expect(body.request_id).to.be.a('string'); pm.expect(body.error.details.some((item) => item.field === 'password')).to.eql(true); pm.expect(body.error.details.some((item) => item.field === 'role')).to.eql(true); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"full_name\": \"Postman Validation User\",\n  \"email\": \"invalid-register@example.test\",\n  \"password\": \"short\",\n  \"role\": \"admin\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/api/v1/auth/register", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "auth", "register" ] }
+      }
+    },
+    {
+      "name": "Auth / Resend verification (authenticated)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Resend response is generic and successful', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Response uses the standard success envelope', () => { pm.expect(body.success).to.eql(true); pm.expect(body.request_id).to.be.a('string'); pm.expect(body.data.message).to.eql('Jika email akun belum terverifikasi, tautan verifikasi akan dikirim.'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+        "url": { "raw": "{{base_url}}/api/v1/auth/resend-verification", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "auth", "resend-verification" ] }
+      }
+    },
+    {
+      "name": "Auth / Verify email",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Verification succeeds', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Response uses the standard success envelope', () => { pm.expect(body.success).to.eql(true); pm.expect(body.request_id).to.be.a('string'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"token\": \"{{verification_token}}\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": { "raw": "{{base_url}}/api/v1/auth/verify-email", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "auth", "verify-email" ] }
+      }
+    },
+    {
+      "name": "Auth / Forgot password",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Forgot password always returns 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Response does not disclose account existence', () => { pm.expect(body.success).to.eql(true); pm.expect(body.data.message).to.eql('Jika email terdaftar, instruksi reset kata sandi akan dikirim.'); pm.expect(body.request_id).to.be.a('string'); pm.expect(body.data).not.to.have.property('email'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{register_email}}\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": { "raw": "{{base_url}}/api/v1/auth/forgot-password", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "auth", "forgot-password" ] }
+      }
+    },
+    {
+      "name": "Auth / Reset password",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Password reset succeeds', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Response uses the standard success envelope', () => { pm.expect(body.success).to.eql(true); pm.expect(body.request_id).to.be.a('string'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"token\": \"{{reset_token}}\",\n  \"new_password\": \"New-Coffenfo-2026!\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": { "raw": "{{base_url}}/api/v1/auth/reset-password", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "auth", "reset-password" ] }
+      }
+    },
+    {
+      "name": "Auth / Login / valid credentials (mobile)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Login succeeds', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Response contains bearer access token, refresh token, and public user data', () => { pm.expect(body.success).to.eql(true); pm.expect(body.request_id).to.be.a('string'); pm.expect(body.data.access_token).to.be.a('string'); pm.expect(body.data.refresh_token).to.be.a('string'); pm.expect(body.data.token_type).to.eql('Bearer'); pm.expect(body.data.expires_in).to.eql(900); pm.expect(body.data.user.public_id).to.be.a('string'); pm.expect(body.data.user).not.to.have.property('id'); });",
+              "pm.collectionVariables.set('access_token', body.data.access_token);",
+              "pm.collectionVariables.set('refresh_token', body.data.refresh_token);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-Client-Platform", "value": "android" },
+          { "key": "X-App-Version", "value": "1.0.0" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"identifier\": \"{{login_identifier}}\",\n  \"password\": \"{{login_password}}\",\n  \"device\": {\n    \"device_id\": \"{{login_device_id}}\",\n    \"device_name\": \"Postman Android\",\n    \"platform\": \"android\",\n    \"app_version\": \"1.0.0\"\n  }\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/api/v1/auth/login", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "auth", "login" ] }
+      }
+    },
+    {
+      "name": "Auth / Refresh / rotate mobile tokens",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Refresh succeeds', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Refresh returns rotated bearer and refresh tokens', () => { pm.expect(body.success).to.eql(true); pm.expect(body.request_id).to.be.a('string'); pm.expect(body.data.access_token).to.be.a('string'); pm.expect(body.data.refresh_token).to.be.a('string'); pm.expect(body.data.token_type).to.eql('Bearer'); pm.expect(body.data.expires_in).to.eql(900); });",
+              "pm.collectionVariables.set('access_token', body.data.access_token);",
+              "pm.collectionVariables.set('refresh_token', body.data.refresh_token);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-Client-Platform", "value": "android" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": { "raw": "{{base_url}}/api/v1/auth/refresh", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "auth", "refresh" ] }
+      }
+    },
+    {
+      "name": "Auth / Logout / current session",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Current session logout succeeds', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Logout uses the standard success envelope', () => { pm.expect(body.success).to.eql(true); pm.expect(body.data.message).to.eql('Sesi berhasil dikeluarkan.'); pm.expect(body.request_id).to.be.a('string'); });",
+              "pm.collectionVariables.unset('access_token');",
+              "pm.collectionVariables.unset('refresh_token');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{access_token}}" },
+          { "key": "X-Client-Platform", "value": "android" }
+        ],
+        "url": { "raw": "{{base_url}}/api/v1/auth/logout", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "auth", "logout" ] }
+      }
+    },
+    {
+      "name": "Auth / Login / valid credentials (mobile, before logout all)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Login succeeds', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.collectionVariables.set('access_token', body.data.access_token);",
+              "pm.collectionVariables.set('refresh_token', body.data.refresh_token);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-Client-Platform", "value": "android" },
+          { "key": "X-App-Version", "value": "1.0.0" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"identifier\": \"{{login_identifier}}\",\n  \"password\": \"{{login_password}}\",\n  \"device\": {\n    \"device_id\": \"{{login_device_id}}\",\n    \"device_name\": \"Postman Android\",\n    \"platform\": \"android\",\n    \"app_version\": \"1.0.0\"\n  }\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/api/v1/auth/login", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "auth", "login" ] }
+      }
+    },
+    {
+      "name": "Auth / Logout all / all sessions",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Logout all succeeds', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Logout all uses the standard success envelope', () => { pm.expect(body.success).to.eql(true); pm.expect(body.data.message).to.eql('Semua sesi berhasil dikeluarkan.'); pm.expect(body.request_id).to.be.a('string'); });",
+              "pm.collectionVariables.unset('access_token');",
+              "pm.collectionVariables.unset('refresh_token');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{access_token}}" },
+          { "key": "X-Client-Platform", "value": "android" }
+        ],
+        "url": { "raw": "{{base_url}}/api/v1/auth/logout-all", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "auth", "logout-all" ] }
+      }
+    },
+    {
+      "name": "Profile / Get current user",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Profile response has public fields only', () => { pm.response.to.have.status(200); const body = pm.response.json(); pm.expect(body.success).to.eql(true); pm.expect(body.data.public_id).to.be.a('string'); pm.expect(body.data).not.to.have.property('id'); pm.expect(body.data).not.to.have.property('password'); });"
+      ] } }],
+      "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/api/v1/me", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "me" ] } }
+    },
+    {
+      "name": "Profile / Update profile",
+      "request": { "method": "PATCH", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"full_name\": \"Nama Pengguna\",\n  \"username\": \"nama_pengguna\"\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{base_url}}/api/v1/me", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "me" ] } }
+    },
+    {
+      "name": "Profile / Update password",
+      "request": { "method": "PATCH", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"current_password\": \"{{login_password}}\",\n  \"new_password\": \"replace-with-a-new-password\"\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{base_url}}/api/v1/me/password", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "me", "password" ] } }
+    },
+    {
+      "name": "Profile / Update preferences",
+      "request": { "method": "PUT", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"bean_type_id\": null,\n  \"roast_level_id\": null\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{base_url}}/api/v1/me/preferences", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "me", "preferences" ] } }
+    },
+    {
+      "name": "Profile / Delete account (destructive)",
+      "request": { "method": "DELETE", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"password\": \"{{login_password}}\"\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{base_url}}/api/v1/me", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "me" ] } }
+    },
+    {
+      "name": "Auth / Login / invalid credentials are generic",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Invalid credentials return 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('Failure does not reveal whether the identifier exists', () => { pm.expect(body.success).to.eql(false); pm.expect(body.error.code).to.eql('UNAUTHENTICATED'); pm.expect(body.error.message).to.eql('Email/username atau kata sandi salah.'); pm.expect(body.request_id).to.be.a('string'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-Client-Platform", "value": "android" },
+          { "key": "X-App-Version", "value": "1.0.0" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"identifier\": \"{{login_invalid_identifier}}\",\n  \"password\": \"definitely-wrong-password\",\n  \"device\": {\n    \"device_id\": \"{{login_device_id}}\",\n    \"device_name\": \"Postman Android\",\n    \"platform\": \"android\",\n    \"app_version\": \"1.0.0\"\n  }\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/api/v1/auth/login", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "auth", "login" ] }
+      }
+    }
+  ]
+}

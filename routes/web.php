@@ -2,10 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\EmailVerificationLinkController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
 
 Route::get('/verify-email/{token}', EmailVerificationLinkController::class)
     ->where('token', '[A-Za-z0-9]+')
     ->name('auth.email.verify.link');
+
+Route::get('/reset-password/{token}', PasswordResetLinkController::class)
+    ->where('token', '[A-Za-z0-9]+')
+    ->name('auth.password.reset.link');
 
 // Mengarahkan halaman utama (/) langsung ke view login
 Route::get('/', function () {

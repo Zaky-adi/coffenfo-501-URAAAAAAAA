@@ -3,7 +3,7 @@
 ## Informasi Dokumen
 
 - **Tanggal dibuat:** 2026-10-28
-- **Tanggal revisi terakhir:** 2026-10-28
+- **Tanggal revisi terakhir:** 2026-10-29
 - **Sumber urutan:** `API_RULES.md` bagian 11 dan `PRD.md` bagian 5 serta 14.
 - **Base path:** `/api/v1`
 - **AI yang digunakan untuk membuat dokumen ini:** Codex
@@ -23,11 +23,11 @@ Tanggal pada task yang belum dimulai dibiarkan `—`. Isi tanggal dibuat saat im
 | Urutan | Modul | Task dan endpoint | Status | Tanggal dibuat | Tanggal revisi | Prompt |
 |---:|---|---|---|---|---|---|
 | 1 | 02 Auth | Registrasi `POST /auth/register` | **Revisi** | 2026-10-26 | 2026-10-28 | P-01, P-02, P-06, P-09 |
-| 2 | 02 Auth | Login `POST /auth/login` | Belum | — | — | Belum ada prompt implementasi; spesifikasi API_RULES/PRD |
-| 3 | 02 Auth / 13 Sesi | Refresh, logout sesi saat ini, logout semua: `POST /auth/refresh`, `/auth/logout`, `/auth/logout-all` | Belum | — | — | Belum ada prompt implementasi; spesifikasi API_RULES/PRD |
-| 4 | 02 Auth | Lupa dan reset kata sandi: `POST /auth/forgot-password`, `POST /auth/reset-password` | **Revisi** | 2026-10-28 | 2026-10-28 | P-05 |
+| 2 | 02 Auth | Login `POST /auth/login` | **Revisi** | 2026-10-29 | 2026-10-29 | P-13, P-14 |
+| 3 | 02 Auth / 13 Sesi | Refresh, logout sesi saat ini, logout semua: `POST /auth/refresh`, `/auth/logout`, `/auth/logout-all` | **Revisi** | 2026-10-29 | 2026-10-29 | P-15 |
+| 4 | 02 Auth | Lupa dan reset kata sandi: `POST /auth/forgot-password`, `POST /auth/reset-password`, `GET /reset-password/{token}` | **Revisi** | 2026-10-28 | 2026-10-29 | P-05, P-11, P-12 |
 | 5 | 02 Auth | Verifikasi email dan kirim ulang verifikasi: `GET /verify-email/{token}`, `POST /auth/verify-email`, `POST /auth/resend-verification` | **Revisi** | 2026-10-28 | 2026-10-28 | P-05, P-07, P-10 |
-| 6 | 02 Auth | Profil, kata sandi, preferensi, dan penghapusan akun: `GET/PATCH /me`, `PATCH /me/password`, `PUT /me/preferences`, `DELETE /me` | Belum | — | — | Belum ada prompt implementasi; spesifikasi API_RULES/PRD |
+| 6 | 02 Auth | Profil, kata sandi, preferensi, dan penghapusan akun: `GET/PATCH /me`, `PATCH /me/password`, `PUT /me/preferences`, `DELETE /me` | **Revisi** | 2026-10-31 | 2026-10-31 | P-16 |
 | 7 | 01 Master | Baca master publik: `GET /master/areas`, `/beans`, `/species`, `/roast-levels`, `/brew-methods`, `/facilities`, `/menu-categories` | Belum | — | — | Belum ada prompt implementasi; spesifikasi API_RULES/PRD |
 | 8 | 01 Master | Kelola master oleh admin: `POST/PATCH /admin/master/{type}`, `/admin/master/{type}/{id}` | Belum | — | — | Belum ada prompt implementasi; spesifikasi API_RULES/PRD |
 | 9 | 03 Katalog | Daftar dan detail cafe: `GET /cafes`, `/cafes/nearby`, `/cafes/popular`, `/cafes/featured`, `/cafes/{id}`, `/cafes/{id}/similar`, `/testimonials` | Belum | — | — | Belum ada prompt implementasi; spesifikasi API_RULES/PRD |
@@ -58,10 +58,15 @@ Tanggal pada task yang belum dimulai dibiarkan `—`. Isi tanggal dibuat saat im
 
 ## Catatan Task Register
 
+- Endpoint refresh, logout sesi saat ini, dan logout semua sudah ditambahkan. Refresh merotasi token, menyimpan hash token baru, memberi grace window 20 detik untuk request paralel, serta mencabut satu family saat reuse terdeteksi di luar grace window. Task masih **Revisi** sampai request Postman diverifikasi terhadap database aktif.
+
+- Login sudah diimplementasikan dengan pencarian email/username, pesan gagal generik, lockout 5 kali/15 menit, pencatatan `login_attempts`, rate limit IP/perangkat, token Sanctum 15 menit, refresh token tersimpan sebagai hash, serta pencatatan perangkat mobile. Task masih **Revisi** karena PRD meminta JWT sedangkan implementasi repo memakai Sanctum, dan alur belum dijalankan end-to-end di database aktif.
+- Koleksi Postman sudah mendapat skenario login valid dan kredensial salah. Isi `login_identifier` dan `login_password` dengan akun yang sudah ada; request menguji jalur mobile Android.
+
 - Kode register dan koleksi Postman sudah ada, tetapi tes runtime sebelumnya gagal karena database yang digunakan belum memiliki `users.public_id` meski migration tercatat sudah berjalan. Perlu migrasi perbaikan dan tes ulang.
 - Pendaftaran ulang dengan email akun yang belum terverifikasi kini menerbitkan token baru (maksimal 3 kali/jam/alamat); email Brevo dan token baru belum diuji end-to-end.
 - Handler `GET /verify-email/{token}`, `POST /auth/verify-email`, dan authenticated `POST /auth/resend-verification` sudah dibuat. Tautan email memakai route GET yang menjalankan layanan verifikasi yang sama dengan API POST. SMTP diarahkan ke Brevo; pengiriman baru berhasil, tetapi route GET belum dites end-to-end setelah perubahan ini.
-- Endpoint lupa/reset kata sandi sudah dibuat, pencabutan sesi dan audit reset diimplementasikan; alur email belum dites end-to-end.
+- Endpoint lupa/reset kata sandi, route halaman web reset, pencabutan sesi, dan audit reset sudah dibuat; alur email belum dites end-to-end.
 - Password reset belum menerapkan pemeriksaan kata sandi umum/bocor atau normalisasi NFKC.
 - Pemeriksaan password umum/bocor sesuai aturan 10.000-password denylist atau HIBP masih belum dibuat.
 - Request pada koleksi Postman belum dijalankan terhadap database dan transport email aktif.
@@ -129,6 +134,45 @@ Tanggal pada task yang belum dimulai dibiarkan `—`. Isi tanggal dibuat saat im
 
 > sudah bisa, tapi klik urlnya not found
 
+### P-11 — Tautan reset password membuka halaman Not Found
+
+**Tanggal:** 2026-10-29
+
+> dibagian reset password berhasil mengirim link ke email untuk reset tapi masi not found saat dipencet
+
+### P-12 — Catat waktu perubahan password
+
+**Tanggal:** 2026-10-29
+
+> oke, sekarang sisi database, ketika user berhasil mereset password dibagian kolom password_changed_at tidak ada tanggal password ditunggal berapa
+
 ## Pembaruan Task
 
 Saat task mulai atau berubah, perbarui status, tanggal dibuat/revisi, dan tambahkan prompt yang memicu pekerjaan pada tabel. Jika ada perubahan implementasi, catat juga di `log_api.md`.
+
+### Catatan P-16 — Profil pengguna
+
+- Endpoint profil, perubahan kata sandi, preferensi, anonimisasi akun, dan skenario Postman sudah ditambahkan.
+- Status **Revisi** karena alur belum dijalankan terhadap database aktif; upload avatar memerlukan endpoint presigned upload yang belum dikerjakan.
+- `API_RULES.md` menyebut preferensi `bean_type_id`, sedangkan skema aktif memakai tabel `bean_types`; implementasi mengikuti skema repository.
+
+
+### P-13 — Implementasi endpoint login
+
+**Tanggal:** 2026-10-29
+
+> kita bikin endpoint login dulu
+
+
+### P-14 — Perbaikan pemanggilan pencatatan login
+
+**Tanggal:** 2026-10-29
+
+> {"message": "Method App\\Http\\Controllers\\Auth\\LoginController::insertAttempt does not exist."} ini error karna apa?
+
+
+### P-15 — Implementasi refresh dan logout
+
+**Tanggal:** 2026-10-29
+
+> oke sekarang kita bikin refresh dan logoutnya
