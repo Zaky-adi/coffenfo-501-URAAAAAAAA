@@ -16,9 +16,106 @@
     { "key": "login_invalid_identifier", "value": "unknown-login@example.test" },
     { "key": "login_password", "value": "" },
     { "key": "login_device_id", "value": "postman-android-device" },
-    { "key": "refresh_token", "value": "" }
+    { "key": "refresh_token", "value": "" },
+    { "key": "master_id", "value": "1" },
+    { "key": "cafe_public_id", "value": "00000000-0000-4000-8000-000000000000" },
+    { "key": "owner_access_token", "value": "" },
+    { "key": "partnership_id", "value": "00000000-0000-4000-8000-000000000000" }
   ],
   "item": [
+    {
+      "name": "Master / Read areas",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Public master list is cacheable', () => { pm.response.to.have.status(200); pm.expect(pm.response.headers.get('ETag')).to.be.a('string'); pm.expect(pm.response.headers.get('Cache-Control')).to.include('max-age=3600'); pm.expect(pm.response.json().success).to.eql(true); });"
+      ] } }],
+      "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": { "raw": "{{base_url}}/api/v1/master/areas", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "master", "areas" ] } }
+    },
+    {
+      "name": "Master / Read other lists (duplicate and run per path)",
+      "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": { "raw": "{{base_url}}/api/v1/master/beans", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "master", "beans" ] } },
+      "description": "Duplicate this request and change the final path segment to species, roast-levels, brew-methods, facilities, or menu-categories."
+    },
+    {
+      "name": "Admin Master / Create area",
+      "request": { "method": "POST", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Area Baru\",\n  \"slug\": \"area-baru\",\n  \"latitude\": 1.05,\n  \"longitude\": 104.02\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{base_url}}/api/v1/admin/master/areas", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "admin", "master", "areas" ] } }
+    },
+    {
+      "name": "Admin Master / Update area (deactivate)",
+      "request": { "method": "PATCH", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"is_active\": false\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{base_url}}/api/v1/admin/master/areas/{{master_id}}", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "admin", "master", "areas", "{{master_id}}" ] } },
+      "description": "Uses the numeric master id returned when creating an item; master IDs are referenced as foreign keys by the current schema."
+    },
+    {
+      "name": "Cafe Catalog / List",
+      "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": { "raw": "{{base_url}}/api/v1/cafes?sort=rating", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "cafes" ], "query": [{ "key": "sort", "value": "rating" }] } }
+    },
+    {
+      "name": "Cafe Catalog / Nearby",
+      "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": { "raw": "{{base_url}}/api/v1/cafes/nearby?lat=1.0456&lng=104.0305&radius_km=10", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "cafes", "nearby" ], "query": [{ "key": "lat", "value": "1.0456" }, { "key": "lng", "value": "104.0305" }, { "key": "radius_km", "value": "10" }] } }
+    },
+    {
+      "name": "Cafe Catalog / Popular",
+      "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": { "raw": "{{base_url}}/api/v1/cafes/popular", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "cafes", "popular" ] } }
+    },
+    {
+      "name": "Cafe Catalog / Featured",
+      "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": { "raw": "{{base_url}}/api/v1/cafes/featured", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "cafes", "featured" ] } }
+    },
+    {
+      "name": "Cafe Catalog / Detail",
+      "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": { "raw": "{{base_url}}/api/v1/cafes/{{cafe_public_id}}", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "cafes", "{{cafe_public_id}}" ] } }
+    },
+    {
+      "name": "Cafe Catalog / Similar",
+      "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": { "raw": "{{base_url}}/api/v1/cafes/{{cafe_public_id}}/similar", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "cafes", "{{cafe_public_id}}", "similar" ] } }
+    },
+    {
+      "name": "Cafe Catalog / Testimonials",
+      "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": { "raw": "{{base_url}}/api/v1/testimonials", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "testimonials" ] } }
+    },
+    {
+      "name": "Partnership / Submit",
+      "request": { "method": "POST", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "Idempotency-Key", "value": "{{$guid}}" }], "body": { "mode": "raw", "raw": "{\n  \"cafe_name\": \"Kedai Kopi Contoh\",\n  \"owner_name\": \"Pemilik Contoh\",\n  \"whatsapp\": \"081234567890\",\n  \"area_id\": 1\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{base_url}}/api/v1/partnership-requests", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "partnership-requests" ] } }
+    },
+    {
+      "name": "Admin / Partnership requests",
+      "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/api/v1/admin/partnership-requests?status=new", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "admin", "partnership-requests" ], "query": [{ "key": "status", "value": "new" }] } }
+    },
+    {
+      "name": "Admin / Update partnership request",
+      "request": { "method": "PATCH", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"status\": \"contacted\",\n  \"admin_note\": \"Sudah dihubungi\"\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{base_url}}/api/v1/admin/partnership-requests/{{partnership_id}}", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "admin", "partnership-requests", "{{partnership_id}}" ] } }
+    },
+    {
+      "name": "Admin / List cafes",
+      "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/api/v1/admin/cafes?status=pending", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "admin", "cafes" ], "query": [{ "key": "status", "value": "pending" }] } }
+    },
+    {
+      "name": "Admin / Get cafe detail",
+      "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": { "raw": "{{base_url}}/api/v1/admin/cafes/{{cafe_public_id}}", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "admin", "cafes", "{{cafe_public_id}}" ] } }
+    },
+    {
+      "name": "Admin / Update cafe status",
+      "request": { "method": "PATCH", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"status\": \"active\"\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{base_url}}/api/v1/admin/cafes/{{cafe_public_id}}", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "admin", "cafes", "{{cafe_public_id}}" ] } }
+    },
+    {
+      "name": "Admin / Create cafe",
+      "request": { "method": "POST", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Cafe Contoh\",\n  \"address\": \"Batam Center\",\n  \"area_id\": 1,\n  \"latitude\": 1.0456,\n  \"longitude\": 104.0305,\n  \"status\": \"active\"\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{base_url}}/api/v1/admin/cafes", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "admin", "cafes" ] } }
+    },
+    {
+      "name": "Owner / List cafes",
+      "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{owner_access_token}}" }], "url": { "raw": "{{base_url}}/api/v1/owner/cafes", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "owner", "cafes" ] } }
+    },
+    {
+      "name": "Owner / Create cafe application",
+      "request": { "method": "POST", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{owner_access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Cafe Pemilik\",\n  \"address\": \"Batam Center\",\n  \"area_id\": 1,\n  \"latitude\": 1.0456,\n  \"longitude\": 104.0305,\n  \"opening_hours\": [{\"day\": 1, \"open_time\": \"08:00\", \"close_time\": \"22:00\", \"is_closed\": false}]\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{base_url}}/api/v1/owner/cafes", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "owner", "cafes" ] } }
+    },
+    {
+      "name": "Owner / Toggle accepts orders",
+      "request": { "method": "PUT", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{owner_access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"accepts_orders\": true\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{base_url}}/api/v1/owner/cafes/{{cafe_public_id}}/accepts-orders", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "owner", "cafes", "{{cafe_public_id}}", "accepts-orders" ] } }
+    },
+    {
+      "name": "Admin / Feature cafe",
+      "request": { "method": "PUT", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" }], "body": { "mode": "raw", "raw": "{\n  \"cafe_id\": \"{{cafe_public_id}}\",\n  \"label\": \"Pilihan minggu ini\",\n  \"starts_on\": \"2026-11-01\",\n  \"ends_on\": \"2026-11-07\",\n  \"sort_order\": 1\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{base_url}}/api/v1/admin/featured-cafes/1", "host": [ "{{base_url}}" ], "path": [ "api", "v1", "admin", "featured-cafes", "1" ] } }
+    },
     {
       "name": "Auth / Register / new account",
       "event": [

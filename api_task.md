@@ -28,11 +28,11 @@ Tanggal pada task yang belum dimulai dibiarkan `—`. Isi tanggal dibuat saat im
 | 4 | 02 Auth | Lupa dan reset kata sandi: `POST /auth/forgot-password`, `POST /auth/reset-password`, `GET /reset-password/{token}` | **Revisi** | 2026-10-28 | 2026-10-29 | P-05, P-11, P-12 |
 | 5 | 02 Auth | Verifikasi email dan kirim ulang verifikasi: `GET /verify-email/{token}`, `POST /auth/verify-email`, `POST /auth/resend-verification` | **Revisi** | 2026-10-28 | 2026-10-28 | P-05, P-07, P-10 |
 | 6 | 02 Auth | Profil, kata sandi, preferensi, dan penghapusan akun: `GET/PATCH /me`, `PATCH /me/password`, `PUT /me/preferences`, `DELETE /me` | **Revisi** | 2026-10-31 | 2026-10-31 | P-16 |
-| 7 | 01 Master | Baca master publik: `GET /master/areas`, `/beans`, `/species`, `/roast-levels`, `/brew-methods`, `/facilities`, `/menu-categories` | Belum | — | — | Belum ada prompt implementasi; spesifikasi API_RULES/PRD |
-| 8 | 01 Master | Kelola master oleh admin: `POST/PATCH /admin/master/{type}`, `/admin/master/{type}/{id}` | Belum | — | — | Belum ada prompt implementasi; spesifikasi API_RULES/PRD |
-| 9 | 03 Katalog | Daftar dan detail cafe: `GET /cafes`, `/cafes/nearby`, `/cafes/popular`, `/cafes/featured`, `/cafes/{id}`, `/cafes/{id}/similar`, `/testimonials` | Belum | — | — | Belum ada prompt implementasi; spesifikasi API_RULES/PRD |
-| 10 | 03 Katalog | Permintaan mitra dan tindak lanjut admin: `POST /partnership-requests`, `GET/PATCH /admin/partnership-requests` | Belum | — | — | Belum ada prompt implementasi; spesifikasi API_RULES/PRD |
-| 11 | 03 Katalog | Pengelolaan cafe admin/pemilik: `/admin/cafes`, `/admin/cafes/{id}`, `/owner/cafes`, `/owner/cafes/{id}`, accepts-orders, cafe pilihan | Belum | — | — | Belum ada prompt implementasi; spesifikasi API_RULES/PRD |
+| 7 | 01 Master | Baca master publik: `GET /master/areas`, `/beans`, `/species`, `/roast-levels`, `/brew-methods`, `/facilities`, `/menu-categories` | **Revisi** | 2026-10-31 | 2026-10-31 | P-17 |
+| 8 | 01 Master | Kelola master oleh admin: `POST/PATCH /admin/master/{type}`, `/admin/master/{type}/{id}` | **Revisi** | 2026-10-31 | 2026-10-31 | P-17 |
+| 9 | 03 Katalog | Daftar dan detail cafe: `GET /cafes`, `/cafes/nearby`, `/cafes/popular`, `/cafes/featured`, `/cafes/{id}`, `/cafes/{id}/similar`, `/testimonials` | **Revisi** | 2026-11-01 | 2026-11-01 | P-18 |
+| 10 | 03 Katalog | Permintaan mitra dan tindak lanjut admin: `POST /partnership-requests`, `GET/PATCH /admin/partnership-requests` | **Revisi** | 2026-11-01 | 2026-11-01 | P-18 |
+| 11 | 03 Katalog | Pengelolaan cafe admin/pemilik: `/admin/cafes`, `/admin/cafes/{id}`, `/owner/cafes`, `/owner/cafes/{id}`, accepts-orders, cafe pilihan | **Revisi** | 2026-11-01 | 2026-11-01 | P-18 |
 | 12 | 04 Menu | Baca menu cafe: `GET /cafes/{id}/menu` | Belum | — | — | Belum ada prompt implementasi; spesifikasi API_RULES/PRD |
 | 13 | 04 Menu | Kelola menu pemilik: `/owner/cafes/{id}/menu`, `/owner/menu/{id}`, `/owner/menu/{id}/availability` | Belum | — | — | Belum ada prompt implementasi; spesifikasi API_RULES/PRD |
 | 14 | 05 Discovery | Wishlist: `GET/PUT/DELETE /me/wishlist`, `/me/wishlist/{cafe_id}` | Belum | — | — | Belum ada prompt implementasi; spesifikasi API_RULES/PRD |
@@ -155,6 +155,21 @@ Saat task mulai atau berubah, perbarui status, tanggal dibuat/revisi, dan tambah
 - Endpoint profil, perubahan kata sandi, preferensi, anonimisasi akun, dan skenario Postman sudah ditambahkan.
 - Status **Revisi** karena alur belum dijalankan terhadap database aktif; upload avatar memerlukan endpoint presigned upload yang belum dikerjakan.
 - `API_RULES.md` menyebut preferensi `bean_type_id`, sedangkan skema aktif memakai tabel `bean_types`; implementasi mengikuti skema repository.
+
+### Catatan P-17 — Master data
+
+- Endpoint publik untuk tujuh master, cache 1 jam dengan ETag/If-None-Match, serta endpoint admin create/update dan audit sudah dibuat.
+- Status **Revisi** sampai migrasi `2026_10_31_000001` dijalankan dan endpoint diverifikasi memakai akun admin/database.
+- Tabel `areas`, `bean_types`, `facilities`, dan `menu_categories` memerlukan `is_active`/`sort_order`; migrasi menambah kolom yang belum ada.
+- Current master tables use numeric IDs as foreign-key references and do not have public UUIDs; API responses retain these IDs for compatibility with current schema.
+
+### Catatan P-18 — Katalog, kemitraan, dan pengelolaan cafe
+
+- Endpoint katalog publik, form kemitraan + antrean admin, pengelolaan cafe admin/pemilik, status penerimaan pesanan, dan cafe pilihan ditambahkan.
+- Status **Revisi** sampai migrasi idempotensi kemitraan dan request Postman dijalankan di database aktif.
+- Pengelolaan cafe hanya mengembalikan `public_id`; tabel relasi lama masih memakai integer sebagai foreign key.
+- Permintaan kemitraan juga memakai `public_id`; migrasi idempotensi menambahkan UUID dan key unik untuk retry form publik.
+- Pemilik dibatasi ke cafe dengan `owner_id` miliknya, dan status cafe hanya dapat diubah admin.
 
 
 ### P-13 — Implementasi endpoint login

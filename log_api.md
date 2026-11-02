@@ -1,5 +1,53 @@
 ## API Development Log
 
+### Module 03 — Endpoint detail admin cafe
+- **Status:** Revisi (GET detail added; database request verification pending)
+- **Date:** 2026-11-01
+- **Work done:**
+  - Added admin-authenticated `GET /api/v1/admin/cafes/{public_id}` returning cafe profile, owner public ID, opening hours, and photos without internal numeric IDs.
+  - Added the GET detail request to the Postman collection. Existing `PATCH` route remains for updates.
+  - PHP syntax, Postman JSON, and route registration were verified; the endpoint has not yet been requested against the database.
+- **AI:** Codex
+- **Prompt:** "{{base_url}}api/v1/admin/cafes/322e0bcc-d464-4843-acee-8968b4a9f52e untuk link ini hasilnya 200ok tapi tidak menampilkan apapun dari database"
+
+### Module 03 — Katalog cafe, kemitraan, dan pengelolaan cafe
+- **Status:** Revisi (routes/handlers/Postman added; database migrations and end-to-end requests pending)
+- **Date:** 2026-11-01
+- **Work done:**
+  - Added public cafe listing/filter/search with cursor pagination, nearby distance, Bayesian popular ranking, featured cafes, cafe detail/opening status, similar cafes, and featured testimonials.
+  - Added public partnership submission with WhatsApp normalization, IP rate limit, required idempotency key, and admin listing/status updates with audit.
+  - Added a migration for the public partnership idempotency key.
+  - Migration `2026_11_01_000001_add_idempotency_key_to_partnership_requests` adds a backfilled public UUID and nullable unique idempotency key for public form retries without using the authenticated-user idempotency table.
+  - Added owner cafe listing/create/update and accepts-orders toggle, scoped to the authenticated owner; added admin cafe list/create/update/status, plus featured cafe management.
+  - Added role middleware, validation, relationship syncing for cafe specializations/facilities/opening hours, and Postman request examples.
+  - Requests have not been run against the active database. PRD/API_RULES specify Go/JWT; this repository implements Laravel/Sanctum.
+  - Cafe photos can only be attached through ready, unconsumed `cafe_photo` upload records; the presigned upload endpoints remain a separate pending module.
+- **AI:** Codex
+- **Prompt:** "oke, sekarang kita buat endpoint katalog cafe, kemitraan, dan pengelolaan cafenya"
+
+### Module 01 — Master Data
+- **Status:** Revisi (routes and handlers implemented; migration/runtime verification pending)
+- **Date:** 2026-10-31
+- **Work done:**
+  - Added public `GET /api/v1/master/{type}` endpoints for areas, beans, species, roast levels, brew methods, facilities, and menu categories. Inactive rows are hidden; responses use a one-hour cache policy and ETag/If-None-Match.
+  - Added admin-only `POST /api/v1/admin/master/{type}` and `PATCH /api/v1/admin/master/{type}/{id}` with a strict type/field whitelist, input validation, soft deactivation, and append-only audit in the same transaction.
+  - Added migration for `is_active` and missing `sort_order` columns on bean types, facilities, and menu categories.
+  - Added Postman examples for public reads and admin create/update/deactivation.
+  - Database migration and Postman requests have not been run. Current master schema has numeric IDs and no `public_id`; responses retain IDs used by existing foreign keys.
+  - Repository remains Laravel/Sanctum while `API_RULES.md` specifies Go/JWT.
+- **AI:** Codex
+- **Prompt:** "sekarang kita kerjakan master data apinya"
+
+### Module 01 — Perbaikan urutan endpoint areas
+- **Status:** Revisi (query tidak lagi mengasumsikan semua tabel punya `sort_order`; migrasi perlu dijalankan)
+- **Date:** 2026-10-31
+- **Work done:**
+  - Fixed the reported `Unknown column 'sort_order'` error: areas are ordered by name unless the master type has `sort_order`.
+  - Updated migration `2026_10_31_000001` to add missing `is_active` and `sort_order` columns to `areas` too; admin validation and response fields now follow the type's supported columns.
+  - Runtime request has not been repeated yet.
+- **AI:** Codex
+- **Prompt:** "\"message\": \"SQLSTATE[42S22]: Column not found: 1054 Unknown column 'sort_order' in 'order clause' ...\" ini error dari postman saat saya mau test api master/areas"
+
 ### Module 02 — Profil & Preferensi Pengguna
 - **Status:** Revisi (endpoint telah dibuat; verifikasi database/Postman dan alur avatar menunggu modul presigned upload)
 - **Date:** 2026-10-31
