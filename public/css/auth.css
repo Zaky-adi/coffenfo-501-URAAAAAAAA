@@ -1,0 +1,63 @@
+/* ===== 1. Variabel & dasar ===== */
+:root{--ink:#3b2620;--page:#f4efe8;--left:#f3f3d6;--card:#fffdf8;--line:#e8e0d0;--muted:#7d7266;--accent:#cd7f3a;--tab:#f5eee5;--peach:#f3dfca}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px 20px;background:var(--page);font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--ink)}
+a{color:inherit}
+.icon{width:1em;height:1em;flex:none}
+
+/* ===== 2. Kartu 2 kolom ===== */
+.shell{width:100%;max-width:960px;min-height:540px;display:grid;grid-template-columns:40% 1fr;background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 14px 44px rgba(59,38,32,.1)}
+
+/* ===== 3. Panel kiri ===== */
+.left{background:var(--left);padding:30px 32px;display:flex;flex-direction:column}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;text-decoration:none}
+.logo span{width:32px;height:32px;border-radius:9px;background:#fff;display:grid;place-items:center}
+.logo img{width:20px;height:20px;object-fit:contain}
+.eyebrow{display:flex;align-items:center;gap:6px;margin-top:52px;font-size:9.5px;font-weight:600;letter-spacing:.04em;color:#5b4d42}
+.left h1{font-family:'Lora',Georgia,serif;font-size:28px;font-weight:600;line-height:1.2;margin:14px 0 12px}
+.left p{font-size:11.5px;line-height:1.6;color:#5b4d42;max-width:280px}
+.art{margin:auto 0;padding-top:18px}
+.art svg{width:100%;max-width:290px;display:block;margin:0 auto}
+.tagline{display:flex;align-items:center;gap:8px;font-size:11px;color:#5b4d42}
+
+/* ===== 4. Panel kanan ===== */
+.right{background:var(--card);padding:44px 48px;display:flex;flex-direction:column;justify-content:center}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--tab);border-radius:12px;padding:4px;margin-bottom:34px}
+.tabs a{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-radius:9px;font-size:13px;font-weight:600;color:var(--muted);text-decoration:none}
+.tabs a.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(59,38,32,.12)}
+.tabs a.on::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.right h2{font-family:'Lora',Georgia,serif;font-size:26px;font-weight:600;margin-bottom:4px}
+.sub{font-size:12px;color:var(--muted);margin-bottom:22px}
+.pill{display:inline-block;background:#f7e5cf;border-radius:99px;padding:5px 12px;font-size:11px;margin-bottom:18px}
+.pill a{color:var(--accent);font-weight:600}
+
+/* ===== 5. Form ===== */
+label{display:block;font-size:12px;font-weight:700;margin:0 0 6px}
+.field{margin-bottom:16px;position:relative}
+input[type=text],input[type=password]{width:100%;height:46px;border:1px solid var(--line);border-radius:10px;padding:0 16px;background:#fff;font:13px 'Plus Jakarta Sans',sans-serif;color:var(--ink)}
+input::placeholder{color:#a79d90}
+input:focus{outline:2px solid var(--ink);outline-offset:1px}
+.eye{position:absolute;right:12px;bottom:12px;border:0;background:none;cursor:pointer;color:var(--muted);font-size:18px;line-height:0}
+.eye .off{display:none}.eye.show .on{display:none}.eye.show .off{display:block}
+.forgot{display:block;text-align:right;font-size:11px;margin:-4px 0 16px}
+.btn{width:100%;height:46px;display:flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:10px;background:var(--ink);color:#fff;font:600 13px 'Plus Jakarta Sans',sans-serif;cursor:pointer}
+.btn:hover{background:#523830}
+.note{text-align:center;font-size:10.5px;color:var(--muted);margin-top:14px}
+.error{background:#fde6e6;color:#a32a2a;border-radius:8px;padding:10px 12px;font-size:12px;margin-bottom:14px}
+.copy{font-size:11px;color:var(--muted)}
+
+/* ===== 6. Responsif ===== */
+@media(max-width:800px){
+  .shell{grid-template-columns:1fr}
+  .art,.tagline{display:none}
+  .eyebrow{margin-top:28px}
+  .right{padding:32px 24px}
+}
+
+/* ===== 7. Tambahan untuk halaman Daftar ===== */
+select{width:100%;height:46px;border:1px solid var(--line);border-radius:10px;padding:0 40px 0 16px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237d7266' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 16px center;appearance:none;font:13px 'Plus Jakarta Sans',sans-serif;color:var(--ink);cursor:pointer}
+select:focus{outline:2px solid var(--ink);outline-offset:1px}
+.hint{display:block;font-size:10px;color:var(--muted);margin-top:5px}
+form.compact .field{margin-bottom:12px}
+.eye-top{bottom:auto;top:31px}   /* tombol mata tetap di dalam kolom, bukan di bawah teks bantuan */
+.note a{color:var(--accent);font-weight:600}

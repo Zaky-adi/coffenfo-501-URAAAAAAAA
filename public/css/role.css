@@ -1,0 +1,38 @@
+/* ===== 1. Variabel & dasar ===== */
+:root{--ink:#3b2620;--cream:#f7f2e8;--card:#fffdf8;--line:#e8e0d0;--muted:#7d7266;--accent:#cd7f3a;--tint:#f7e5cf}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;display:grid;place-items:center;padding:24px;background:var(--cream);font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--ink)}
+
+/* ===== 2. Kartu utama ===== */
+.panel{width:100%;max-width:580px;background:var(--card);border-radius:20px;padding:32px;box-shadow:0 10px 40px rgba(59,38,32,.08)}
+.panel h1{font-family:'Lora',Georgia,serif;font-size:24px;font-weight:600;margin-bottom:6px}
+.panel>form>p{font-size:12px;color:var(--muted);margin-bottom:22px}
+
+/* ===== 3. Kartu pilihan peran ===== */
+.roles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.role{position:relative;display:flex;flex-direction:column;gap:4px;padding:14px;background:#fff;border:1px solid var(--line);border-radius:12px;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.role:hover{border-color:#d4c7b0}
+.role input{position:absolute;opacity:0;pointer-events:none}
+.role .ico{width:30px;height:30px;border-radius:8px;background:var(--tint);color:var(--accent);display:grid;place-items:center;margin-bottom:10px}
+.role .ico svg{width:16px;height:16px}
+.role strong{font-size:12px}
+.role small{font-size:10.5px;line-height:1.5;color:var(--muted)}
+
+/* penanda bulat di pojok kanan atas */
+.tick{position:absolute;top:14px;right:14px;width:16px;height:16px;border-radius:50%;border:1.5px solid #d9d0c0;background:#fff}
+.tick::after{content:"";position:absolute;left:4.5px;top:2px;width:4px;height:7px;border:solid #fff;border-width:0 1.8px 1.8px 0;transform:rotate(45deg);opacity:0}
+
+/* ===== 4. Keadaan terpilih ===== */
+.role:has(input:checked){border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.role input:checked ~ .tick{background:var(--accent);border-color:var(--accent)}
+.role input:checked ~ .tick::after{opacity:1}
+.role:has(input:focus-visible){outline:2px solid var(--ink);outline-offset:2px}
+
+/* ===== 5. Tombol & tautan ===== */
+.btn{width:100%;padding:13px;border:0;border-radius:10px;background:var(--ink);color:#fff;font:600 13px 'Plus Jakarta Sans',sans-serif;cursor:pointer}
+.btn:hover{background:#523830}
+.note{text-align:center;font-size:11px;color:var(--muted);margin-top:18px}
+.note a{color:var(--accent);font-weight:600}
+
+/* ===== 6. Responsif ===== */
+@media(max-width:560px){.roles{grid-template-columns:1fr}.panel{padding:24px}}

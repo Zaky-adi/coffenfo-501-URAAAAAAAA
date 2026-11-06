@@ -1,93 +1,47 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coffenfo - Login</title>
-    
-    <!-- Memanggil Tailwind CSS via CDN agar langsung bisa digunakan -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Font Google -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
-    
-    <!-- Icon Library (Lucide) -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-</head>
-<body class="bg-[#F5EFEB] min-h-screen flex items-center justify-center p-4 font-['Plus_Jakarta_Sans'] text-[#3D2C24]">
+@extends('layouts.auth')
 
-    <!-- Kotak Utama Pembungkus (Card) -->
-    <div class="w-full max-w-4xl bg-[#FCF9F2] rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-12">
-        
-        <!-- BAGIAN KIRI: Banner & Ilustrasi -->
-        <div class="md:col-span-5 bg-[#EEF2DA] p-8 flex flex-col justify-between">
-            <div>
-                <!-- Logo -->
-                <div class="flex items-center gap-2 mb-10">
-                    <span class="bg-[#3D2C24] text-[#EEF2DA] px-2.5 py-1 rounded-lg font-bold">c</span>
-                    <span class="font-bold text-lg">coffenfo</span>
-                </div>
-                <!-- Judul -->
-                <h1 class="text-3xl font-['Playfair_Display'] font-bold leading-tight mb-3">
-                    Temukan & Review Cafe Favoritmu di Batam
-                </h1>
-                <p class="text-xs text-[#6E645E]">
-                    Dari tegukan pertama hingga tempat langganan. Temukan cerita kopi berikutnya bersama Coffenfo.
-                </p>
-            </div>
-            <!-- Catatan Kaki Kiri -->
-            <div class="text-xs text-[#6E645E] mt-6">
-                ❤️ Tempat kopi bertemu cerita.
-            </div>
+@section('title', 'Masuk')
+@section('copy', '© 2026 Coffenfo. RPL 501')
+
+@section('content')
+@php
+    // Peran yang dibawa dari halaman "Pilih peran" (?role=...)
+    $roleLabels = ['user' => 'Pengguna', 'owner' => 'Pemilik cafe (mitra)', 'admin' => 'Admin Coffenfo'];
+    $role = (string) request('role');
+    $roleLabel = $roleLabels[$role] ?? null;
+@endphp
+    <h2>Senang kamu kembali.</h2>
+    <p class="sub">Masuk untuk menemukan cafe dan berbagi review.</p>
+
+    @if ($roleLabel)
+        <div><span class="pill">Masuk sebagai {{ $roleLabel }} · <a href="{{ route('role.select') }}">ganti</a></span></div>
+    @endif
+
+    @if ($errors->any())
+        <div class="error">{{ $errors->first() }}</div>
+    @endif
+
+    <form method="post" action="{{ route('login') }}">
+        @csrf
+        @if ($roleLabel)<input type="hidden" name="role" value="{{ $role }}">@endif
+
+        <div class="field">
+            <label for="login">Email / Username</label>
+            <input type="text" id="login" name="login" value="{{ old('login') }}" placeholder="Email atau username kamu" autocomplete="username" required>
         </div>
 
-        <!-- BAGIAN KANAN: Form Login -->
-        <div class="md:col-span-7 p-8 md:p-12 bg-white flex flex-col justify-center">
-            
-            <!-- Tombol Tab (Masuk / Daftar) -->
-            <div class="bg-[#F2EBE1] p-1 rounded-xl flex mb-8">
-                <!-- Tombol Masuk tetap aktif -->
-                <a href="{{ route('login') }}" class="flex-1 py-2 text-center text-sm font-semibold rounded-lg bg-white shadow-sm text-[#3D2C24] flex items-center justify-center gap-1.5 transition">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span> Masuk
-                </a>
-    
-                <!-- Tombol Daftar yang mengarah ke halaman register -->
-                <a href="{{ route('register') }}" class="flex-1 py-2 text-center text-sm font-medium text-[#8C827A] hover:text-[#3D2C24] transition flex items-center justify-center">
-                    Daftar
-                </a>
-            </div>
-
-            <h2 class="text-2xl font-['Playfair_Display'] font-bold mb-1">Senang kamu kembali.</h2>
-            <p class="text-xs text-gray-500 mb-6">Masuk untuk menemukan cafe dan berbagi review.</p>
-
-            <!-- Form Input (Action diisi ke route login) -->
-            <form action="{{ route('login') }}" method="POST" class="space-y-4">
-                @csrf
-                <div>
-                    <label class="block text-xs font-bold mb-1">Email / Username</label>
-                    <input type="text" name="email" required placeholder="Email atau username kamu" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#3D2C24]">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold mb-1">Kata Sandi</label>
-                    <input type="password" name="password" required placeholder="Masukkan kata sandi" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#3D2C24]">
-                </div>
-
-                <div class="text-right">
-                    <a href="#" class="text-xs text-[#3D2C24] underline">Lupa Password?</a>
-                </div>
-
-                <button type="submit" class="w-full bg-[#3D2C24] text-white py-3 rounded-xl text-sm font-medium hover:bg-black transition">
-                    Masuk Ke Coffenfo →
-                </button>
-            </form>
-
+        <div class="field">
+            <label for="password">Kata Sandi</label>
+            <input type="password" id="password" name="password" placeholder="Masukkan kata sandi" autocomplete="current-password" required>
+            <button type="button" class="eye" data-target="password" aria-label="Tampilkan kata sandi">
+                <svg class="icon on"><use href="#i-eye-off"/></svg>
+                <svg class="icon off"><use href="#i-eye"/></svg>
+            </button>
         </div>
 
-    </div>
+        <a href="#" class="forgot">Lupa Password?</a>
 
-    <script>
-        lucide.createIcons();
-    </script>
-</body>
-</html>
+        <button class="btn" type="submit">Masuk Ke Coffenfo <svg class="icon"><use href="#i-arrow"/></svg></button>
+        <p class="note">Secangkir kopi, banyak cerita. Yuk, masuk jaringmu.</p>
+    </form>
+@endsection

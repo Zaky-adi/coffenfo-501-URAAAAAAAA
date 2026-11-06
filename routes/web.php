@@ -3,7 +3,47 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\EmailVerificationLinkController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Admin\DashboardController;
 
+/*
+|--------------------------------------------------------------------------
+| Coffenfo - Daftar Route
+|--------------------------------------------------------------------------
+| Urutan file ini:
+|   1. Halaman publik
+|   2. Autentikasi (peran, login, register, verifikasi)
+|   3. Halaman pengguna
+|   4. Halaman admin
+| Mau menambah halaman baru? Taruh di bagian yang sesuai.
+*/
+
+
+// ===== 1. HALAMAN PUBLIK =====
+
+// Landing page Coffenfo
+Route::view('/', 'welcome')->name('home');
+
+
+// ===== 2. AUTENTIKASI =====
+
+// Pilih peran sebelum login (Pengguna / Mitra / Admin)
+Route::view('/pilih-peran', 'auth.role')->name('role.select');
+
+// Login: GET menampilkan formulir, POST memprosesnya
+Route::view('/login', 'auth.login')->name('login');
+Route::post('/login', function () {
+    // SEMENTARA: belum mengecek email/password. Nanti diganti dengan proses login sungguhan.
+    return redirect()->route('dashboard');
+});
+
+// Register: GET menampilkan formulir, POST memprosesnya (setelah daftar -> halaman login)
+Route::view('/register', 'auth.register')->name('register');
+Route::post('/register', function () {
+    // SEMENTARA: belum menyimpan user ke database.
+    return redirect()->route('login');
+});
+
+// Tautan dari email (verifikasi email & reset password)
 Route::get('/verify-email/{token}', EmailVerificationLinkController::class)
     ->where('token', '[A-Za-z0-9]+')
     ->name('auth.email.verify.link');
@@ -12,57 +52,22 @@ Route::get('/reset-password/{token}', PasswordResetLinkController::class)
     ->where('token', '[A-Za-z0-9]+')
     ->name('auth.password.reset.link');
 
-// 1. Halaman Utama (/) menampilkan Landing Page Coffenfo
-Route::get('/', function () {
-    return view('welcome');
+
+// ===== 3. HALAMAN PENGGUNA =====
+
+Route::view('/dashboard', 'dashboard')->name('dashboard');   // Dashboard / detail cafe
+Route::view('/explore',   'explore')->name('explore');       // Eksplorasi & filter cafe
+Route::view('/reviews',   'reviews')->name('reviews');       // Review & rating cafe
+Route::view('/checkout',  'checkout')->name('checkout');     // Checkout pesanan
+
+
+// ===== 4. HALAMAN ADMIN =====
+// Semua URL diawali /admin dan semua nama diawali "admin."
+// Nanti, untuk mengunci halaman admin, cukup tambahkan ->middleware('auth') pada grup ini.
+Route::prefix('admin')->name('admin.')->group(function () {
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');  // /admin/dashboard
+    Route::view('/moderation', 'admin.moderation')->name('moderation');                  // /admin/moderation
+    Route::view('/orders',     'admin.orders')->name('orders');                          // /admin/orders
+
 });
-
-// 2. Halaman Login (GET untuk menampilkan formulir login)
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login');
-
-// 3. Proses Login (POST - Saat pengguna masuk, diarahkan ke Dashboard)
-Route::post('/login', function () {
-    return redirect()->route('dashboard');
-});
-
-// 4. Halaman Register (GET untuk menampilkan formulir pendaftaran)
-Route::get('/register', function () {
-    return view('auth.register');
-})->name('register');
-
-// 5. Proses Register (POST - Setelah berhasil daftar, DIARAHKAN KE HALAMAN LOGIN)
-Route::post('/register', function () {
-    return redirect()->route('login');
-});
-
-// 6. Halaman Dashboard / Detail Cafe
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->name('dashboard');
-
-// 7. Halaman Eksplorasi / Filter Kafe
-Route::get('/explore', function () {
-    return view('explore');
-})->name('explore');
-
-// 8. Halaman Review & Rating Kafe
-Route::get('/reviews', function () {
-    return view('reviews');
-})->name('reviews');
-
-// 9. Halaman Admin Moderasi Review & Laporan
-Route::get('/admin/moderation', function () {
-    return view('admin.moderation');
-})->name('admin.moderation');
-
-// 10. Halaman Checkout Pesanan
-Route::get('/checkout', function () {
-    return view('checkout');
-})->name('checkout');
-
-// 11. Halaman Kelola Pesanan Masuk Admin
-Route::get('/admin/orders', function () {
-    return view('admin.orders');
-})->name('admin.orders');
