@@ -61,3 +61,18 @@ select:focus{outline:2px solid var(--ink);outline-offset:1px}
 form.compact .field{margin-bottom:12px}
 .eye-top{bottom:auto;top:31px}   /* tombol mata tetap di dalam kolom, bukan di bawah teks bantuan */
 .note a{color:var(--accent);font-weight:600}
+
+/* ===== 8. Halaman Login Admin ===== */
+.tag{font-style:normal;font-size:8px;font-weight:600;letter-spacing:.05em;background:#fff;border:1px solid var(--line);border-radius:5px;padding:2px 6px;color:var(--muted)}
+.rule{display:block;width:26px;height:2px;background:#b0603a}
+.logo + .rule{margin:44px 0 16px}
+.left h1.admin-title,.left .rule + h1{margin-top:0}
+.checklist{list-style:none;display:grid;gap:10px;margin-top:6px;font-size:11.5px;color:#3b2620}
+.checklist li{display:flex;align-items:center;gap:9px}
+.checklist .icon{font-size:15px}
+.left-foot{display:flex;flex-direction:column;gap:10px;font-size:10.5px;color:#5b4d42}
+.admin-form{width:100%;max-width:400px;margin:0 auto}
+.admin-form h2{font-size:24px}
+.admin-form .sub{max-width:340px;line-height:1.6}
+.forgot.orange{color:var(--accent);font-weight:600;text-decoration:none}
+.divider{border:0;border-top:1px solid var(--line);margin-top:22px}

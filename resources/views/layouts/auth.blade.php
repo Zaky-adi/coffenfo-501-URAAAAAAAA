@@ -17,12 +17,16 @@
     <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0112 7.6a4.3 4.3 0 017.5 2.2C19.5 15.4 12 20 12 20z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
     <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
     <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 4l16 16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#f7dcc8"/><path d="M7.5 12.3l3 3 6-6.6" fill="none" stroke="#cd7f3a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </svg>
 
 <main class="shell">
 
-    {{-- Panel kiri --}}
+    {{-- Panel kiri: halaman anak boleh menggantinya lewat @section('left') --}}
+    @hasSection('left')
+        @yield('left')
+    @else
     <section class="left">
         <a href="{{ url('/') }}" class="logo"><span><img src="{{ asset('images/logo_icon.png') }}" alt=""></span>Coffenfo</a>
 
@@ -52,12 +56,16 @@
         <div class="tagline"><svg class="icon"><use href="#i-heart"/></svg>Tempat kopi bertemu cerita</div>
     </section>
 
+    @endif
+
     {{-- Panel kanan: tab + isi halaman --}}
     <section class="right">
-        <nav class="tabs">
+        @if (! View::hasSection('no_tabs'))
+            <nav class="tabs">
             <a href="{{ route('login') }}" class="{{ request()->routeIs('login') ? 'on' : '' }}">Masuk</a>
             <a href="{{ route('register') }}" class="{{ request()->routeIs('register') ? 'on' : '' }}">Daftar</a>
         </nav>
+        @endif
 
         @yield('content')
     </section>

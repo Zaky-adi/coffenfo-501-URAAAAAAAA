@@ -13,7 +13,7 @@ use App\Http\Controllers\Admin\DashboardController;
 |   1. Halaman publik
 |   2. Autentikasi (peran, login, register, verifikasi)
 |   3. Halaman pengguna
-|   4. Halaman admin
+|   4. Halaman admin (login admin + panel admin)
 | Mau menambah halaman baru? Taruh di bagian yang sesuai.
 */
 
@@ -30,7 +30,13 @@ Route::view('/', 'welcome')->name('home');
 Route::view('/pilih-peran', 'auth.role')->name('role.select');
 
 // Login: GET menampilkan formulir, POST memprosesnya
-Route::view('/login', 'auth.login')->name('login');
+// Kalau peran yang dipilih "admin", GET /login dialihkan ke halaman login admin.
+Route::get('/login', function () {
+    return request('role') === 'admin'
+        ? redirect()->route('admin.login')
+        : view('auth.login');
+})->name('login');
+
 Route::post('/login', function () {
     // SEMENTARA: belum mengecek email/password. Nanti diganti dengan proses login sungguhan.
     return redirect()->route('dashboard');
@@ -62,8 +68,17 @@ Route::view('/checkout',  'checkout')->name('checkout');     // Checkout pesanan
 
 
 // ===== 4. HALAMAN ADMIN =====
-// Semua URL diawali /admin dan semua nama diawali "admin."
-// Nanti, untuk mengunci halaman admin, cukup tambahkan ->middleware('auth') pada grup ini.
+
+// 4a. Login admin. SENGAJA di luar grup di bawah, karena nanti grup itu dikunci middleware 'auth'.
+//     Kalau halaman login ikut terkunci, admin tidak bisa masuk sama sekali.
+Route::view('/admin/login', 'admin.login')->name('admin.login');
+Route::post('/admin/login', function () {
+    // SEMENTARA: belum mengecek email/password. Nanti diganti login sungguhan (cek role = admin).
+    return redirect()->route('admin.dashboard');
+})->name('admin.login.submit');
+
+// 4b. Panel admin. Semua URL diawali /admin dan semua nama diawali "admin."
+//     Nanti, untuk mengunci halaman admin, cukup tambahkan ->middleware('auth') pada grup ini.
 Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');  // /admin/dashboard
