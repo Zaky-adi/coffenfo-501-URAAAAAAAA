@@ -65,6 +65,7 @@ Route::view('/dashboard', 'dashboard')->name('dashboard');   // Dashboard / deta
 Route::view('/explore',   'explore')->name('explore');       // Eksplorasi & filter cafe
 Route::view('/reviews',   'reviews')->name('reviews');       // Review & rating cafe
 Route::view('/checkout',  'checkout')->name('checkout');     // Checkout pesanan
+Route::view('/menu',      'menu')->name('menu');             // Katalog menu cafe
 
 
 // ===== 4. HALAMAN ADMIN =====
