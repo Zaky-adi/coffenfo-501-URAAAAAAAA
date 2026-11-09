@@ -1,318 +1,335 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coffenfo - Checkout Pesanan</title>
-    
-    <!-- CDN Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- CDN Alpine.js untuk Interaktif Tipe Pesanan, Pembayaran, Stepper, & Modal Sukses -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-    
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+@extends('layouts.app')
 
-    <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #F8F5F0;
-        }
-        .font-serif-title {
-            font-family: 'Playfair Display', serif;
-        }
-    </style>
-</head>
-<body class="text-[#3D2C24] min-h-screen flex flex-col justify-between" x-data="{ 
-    orderType: 'dine-in', // 'dine-in' atau 'takeaway'
-    paymentMethod: 'wallet', // 'wallet' atau 'bank'
-    successModal: false,
-    
-    // Data Pesanan
-    items: [
-        { id: 1, name: 'Manual Brew In House Beans', desc: 'Signature house selection design for balance clarity', price: 45000, qty: 1, img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=200&q=80' },
-        { id: 2, name: 'Salted Egg Chicken', desc: 'Rice Bowl', price: 45000, qty: 1, img: 'https://images.unsplash.com/photo-1543339308-43e59d6b73a6?auto=format&fit=crop&w=200&q=80' }
-    ],
+@section('title', 'Checkout')
 
-    get subtotal() {
-        return this.items.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    },
-    get tax() {
-        return this.subtotal * 0.1;
-    },
-    get totalPayment() {
-        return this.subtotal + this.tax;
-    },
-    formatRupiah(value) {
-        return 'Rp ' + value.toLocaleString('id-ID');
-    }
-}">
+{{-- Header putih dengan langkah-langkah checkout --}}
+@section('header')
+<header class="co-bar">
+    <div class="wrap co-bar-in">
+        <a href="{{ url('/') }}" class="co-logo"><img src="{{ asset('images/logo_icon.png') }}" alt="">Coffenfo</a>
+        <ol class="co-steps">
+            <li class="done"><svg class="icon"><use href="#co-check"/></svg>Keranjang</li>
+            <i></i>
+            <li class="on"><b>2</b>Checkout</li>
+            <i></i>
+            <li>Pesanan selesai</li>
+        </ol>
+        <span class="co-secure"><svg class="icon"><use href="#co-lock"/></svg>Checkout aman</span>
+    </div>
+</header>
+@endsection
 
-    <!-- NAVBAR -->
-    <header class="bg-[#F8F5F0] border-b border-[#E5DEC9] py-3.5 px-6 md:px-12 sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <div class="bg-[#3D2C24] text-[#EEF2DA] p-1.5 rounded-lg font-bold text-base w-7 h-7 flex items-center justify-center">c</div>
-                <a href="{{ url('/') }}" class="text-xl font-bold tracking-tight">Coffenfo</a>
+@section('content')
+@php
+    // ----- Data contoh. Nanti diambil dari keranjang (session / database). -----
+    // [nama, deskripsi, harga satuan, jumlah, slug foto]
+    $items = [
+        ['Manual Brew in House Beans', 'Signature house selection designed for balance clarity', 45000, 1, 'manual-brew'],
+        ['Salted Egg Chicken',         '',                                                        45000, 1, 'salted-egg'],
+    ];
+    $cafeName = 'Grind Now Coffe Bar';
+    $taxRate  = 0.10;
+
+    $subtotal = collect($items)->sum(fn ($i) => $i[2] * $i[3]);
+    $tax      = (int) round($subtotal * $taxRate);
+    $total    = $subtotal + $tax;
+    $rp       = fn ($n) => 'Rp ' . number_format($n, 0, ',', '.');
+    $payUrl   = Route::has('checkout.pay') ? route('checkout.pay') : '#';
+
+    // [kode, judul, ikon, label kecil, teks bantuan, tulisan tombol]
+    $methods = [
+        ['ewallet', 'E-Wallet (QRIS / GoPay / OVO / ShopeePay)',      'co-scan', ['QRIS', 'GoPay', 'OVO', 'ShopeePay'],
+         'Scan QR atau lanjutkan ke e-wallet setelah menekan Bayar Sekarang.',             'Bayar Sekarang'],
+        ['bank',    'Transfer Bank / Virtual Account (BCA / Mandiri / BNI)', 'co-bank', ['BCA', 'Mandiri', 'BNI'],
+         'Nomor Virtual Account akan dibuat setelah kamu menekan Buat Pesanan.',           'Buat Pesanan'],
+    ];
+@endphp
+
+{{-- Ikon khusus halaman ini --}}
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="co-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 12.3l2.8 2.8L16 9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="co-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 11V8a4 4 0 018 0v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="co-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="co-scan" viewBox="0 0 24 24"><path d="M4 8V5a1 1 0 011-1h3M16 4h3a1 1 0 011 1v3M20 16v3a1 1 0 01-1 1h-3M8 20H5a1 1 0 01-1-1v-3M4 12h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="co-bank" viewBox="0 0 24 24"><path d="M3 9l9-5 9 5M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="co-table" viewBox="0 0 24 24"><path d="M4 9h16M6 9v10M18 9v10M8 9V6h8v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="co-cup" viewBox="0 0 24 24"><path d="M4 9h13v5a5 5 0 01-5 5H9a5 5 0 01-5-5V9zM17 10h1.5a2.5 2.5 0 010 5H17M8 3v3M12 3v3" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="co-tick" viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="co-arrow-l" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="co-arrow-r" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<style>
+    /* ===== Halaman Checkout (kelas diawali "co-") ===== */
+    .co-bar{background:#fff;border-bottom:1px solid #eae2d3}
+    .co-bar-in{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:64px}
+    .co-logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px}
+    .co-logo img{width:24px;height:24px;object-fit:contain}
+    .co-steps{display:flex;align-items:center;gap:14px;list-style:none;font-size:10.5px;color:#8a7f74}
+    .co-steps li{display:flex;align-items:center;gap:7px}
+    .co-steps i{display:block;width:46px;height:1px;background:#d9d0c0}
+    .co-steps .done{color:#3b2620}.co-steps .done .icon{font-size:14px}
+    .co-steps .on{color:#3b2620;font-weight:700}
+    .co-steps .on b{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#3b2620;color:#fff;font-size:9px}
+    .co-secure{justify-self:end;display:flex;align-items:center;gap:6px;font-size:10px;color:#3b2620}
+
+    .co-back{display:inline-flex;align-items:center;gap:8px;font-size:10.5px;font-weight:500;color:#3b2620;margin-bottom:22px}
+    .co-back .icon{font-size:13px}
+    .co-title{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px}
+    .co-title h1{font-size:28px;font-weight:700;line-height:1.15;color:#3b2620}
+    .co-title p{margin-top:8px;font-size:11px;color:#8a7f74}
+    .co-shop{display:inline-flex;align-items:center;gap:7px;background:#f1f1d3;border-radius:8px;padding:7px 12px;font-size:10px;font-weight:600;white-space:nowrap}
+
+    .co-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start}
+    .co-card{background:#fff;border:1px solid #eae2d3;border-radius:12px;padding:20px;margin-bottom:18px}
+    .co-card:last-child{margin-bottom:0}
+    .co-card h3{font-size:12.5px;font-weight:700;margin-bottom:14px}
+    .co-card .co-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+    .co-card .co-row h3{margin:0}
+    .co-card .co-row span{font-size:9.5px;color:#8a7f74}
+
+    /* tipe pesanan */
+    .co-seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#f4efe6;border-radius:10px;padding:5px;margin-bottom:18px}
+    .co-seg label{position:relative}
+    .co-seg input{position:absolute;opacity:0;pointer-events:none}
+    .co-seg span{display:block;text-align:center;padding:12px 8px;border-radius:7px;font-size:10.5px;font-weight:600;color:#5b4d42;cursor:pointer;transition:.15s}
+    .co-seg input:checked + span{background:#3b2620;color:#fff}
+    .co-seg input:focus-visible + span{outline:2px solid #cd7f3a;outline-offset:2px}
+    .co-field label{display:block;font-size:10.5px;font-weight:700;margin-bottom:7px}
+    .co-input{display:flex;align-items:center;gap:10px;border:1px solid #eae2d3;border-radius:9px;background:#fffdf8;padding:0 14px;height:42px}
+    .co-input .icon{font-size:15px;color:#5b4d42}
+    .co-input input{flex:1;border:0;background:none;font:12px 'Plus Jakarta Sans',sans-serif;color:#3b2620;outline:0}
+    .co-input:focus-within{border-color:#3b2620}
+    .co-hint{display:block;margin-top:8px;font-size:9px;color:#8a7f74}
+    #table-field[hidden]{display:none}
+
+    /* ringkasan pesanan */
+    .co-item{display:grid;grid-template-columns:84px minmax(0,1fr);gap:16px;align-items:start;padding:16px 0;border-bottom:1px solid #eae2d3}
+    .co-item:first-of-type{padding-top:0}
+    .co-item:last-of-type{border-bottom:0;padding-bottom:0}
+    .co-th{position:relative;display:grid;place-items:center;width:84px;height:76px;border-radius:9px;background:#f4ede2;color:#cd7f3a;font-size:24px;overflow:hidden}
+    .co-th img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+    .co-item b{display:block;font-size:12.5px;font-weight:600}
+    .co-item small{display:block;margin-top:4px;font-size:9.5px;color:#8a7f74}
+    .co-line{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+    .co-step{display:inline-flex;align-items:center;gap:9px;font-size:10.5px}
+    .co-step button{width:20px;height:20px;padding:0;border:1px solid #d8cdb8;border-radius:5px;background:#fff;font-size:13px;line-height:1;color:#3b2620;cursor:pointer}
+    .co-step button:hover{background:#f4ede2}
+    .co-q{min-width:12px;text-align:center;font-weight:600}
+    .co-price{font-size:12.5px;font-weight:700}
+    .co-empty{padding:26px 0;text-align:center;font-size:11.5px;color:#8a7f74}
+    .co-empty[hidden]{display:none}
+    .co-empty a{color:#cd7f3a;font-weight:600;text-decoration:underline}
+    .co-note{display:flex;align-items:center;gap:12px;background:#f1f1d3;border:1px solid #e6e6bd;border-radius:10px;padding:14px 16px;font-size:10px;color:#5b4d42}
+    .co-note .icon{font-size:17px;color:#3b2620;flex:none}
+    .co-note b{display:block;font-size:10.5px;color:#3b2620;margin-bottom:2px}
+
+    /* pembayaran */
+    .co-pay{position:relative;display:grid;grid-template-columns:15px minmax(0,1fr) auto;gap:0 12px;align-items:center;border:1px solid #eae2d3;border-radius:10px;padding:14px;margin-bottom:10px;background:#fff;font-size:10.5px;font-weight:600;cursor:pointer;transition:.15s}
+    .co-pay:last-of-type{margin-bottom:0}
+    .co-pay input{position:absolute;opacity:0;pointer-events:none}
+    .co-pay .dot{width:15px;height:15px;border:1.5px solid #cfc3ad;border-radius:50%;background:#fff;position:relative}
+    .co-pay .t{line-height:1.4}
+    .co-pay .icon{font-size:16px;color:#3b2620}
+    .co-pay .more{display:none;grid-column:2 / 4;margin-top:10px;font-weight:400}
+    .co-pay .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+    .co-pay .tags em{font-style:normal;font-size:8.5px;font-weight:700;padding:3px 9px;border:1px solid #e6dfcf;border-radius:5px;background:#fff}
+    .co-pay small{display:block;font-size:9.5px;line-height:1.55;color:#6b5f54}
+    .co-pay:hover{border-color:#cfc3ad}
+    .co-pay:has(input:checked){border-color:#3b2620;background:#fbf6e6;box-shadow:0 0 0 1px #3b2620}
+    .co-pay:has(input:checked) .more{display:block}
+    .co-pay input:checked ~ .dot{border:1.5px solid #3b2620}
+    .co-pay input:checked ~ .dot::after{content:"";position:absolute;inset:2.5px;border-radius:50%;background:#3b2620}
+    .co-pay:has(input:focus-visible){outline:2px solid #cd7f3a;outline-offset:2px}
+    .co-sum div{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#5b4d42;margin-bottom:11px}
+    .co-sum div b{font-weight:700;color:#3b2620}
+    .co-sum .tot{margin:14px 0 0;padding-top:14px;border-top:1px solid #eae2d3}
+    .co-sum .tot span{font-size:10.5px;color:#3b2620}
+    .co-sum .tot b{font-size:20px}
+    .co-submit{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:46px;margin-top:18px;border:0;border-radius:10px;background:#3b2620;color:#fff;font:600 11.5px 'Plus Jakarta Sans',sans-serif;cursor:pointer}
+    .co-submit:hover{background:#523830}
+    .co-submit:disabled{opacity:.4;cursor:not-allowed}
+    .co-submit .icon{font-size:14px}
+    .co-safe{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:14px;font-size:9px;color:#8a7f74}
+    .co-foot{display:flex;justify-content:space-between;margin-top:40px;padding-top:20px;border-top:1px solid #eae2d3;font-size:9.5px;color:#8a7f74}
+    .co-foot b{color:#3b2620}
+
+    /* pop-out pesanan berhasil */
+    .co-done{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:24px;overflow-y:auto;background:radial-gradient(ellipse 70% 55% at 50% 36%,rgba(246,236,170,.6),rgba(255,253,246,.97) 72%),#fffdf6}
+    .co-done[hidden]{display:none}
+    .co-done-in{max-width:480px;text-align:center;animation:co-rise .4s ease both}
+    .co-ok{display:grid;place-items:center;width:66px;height:66px;margin:0 auto 18px;border-radius:50%;background:#2e7d5b;color:#fff;font-size:30px;box-shadow:0 0 0 10px rgba(46,125,91,.12);animation:co-pop .5s .1s cubic-bezier(.2,1.5,.4,1) both}
+    .co-ord{display:block;margin-bottom:10px;font-size:8.5px;font-weight:700;letter-spacing:.1em;color:#b0402a}
+    .co-done h2{margin-bottom:12px;font-family:'Lora',Georgia,serif;font-size:34px;font-weight:500;line-height:1.15;color:#3b2620}
+    .co-done p{max-width:340px;margin:0 auto 22px;font-size:11px;line-height:1.7;color:#5b4d42}
+    .co-info{display:grid;grid-template-columns:1fr 1fr;max-width:400px;margin:0 auto 22px;border:1px solid #eae2d3;border-radius:12px;background:#fff}
+    .co-info div{padding:14px 10px}.co-info div+div{border-left:1px solid #eae2d3}
+    .co-info small{display:block;margin-bottom:6px;font-size:8.5px;color:#8a7f74}
+    .co-info b{font-family:'Lora',Georgia,serif;font-size:21px;font-weight:500;color:#3b2620}
+    .co-go{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:8px;background:#3b2620;color:#fff;font-size:10.5px;font-weight:600}
+    .co-go:hover{background:#523830}
+    .co-go .icon{font-size:12px}
+    @keyframes co-rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+    @keyframes co-pop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+    @media(prefers-reduced-motion:reduce){.co-done-in,.co-ok{animation:none}}
+
+    @media(max-width:860px){.co-grid{grid-template-columns:1fr}.co-bar-in{grid-template-columns:1fr auto}.co-steps{display:none}.co-title{flex-direction:column}}
+</style>
+
+<a href="{{ route('dashboard') }}" class="co-back"><svg class="icon"><use href="#co-arrow-l"/></svg>Kembali ke keranjang</a>
+
+<div class="co-title">
+    <div>
+        <h1>Checkout Pesanan</h1>
+        <p>Kopi pilihanmu, tinggal satu langkah lagi. Cek pesanan dan pilih pembayaran.</p>
+    </div>
+    <span class="co-shop"><svg class="icon"><use href="#co-cup"/></svg>{{ $cafeName }}</span>
+</div>
+
+<form method="post" action="{{ $payUrl }}" class="co-grid" id="co-form">
+    @csrf
+
+    {{-- ===== Kiri ===== --}}
+    <div>
+        <section class="co-card">
+            <h3>Tipe pesanan</h3>
+            <div class="co-seg">
+                <label><input type="radio" name="type" value="dine-in" checked><span>Makan di Tempat (Dine-in)</span></label>
+                <label><input type="radio" name="type" value="takeaway"><span>Bawa Pulang (Takeaway)</span></label>
             </div>
-
-            <!-- Steps Indicator -->
-            <div class="hidden md:flex items-center gap-6 text-xs font-semibold text-[#8C827A]">
-                <div class="flex items-center gap-2">
-                    <span class="w-5 h-5 rounded-full bg-[#EAE2D5] text-[#3D2C24] flex items-center justify-center text-[10px]">✓</span>
-                    <span>Keranjang</span>
-                </div>
-                <div class="w-8 h-[1px] bg-[#E5DEC9]"></div>
-                <div class="flex items-center gap-2 text-[#3D2C24]">
-                    <span class="w-5 h-5 rounded-full bg-[#3D2C24] text-white flex items-center justify-center text-[10px] font-bold">2</span>
-                    <span>Checkout</span>
-                </div>
-                <div class="w-8 h-[1px] bg-[#E5DEC9]"></div>
-                <span>Pesanan selesai</span>
+            <div class="co-field" id="table-field">
+                <label for="table">Nomor Meja</label>
+                <div class="co-input"><svg class="icon"><use href="#co-table"/></svg><input type="text" id="table" name="table" value="12" inputmode="numeric" maxlength="3"></div>
+                <small class="co-hint">Lihat nomor meja di tempat kamu duduk.</small>
             </div>
+        </section>
 
-            <div class="flex items-center gap-2 text-xs font-semibold text-[#8C827A]">
-                <i data-lucide="lock" class="w-3.5 h-3.5"></i>
-                <span>Checkout aman</span>
-            </div>
-        </div>
-    </header>
-
-    <!-- KONTEN UTAMA CHECKOUT -->
-    <main class="max-w-7xl mx-auto px-6 md:px-12 py-8 w-full space-y-6">
-        
-        <!-- Breadcrumb Kembali -->
-        <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-1.5 text-xs text-[#8C827A] hover:text-[#3D2C24] transition font-medium">
-            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Kembali ke keranjang
-        </a>
-
-        <!-- Header Title -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-                <h1 class="text-2xl md:text-3xl font-serif-title font-bold">Checkout Pesanan</h1>
-                <p class="text-xs text-[#8C827A] mt-1">Kopi pilihanmu, tinggal satu langkah lagi. Cek pesanan dan pilih pembayaran.</p>
-            </div>
-            
-            <div class="bg-white border border-[#E5DEC9] px-4 py-2 rounded-2xl text-xs font-semibold shadow-xs flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Grind Now Coffee Bar
-            </div>
-        </div>
-
-        <!-- GRID UTAMA (KIRI: TIPE PESANAN & RINGKASAN, KANAN: PEMBAYARAN & RINCIAN) -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            
-            <!-- SISI KIRI (7 Kolom) -->
-            <div class="lg:col-span-7 space-y-6">
-                
-                <!-- CARD 1: TIPE PESANAN -->
-                <div class="bg-white border border-[#E5DEC9] rounded-3xl p-6 shadow-xs space-y-5">
-                    <h3 class="font-bold text-sm">Tipe pesanan</h3>
-                    
-                    <!-- Toggle Switch Dine-in / Takeaway -->
-                    <div class="grid grid-cols-2 bg-[#F8F5F0] p-1.5 rounded-2xl border border-[#E5DEC9]">
-                        <button @click="orderType = 'dine-in'" 
-                                :class="orderType === 'dine-in' ? 'bg-[#3D2C24] text-white shadow-xs' : 'text-[#8C827A] hover:text-[#3D2C24]'" 
-                                class="py-2.5 rounded-xl text-xs font-bold transition cursor-pointer">
-                            Makan di Tempat (Dine-in)
-                        </button>
-                        <button @click="orderType = 'takeaway'" 
-                                :class="orderType === 'takeaway' ? 'bg-[#3D2C24] text-white shadow-xs' : 'text-[#8C827A] hover:text-[#3D2C24]'" 
-                                class="py-2.5 rounded-xl text-xs font-bold transition cursor-pointer">
-                            Bawa Pulang (Takeaway)
-                        </button>
-                    </div>
-
-                    <!-- Input Nomor Meja (Hanya tampil jika Dine-in) -->
-                    <div x-show="orderType === 'dine-in'" class="space-y-2">
-                        <label class="block text-xs font-bold text-[#8C827A] uppercase tracking-wider">Nomor Meja</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#8C827A]">
-                                <i data-lucide="car" class="w-4 h-4"></i> <!-- Icon kursi/meja -->
-                            </span>
-                            <input type="text" value="12" class="w-full bg-white border border-[#E5DEC9] rounded-2xl py-3 pl-10 pr-4 text-xs font-bold focus:outline-none focus:border-[#3D2C24]">
+        <section class="co-card">
+            <div class="co-row"><h3>Ringkasan pesanan</h3><span id="co-count">{{ count($items) }} item</span></div>
+            <div id="co-items">
+                @foreach ($items as [$name, $desc, $price, $qty, $slug])
+                    <div class="co-item" data-price="{{ $price }}" data-qty="{{ $qty }}">
+                        <div class="co-th">
+                            @if (file_exists(public_path("images/menu/$slug.jpg")))<img src="{{ asset("images/menu/$slug.jpg") }}" alt="{{ $name }}">@else<svg class="icon"><use href="#co-cup"/></svg>@endif
                         </div>
-                        <p class="text-[11px] text-[#8C827A]">Lihat nomor meja di tempat kamu duduk.</p>
-                    </div>
-
-                    <div x-show="orderType === 'takeaway'" class="space-y-2" style="display: none;">
-                        <p class="text-xs text-[#8C827A] bg-[#F8F5F0] p-3 rounded-2xl border border-[#E5DEC9]">Pesanan akan disiapkan dalam wadah bawa pulang. Silakan ambil di kasir saat nomor dipanggil.</p>
-                    </div>
-                </div>
-
-                <!-- CARD 2: RINGKASAN PESANAN -->
-                <div class="bg-white border border-[#E5DEC9] rounded-3xl p-6 shadow-xs space-y-4">
-                    <div class="flex justify-between items-center">
-                        <h3 class="font-bold text-sm">Ringkasan pesanan</h3>
-                        <span class="text-xs text-[#8C827A]" x-text="items.length + ' item'">2 item</span>
-                    </div>
-
-                    <div class="space-y-4">
-                        <template x-for="item in items" :key="item.id">
-                            <div class="flex items-center justify-between gap-4 pb-4 border-b border-[#F4EFE6] last:border-b-0 last:pb-0">
-                                <div class="flex items-center gap-3">
-                                    <img :src="item.img" class="w-14 h-14 rounded-2xl object-cover bg-[#EAE2D5]">
-                                    <div>
-                                        <h4 class="font-bold text-xs" x-text="item.name"></h4>
-                                        <p class="text-[10px] text-[#8C827A] mt-0.5" x-text="item.desc"></p>
-                                    </div>
-                                </div>
-
-                                <div class="flex flex-col items-end gap-2">
-                                    <span class="text-xs font-bold text-[#3D2C24]" x-text="formatRupiah(item.price * item.qty)"></span>
-                                    
-                                    <!-- Stepper - 0 + -->
-                                    <div class="flex items-center gap-2 bg-[#F8F5F0] border border-[#E5DEC9] px-2.5 py-1 rounded-xl">
-                                        <button @click="if(item.qty > 0) item.qty--" class="text-xs font-bold text-[#8C827A] hover:text-[#3D2C24] cursor-pointer">-</button>
-                                        <span class="text-xs font-bold w-4 text-center" x-text="item.qty"></span>
-                                        <button @click="item.qty++" class="text-xs font-bold text-[#8C827A] hover:text-[#3D2C24] cursor-pointer">+</button>
-                                    </div>
-                                </div>
+                        <div>
+                            <b>{{ $name }}</b>
+                            @if ($desc)<small>{{ $desc }}</small>@endif
+                            <div class="co-line">
+                                <div class="co-step"><button type="button" data-step="-1" aria-label="Kurangi">−</button><span class="co-q">{{ $qty }}</span><button type="button" data-step="1" aria-label="Tambah">+</button></div>
+                                <span class="co-price">{{ $rp($price * $qty) }}</span>
                             </div>
-                        </template>
-                    </div>
-                </div>
-
-                <!-- Info Banner Kecil -->
-                <div class="bg-[#F4EFE6] border border-[#E5DEC9] rounded-2xl p-4 flex items-start gap-3">
-                    <i data-lucide="coffee" class="w-5 h-5 text-[#3D2C24] shrink-0 mt-0.5"></i>
-                    <div class="text-xs space-y-0.5">
-                        <p class="font-bold">Dibuat segar, diantar ke mejamu.</p>
-                        <p class="text-[#8C827A]">Barista akan menyiapkan pesanan setelah pembayaran berhasil.</p>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- SISI KANAN (5 Kolom: Metode Pembayaran & Rincian Pembayaran) -->
-            <div class="lg:col-span-5 space-y-6">
-                
-                <!-- CARD 3: METODE PEMBAYARAN -->
-                <div class="bg-white border border-[#E5DEC9] rounded-3xl p-6 shadow-xs space-y-4">
-                    <h3 class="font-bold text-sm">Metode pembayaran</h3>
-
-                    <div class="space-y-3">
-                        <!-- Opsi 1: E-Wallet -->
-                        <label @click="paymentMethod = 'wallet'" 
-                               :class="paymentMethod === 'wallet' ? 'border-[#3D2C24] bg-[#F8F5F0]' : 'border-[#E5DEC9] bg-white'" 
-                               class="flex items-center justify-between p-4 rounded-2xl border transition cursor-pointer">
-                            <div class="flex items-center gap-3">
-                                <input type="radio" name="payment" :checked="paymentMethod === 'wallet'" class="accent-[#3D2C24]">
-                                <div>
-                                    <span class="font-bold text-xs block">E-Wallet (QRIS / GoPay / OVO / ShopeePay)</span>
-                                    <div class="flex gap-1.5 mt-1">
-                                        <span class="text-[9px] bg-white border border-[#E5DEC9] px-1.5 py-0.5 rounded font-bold">QRIS</span>
-                                        <span class="text-[9px] bg-white border border-[#E5DEC9] px-1.5 py-0.5 rounded font-bold">GoPay</span>
-                                        <span class="text-[9px] bg-white border border-[#E5DEC9] px-1.5 py-0.5 rounded font-bold">OVO</span>
-                                        <span class="text-[9px] bg-white border border-[#E5DEC9] px-1.5 py-0.5 rounded font-bold">ShopeePay</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <i data-lucide="qr-code" class="w-5 h-5 text-[#8C827A]"></i>
-                        </label>
-
-                        <!-- Opsi 2: Transfer Bank / Virtual Account -->
-                        <label @click="paymentMethod = 'bank'" 
-                               :class="paymentMethod === 'bank' ? 'border-[#3D2C24] bg-[#F8F5F0]' : 'border-[#E5DEC9] bg-white'" 
-                               class="flex items-center justify-between p-4 rounded-2xl border transition cursor-pointer">
-                            <div class="flex items-center gap-3">
-                                <input type="radio" name="payment" :checked="paymentMethod === 'bank'" class="accent-[#3D2C24]">
-                                <div>
-                                    <span class="font-bold text-xs block">Transfer Bank / Virtual Account (BCA | Mandiri | BNI)</span>
-                                    <div class="flex gap-1.5 mt-1">
-                                        <span class="text-[9px] bg-white border border-[#E5DEC9] px-1.5 py-0.5 rounded font-bold">BCA</span>
-                                        <span class="text-[9px] bg-white border border-[#E5DEC9] px-1.5 py-0.5 rounded font-bold">Mandiri</span>
-                                        <span class="text-[9px] bg-white border border-[#E5DEC9] px-1.5 py-0.5 rounded font-bold">BNI</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <i data-lucide="landmark" class="w-5 h-5 text-[#8C827A]"></i>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- CARD 4: RINCIAN PEMBAYARAN -->
-                <div class="bg-white border border-[#E5DEC9] rounded-3xl p-6 shadow-xs space-y-4">
-                    <h3 class="font-bold text-sm">Rincian pembayaran</h3>
-
-                    <div class="space-y-2.5 text-xs">
-                        <div class="flex justify-between text-[#8C827A]">
-                            <span>Subtotal</span>
-                            <span class="font-bold text-[#3D2C24]" x-text="formatRupiah(subtotal)"></span>
-                        </div>
-                        <div class="flex justify-between text-[#8C827A] pb-3 border-b border-[#E5DEC9]">
-                            <span>Tax & Service 10%</span>
-                            <span class="font-bold text-[#3D2C24]" x-text="formatRupiah(tax)"></span>
-                        </div>
-                        <div class="flex justify-between text-sm font-bold pt-1">
-                            <span>Total Payment</span>
-                            <span class="text-[#C36930] text-base" x-text="formatRupiah(totalPayment)"></span>
                         </div>
                     </div>
-
-                    <!-- Tombol Bayar Sekarang (Memicu Modal Pop-up Sukses) -->
-                    <button @click="successModal = true" class="w-full bg-[#3D2C24] text-white py-3.5 rounded-2xl text-xs font-semibold hover:bg-black transition shadow-xs flex items-center justify-center gap-2 cursor-pointer">
-                        <span>Bayar Sekarang <span x-text="formatRupiah(totalPayment)"></span></span>
-                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                    </button>
-
-                    <p class="text-[10px] text-center text-[#8C827A] flex items-center justify-center gap-1">
-                        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i> Pembayaran digital aman & terverifikasi
-                    </p>
-                </div>
-
+                @endforeach
             </div>
+            <p class="co-empty" id="co-empty" hidden>Pesananmu kosong. <a href="{{ route('explore') }}">Cari cafe</a></p>
+        </section>
 
-        </div>
-
-    </main>
-
-    <!-- POP-UP MODAL / PESANAN BERHASIL (Sesuai Gambar Figma Pop-out) -->
-    <div x-show="successModal" class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto px-4" style="display: none;">
-        <div class="fixed inset-0 bg-black/40 backdrop-blur-xs" @click="successModal = false"></div>
-        
-        <div class="bg-white border border-[#E5DEC9] rounded-3xl p-8 max-w-lg w-full shadow-2xl relative z-10 text-center space-y-6">
-            <!-- Icon Check hijau -->
-            <div class="w-14 h-14 bg-[#2E7D32] text-white rounded-full flex items-center justify-center mx-auto shadow-md">
-                <i data-lucide="check" class="w-7 h-7"></i>
-            </div>
-
-            <div class="space-y-1">
-                <span class="text-[10px] font-bold text-[#C36930] tracking-widest uppercase">PESANAN #PCF-1051</span>
-                <h2 class="text-2xl font-serif-title font-bold">Pesananmu berhasil dibuat!</h2>
-                <p class="text-xs text-[#8C827A] max-w-sm mx-auto">Barista sedang menyiapkan pesananmu. Kamu akan mendapat notifikasi saat pesanan siap diambil.</p>
-            </div>
-
-            <!-- Card Estimasi & Total -->
-            <div class="grid grid-cols-2 gap-4 bg-[#F8F5F0] border border-[#E5DEC9] p-4 rounded-2xl">
-                <div>
-                    <span class="text-[10px] text-[#8C827A] block uppercase tracking-wider font-medium">Estimasi siap</span>
-                    <span class="text-sm font-bold text-[#3D2C24]">12–15 menit</span>
-                </div>
-                <div>
-                    <span class="text-[10px] text-[#8C827A] block uppercase tracking-wider font-medium">Total pembayaran</span>
-                    <span class="text-sm font-bold text-[#3D2C24]" x-text="formatRupiah(totalPayment)"></span>
-                </div>
-            </div>
-
-            <a href="{{ url('/') }}" class="inline-block w-full bg-[#3D2C24] text-white text-center py-3.5 rounded-2xl text-xs font-semibold hover:bg-black transition shadow-xs">
-                Kembali jelajahi cafe →
-            </a>
+        <div class="co-note">
+            <svg class="icon"><use href="#co-cup"/></svg>
+            <div><b>Dibuat segar, diantar ke mejamu.</b>Barista akan menyiapkan pesanan setelah pembayaran berhasil.</div>
         </div>
     </div>
 
-    <!-- FOOTER -->
-    <footer class="bg-[#F8F5F0] border-t border-[#E5DEC9] py-6 px-6 md:px-12 mt-16 flex justify-between items-center text-xs text-[#8C827A]">
-        <p>© 2026 Coffenfo • Setiap cangkir, sebuah cerita.</p>
-        <a href="#" class="font-bold text-[#3D2C24] hover:underline">Butuh bantuan? Hubungi cafe</a>
-    </footer>
+    {{-- ===== Kanan ===== --}}
+    <div>
+        <section class="co-card">
+            <h3>Metode pembayaran</h3>
+            @foreach ($methods as [$code, $title, $icon, $tags, $help, $btn])
+                <label class="co-pay">
+                    <input type="radio" name="method" value="{{ $code }}" data-btn="{{ $btn }}" required>
+                    <span class="dot"></span>
+                    <span class="t">{{ $title }}</span>
+                    <svg class="icon"><use href="#{{ $icon }}"/></svg>
+                    <span class="more">
+                        <span class="tags">@foreach ($tags as $t)<em>{{ $t }}</em>@endforeach</span>
+                        <small>{{ $help }}</small>
+                    </span>
+                </label>
+            @endforeach
+        </section>
 
-    <!-- Init Lucide Icons -->
-    <script>
-        lucide.createIcons();
-    </script>
-</body>
-</html>
+        <section class="co-card co-sum">
+            <h3>Rincian pembayaran</h3>
+            <div><span>Subtotal</span><b id="co-sub">{{ $rp($subtotal) }}</b></div>
+            <div><span>Tax &amp; Service {{ (int) ($taxRate * 100) }}%</span><b id="co-tax">{{ $rp($tax) }}</b></div>
+            <div class="tot"><span>Total Payment</span><b id="co-total">{{ $rp($total) }}</b></div>
+        </section>
+
+        <button type="submit" class="co-submit" id="co-submit"><span id="co-label">Bayar Sekarang</span> (<span id="co-btn-total">{{ $rp($total) }}</span>) <svg class="icon"><use href="#co-arrow-r"/></svg></button>
+        <p class="co-safe"><svg class="icon"><use href="#co-shield"/></svg>Pembayaran digital aman &amp; terenkripsi</p>
+    </div>
+</form>
+
+<div class="co-foot"><span>© 2026 Coffenfo · Setiap cangkir, sebuah cerita.</span><b>Butuh bantuan? Hubungi cafe</b></div>
+
+{{-- Pop-out "Pesanan berhasil" (muncul setelah tombol bayar ditekan) --}}
+<div class="co-done" id="co-done" role="dialog" aria-modal="true" aria-labelledby="co-done-title" hidden>
+    <div class="co-done-in">
+        <div class="co-ok"><svg class="icon"><use href="#co-tick"/></svg></div>
+        <small class="co-ord" id="co-ord">PESANAN #OX-1051</small>
+        <h2 id="co-done-title">Pesananmu berhasil dibuat!</h2>
+        <p>Barista sedang menyiapkan pesananmu. Kamu akan mendapat notifikasi saat pesanan siap diambil.</p>
+        <div class="co-info"><div><small>Estimasi siap</small><b>12–15 menit</b></div><div><small>Total pembayaran</small><b id="co-done-total">{{ $rp($total) }}</b></div></div>
+        <a href="{{ route('explore') }}" class="co-go" id="co-go">Kembali jelajahi cafe <svg class="icon"><use href="#co-arrow-r"/></svg></a>
+    </div>
+</div>
+
+<script id="checkout-js">
+    (function () {
+        const TAX = {{ $taxRate }};
+        const rp = n => 'Rp ' + n.toLocaleString('id-ID');
+        const $ = id => document.getElementById(id);
+
+        // --- Dine-in / Takeaway: nomor meja hanya untuk dine-in ---
+        const tableField = $('table-field'), tableInput = $('table');
+        document.querySelectorAll('input[name="type"]').forEach(r => r.addEventListener('change', () => {
+            const dine = r.value === 'dine-in' && r.checked;
+            if (r.checked) { tableField.hidden = !dine; tableInput.required = dine; }
+        }));
+
+        // --- Ringkasan: ubah jumlah, hitung ulang semuanya ---
+        function recalc() {
+            let sub = 0, lines = 0;
+            document.querySelectorAll('#co-items .co-item').forEach(row => { sub += Number(row.dataset.price) * Number(row.dataset.qty); lines++; });
+            const tax = Math.round(sub * TAX), total = sub + tax;
+            $('co-sub').textContent = rp(sub);
+            $('co-tax').textContent = rp(tax);
+            $('co-total').textContent = rp(total);
+            $('co-btn-total').textContent = rp(total);
+            $('co-count').textContent = lines + ' item';
+            $('co-empty').hidden = lines > 0;
+            $('co-submit').disabled = lines === 0;
+        }
+        document.querySelectorAll('#co-items .co-item').forEach(row => {
+            const unit = Number(row.dataset.price);
+            row.querySelectorAll('[data-step]').forEach(btn => btn.addEventListener('click', () => {
+                const qty = Math.max(0, Number(row.dataset.qty) + Number(btn.dataset.step));
+                row.dataset.qty = qty;
+                row.querySelector('.co-q').textContent = qty;
+                row.querySelector('.co-price').textContent = rp(unit * qty);
+                if (qty === 0) row.remove();
+                recalc();
+            }));
+        });
+
+        // --- Tulisan tombol mengikuti metode pembayaran (E-Wallet: Bayar Sekarang, Transfer: Buat Pesanan) ---
+        document.querySelectorAll('input[name="method"]').forEach(r => r.addEventListener('change', () => {
+            if (r.checked) $('co-label').textContent = r.dataset.btn;
+        }));
+
+        // --- Kirim pesanan: tampilkan pop-out "Pesanan berhasil" ---
+        const form = $('co-form'), done = $('co-done');
+        document.body.append(done);   // agar menutupi seluruh layar
+        form.addEventListener('submit', e => {
+            e.preventDefault();   // SEMENTARA: nanti kirim ke server, lalu tampilkan pop-out dari hasilnya
+            $('co-ord').textContent = 'PESANAN #OX-' + Math.floor(1000 + Math.random() * 9000);
+            $('co-done-total').textContent = $('co-total').textContent;
+            done.hidden = false;
+            document.body.style.overflow = 'hidden';
+            $('co-go').focus();
+        });
+    })();
+</script>
+@endsection
