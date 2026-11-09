@@ -1,0 +1,52 @@
+:root{
+  --page:#f4f1ec; --panel:#fffdf9; --line:#e9e2d6; --ink:#2b1d17; --muted:#8a7f74;
+  --brand:#3a2620; --accent:#b5651d;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;padding:24px 12px}
+p{margin:0}
+a{text-decoration:none;color:inherit}
+
+.panel{max-width:420px;margin:0 auto;background:var(--panel);border-radius:16px;padding:22px 20px;box-shadow:0 8px 28px rgba(60,40,30,.10)}
+
+/* Header */
+.head{display:flex;justify-content:space-between;align-items:flex-start}
+.label{font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--accent)}
+.title{margin:6px 0 0;font:500 30px/1.1 "Lora",Georgia,"Times New Roman",serif}
+.close{width:26px;height:26px;border-radius:50%;background:var(--page);display:grid;place-items:center;font-size:16px;color:var(--muted)}
+.line{border:0;border-top:1px solid var(--line);margin:16px 0}
+
+/* Item */
+.thumb{width:62px;height:62px;border-radius:8px;display:grid;place-items:center;font-size:26px;flex:none}
+.thumb-sm{width:34px;height:34px;font-size:16px;border-radius:7px}
+.info{flex:1;min-width:0}
+.item-name{font-size:13px;font-weight:500}
+.item-name.sm{font-size:11px;font-weight:600}
+.price{font-size:12px;font-weight:700}
+.price.sm{font-size:11px}
+.meta{font-size:10px;color:var(--muted);margin-top:2px}
+.empty{font-size:13px;color:var(--muted);padding:24px 0;text-align:center}
+
+/* Tombol */
+.btn{display:block;text-align:center;font-size:12px;font-weight:600;padding:12px 10px;border-radius:8px;border:1px solid var(--brand)}
+.btn-dark{background:var(--brand);color:#fff}
+.btn-outline{background:transparent;color:var(--brand)}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn-last{margin-top:16px;padding:14px 10px}
+
+/* Chip filter */
+.chips{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto}
+.chip{flex:none;border:1px solid var(--line);border-radius:999px;font-size:11px;font-weight:500;padding:7px 14px;color:var(--ink)}
+.chip.aktif{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+/* Kartu pesanan */
+.order{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.order-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.shop{font-size:12px;font-weight:700}
+.badge{font-size:10px;font-weight:600;padding:4px 10px;border-radius:999px}
+.badge-diproses{background:#fdebd9;color:#c0651a}
+.badge-selesai{background:#e3f1e1;color:#3d7a3a}
+.badge-dibatalkan{background:#fbe1e1;color:#c0392b}
+.order-item{display:flex;align-items:center;gap:10px;padding:6px 0}
+.total{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);margin:10px 0 12px;padding-top:10px;font-size:11px;color:var(--muted)}
+.total b{color:var(--ink);font-size:13px}

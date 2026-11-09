@@ -148,7 +148,7 @@
             </article>
         @endforeach
     </div>
-    <div class="cf-tall-foot"><a href="#" class="cf-btn">Lihat Semua Pesanan</a></div>
+    <div class="cf-tall-foot"><a href="{{ Route::has('orders') ? route('orders') : '#' }}" class="cf-btn">Lihat Semua Pesanan</a></div>
 </div>
 
 <script id="drawers-js">
