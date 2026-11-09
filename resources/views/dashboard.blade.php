@@ -10,7 +10,7 @@
             <a href="{{ url('/') }}" class="logo"><img src="{{ asset('images/logo_icon.png') }}" alt="">coffenfo</a>
             <nav>
                 <a href="{{ route('explore') }}" class="on">Jelajah Cafe</a>
-                <a href="#">Riwayat Pesanan</a>
+                <a href="#" data-open="orders">Riwayat Pesanan</a>
                 <span class="loc2"><svg class="icon"><use href="#i-pin"/></svg>Batam</span>
             </nav>
         </div>
@@ -101,7 +101,7 @@
     </div>
     <div class="d-act">
         <span class="status">Buka • 09:30 - 24:00 WIB</span>
-        <a href="{{ route('checkout') }}" class="btn-o"><svg class="icon"><use href="#i-cart"/></svg>Pesanan</a>
+        <a href="{{ route('checkout') }}" class="btn-o" data-open="cart"><svg class="icon"><use href="#i-cart"/></svg>Pesanan</a>
     </div>
 </div>
 <p class="desc">{{ $cafe['about'] }}</p>
@@ -116,11 +116,11 @@
             <p>Cita rasa: {{ $cafe['taste'] }}</p>
         </section>
 
-        <nav class="tabs-d" id="tabs">
-            <a href="#menu" class="on">Katalog Menu</a>
-            <a href="#ulasan">Review &amp; Rating</a>
-            <a href="#fasilitas">Fasilitas</a>
-        </nav>
+        <div class="tabs-d" id="tabs" role="tablist">
+            <button type="button" role="tab" class="on" data-tab="menu" aria-selected="true">Katalog Menu</button>
+            <button type="button" role="tab" data-tab="ulasan" aria-selected="false">Review &amp; Rating</button>
+            <button type="button" role="tab" data-tab="fas" aria-selected="false">Fasilitas</button>
+        </div>
 
         <section class="d-sec" id="menu">
             <h2 class="serif">Dari bar kopi &amp; dapur</h2>
@@ -148,6 +148,11 @@
             @endforeach
             <a href="{{ route('reviews') }}" class="all">Lihat semua 128 ulasan →</a>
         </section>
+    <section class="d-sec" id="fas" hidden>
+            <h2 class="serif">Fasilitas</h2>
+            <p class="sub">Yang bisa kamu nikmati di {{ $cafe['name'] }}.</p>
+            <div class="fac-grid">@foreach ($facilities as [$label, $icon])<div><span class="ic"><svg class="icon"><use href="#i-{{ $icon }}"/></svg></span>{{ $label }}</div>@endforeach</div>
+        </section>
     </div>
 
     {{-- ===== Kolom kanan ===== --}}
@@ -155,7 +160,28 @@
         <section class="box">
             <h3 class="serif">Peta &amp; Lokasi</h3>
             <style>
-                /* Peta Google Maps (khusus halaman ini) */
+                /* Gaya khusus halaman ini */
+                .menu-card .ph{aspect-ratio:2.1/1}   /* foto menu lebih lebar, seperti Figma */
+                .tabs-d{position:sticky;top:10px;z-index:5;box-shadow:0 6px 16px rgba(59,38,32,.07)}   /* tab ikut menempel saat scroll */
+                .tabs-d a{transition:background .15s,color .15s}
+                /* Content tabs: persis seperti di Figma */
+                .tabs-d{background:#f5f0e6;padding:5px;gap:6px}
+                .tabs-d button{display:flex;align-items:center;justify-content:center;gap:7px;border:1px solid transparent;background:none;border-radius:8px;padding:10px 0;font:500 11px 'Plus Jakarta Sans',sans-serif;color:#5b4d42;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+                .tabs-d button:hover{color:var(--ink)}
+                .tabs-d button.on{background:#fffdf8;border-color:#eadfc9;color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(59,38,32,.08)}
+                .tabs-d button.on::before{content:"";width:5px;height:5px;border-radius:50%;background:#d98a4b}
+                .tabs-d button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+                .d-sec[hidden]{display:none}
+                .fac-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+                .fac-grid div{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:11px}
+                .fac-grid .ic{width:30px;height:30px;border-radius:8px;background:#f4ede2;display:grid;place-items:center;font-size:15px;color:#5b4d42;flex:none}
+                @media(max-width:560px){.fac-grid{grid-template-columns:1fr 1fr}}
+                /* Tombol simpan: biasa = kotak putih, tersimpan = bulat cokelat (seperti Figma) */
+                .sim-card .bm{cursor:pointer;transition:background .15s,color .15s}
+                .sim-card .bm.on{background:#3b2620;color:#fff;border-radius:50%}
+                .sim-card .bm.on svg,.chipbtn.on svg{fill:currentColor}
+                .chipbtn.on{background:#3b2620;color:#fff}
+                /* Peta Google Maps */
                 .box .map{height:200px;border-radius:10px;overflow:hidden;background:#eef0e0}
                 .box .map iframe{display:block;width:100%;height:100%;border:0}
             </style>
@@ -171,7 +197,7 @@
             <div class="hours"><svg class="icon"><use href="#i-clock"/></svg><div><b>Jam operasional</b><small>{{ $cafe['hours'] }}</small></div></div>
         </section>
 
-        <div id="fasilitas">
+        <div id="fasilitas-side">
             <h3 class="serif fac-t">Fasilitas</h3>
             <div class="fac" style="margin-top:20px">@foreach ($facilities as [$label, $icon])<div><span class="ic"><svg class="icon"><use href="#i-{{ $icon }}"/></svg></span>{{ $label }}</div>@endforeach</div>
         </div>
@@ -189,16 +215,17 @@
             <div class="ph {{ file_exists(public_path("images/cafes/$slug.jpg")) ? 'has' : '' }}" style="background:{{ $bg }}">
                 @if (file_exists(public_path("images/cafes/$slug.jpg")))<img src="{{ asset("images/cafes/$slug.jpg") }}" alt="{{ $name }}">@endif
                 <svg class="icon cup"><use href="#i-cup"/></svg>
-                <span class="bm"><svg class="icon"><use href="#i-bookmark"/></svg></span>
+                <span class="bm" role="button" tabindex="0" aria-label="Simpan cafe"><svg class="icon"><use href="#i-bookmark"/></svg></span>
             </div>
             <div class="t"><div class="r1"><strong>{{ $name }}</strong><span>★ {{ $rate }}</span></div><small>{{ $area }} • {{ $price }}</small><em>{{ $tag }}</em></div>
         </a>
     @endforeach
 </div>
-@endsection
+{{-- Laci Keranjang & Riwayat Pesanan (komponen: resources/views/components/drawers.blade.php) --}}
+<x-drawers />
 
-@push('scripts')
-<script>
+{{-- Skrip ditaruh di sini (bukan @push) supaya pasti ikut tampil di layout apa pun --}}
+<script id="coffenfo-js">
     // --- Galeri: 3 foto tampil sekaligus, tombol panah menggeser ---
     const G = @json($gallery);
     const slots = document.querySelectorAll('#gallery > .ph');
@@ -224,11 +251,32 @@
         document.querySelectorAll('.menu-card').forEach(c => c.hidden = p.dataset.cat !== 'Semua' && c.dataset.cat !== p.dataset.cat);
     }));
 
-    // --- Tab: tandai yang diklik ---
-    const tabs = document.querySelectorAll('#tabs a');
-    tabs.forEach(t => t.addEventListener('click', () => tabs.forEach(x => x.classList.toggle('on', x === t))));
+    // --- Content tabs: klik tab = tampilkan panelnya ---
+    const tabs   = [...document.querySelectorAll('#tabs button')];
+    const panels = { menu: document.getElementById('menu'), ulasan: document.getElementById('ulasan'), fas: document.getElementById('fas') };
+
+    function openTab(name) {
+        Object.entries(panels).forEach(([key, el]) => el.hidden = key !== name);
+        tabs.forEach(b => {
+            const on = b.dataset.tab === name;
+            b.classList.toggle('on', on);
+            b.setAttribute('aria-selected', on);
+        });
+    }
+    tabs.forEach(b => b.addEventListener('click', () => openTab(b.dataset.tab)));
+
+    // Bisa dibuka langsung dari alamat: /dashboard#ulasan atau /dashboard#fas
+    const fromHash = location.hash.slice(1);
+    if (panels[fromHash]) openTab(fromHash);
+
+    // --- Tombol simpan di kartu cafe serupa ---
+    document.querySelectorAll('.bm').forEach(b => {
+        const toggle = e => { e.preventDefault(); e.stopPropagation(); b.classList.toggle('on'); };
+        b.addEventListener('click', toggle);
+        b.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') toggle(e); });
+    });
 
     // --- Tombol Simpan ---
     document.getElementById('save').addEventListener('click', e => e.currentTarget.classList.toggle('on'));
 </script>
-@endpush
+@endsection
