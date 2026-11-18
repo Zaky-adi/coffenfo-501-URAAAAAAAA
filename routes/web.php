@@ -39,7 +39,9 @@ Route::get('/login', function () {
 
 Route::post('/login', function () {
     // SEMENTARA: belum mengecek email/password. Nanti diganti dengan proses login sungguhan.
-    return redirect()->route('dashboard');
+    // Setelah masuk, pengguna langsung ke halaman Explore (daftar cafe).
+    // (Admin tidak lewat sini: dia dialihkan ke /admin/login. Mitra: nanti ke dashboard mitra.)
+    return redirect()->route('explore');
 });
 
 // Register: GET menampilkan formulir, POST memprosesnya (setelah daftar -> halaman login)
