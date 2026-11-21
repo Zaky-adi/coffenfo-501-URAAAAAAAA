@@ -3,7 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\EmailVerificationLinkController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\DashboardController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -87,9 +88,27 @@ Route::post('/admin/login', function () {
 // 4b. Panel admin. Semua URL diawali /admin dan semua nama diawali "admin."
 //     Nanti, untuk mengunci halaman admin, cukup tambahkan ->middleware('auth') pada grup ini.
 Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
 
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');  // /admin/dashboard
-    Route::view('/moderation', 'admin.moderation')->name('moderation');                  // /admin/moderation
-    Route::view('/orders',     'admin.orders')->name('orders');                          // /admin/orders
+    Route::get('/kelola', [DashboardController::class, 'kelola'])
+        ->name('kelola');
 
+    Route::get('/kelolabeans', [DashboardController::class, 'kelolabeans'])
+        ->name('kelolabeans');
+    
+    Route::get('/review', [DashboardController::class, 'review'])
+        ->name('review');
+    
+    Route::get('/laporan',[DashboardController::class, "laporan"])
+        ->name('laporan');
+
+    Route::get('/pengaturan', [DashboardController::class, 'pengaturan'])
+        ->name('pengaturan');
+
+    Route::view('/moderation', 'admin.moderation')
+        ->name('moderation');
+
+    Route::view('/orders', 'admin.orders')
+        ->name('orders');
 });
