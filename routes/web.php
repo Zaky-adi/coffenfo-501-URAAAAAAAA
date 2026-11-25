@@ -73,6 +73,7 @@ Route::post('/checkout', function () {
     return redirect()->route('orders');
 })->name('checkout.pay');
 Route::view('/pesanan',   'pesanan')->name('orders');        // Semua pesanan (riwayat lengkap)
+Route::view('/profil',    'profil')->name('profile');        // Profil pengguna
 
 
 // ===== 4. HALAMAN ADMIN =====
@@ -96,11 +97,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/kelolabeans', [DashboardController::class, 'kelolabeans'])
         ->name('kelolabeans');
-    
+
     Route::get('/review', [DashboardController::class, 'review'])
         ->name('review');
-    
-    Route::get('/laporan',[DashboardController::class, "laporan"])
+
+    Route::get('/laporan', [DashboardController::class, 'laporan'])
         ->name('laporan');
 
     Route::get('/pengaturan', [DashboardController::class, 'pengaturan'])
