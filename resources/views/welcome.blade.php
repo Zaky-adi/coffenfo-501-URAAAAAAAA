@@ -1,22 +1,26 @@
 @php
-    // Data contoh. Nanti pindahkan ke controller / database.
-    $chips = ['Single origin', 'V60', 'Cold brew', 'Nyaman untuk kerja', 'Ada stopkontak'];
-    $strip = ['Single origin', 'V60', 'Espresso', 'Cold brew', 'Cafe tenang', 'Colokan tersedia', 'Susu alternatif'];
-    $steps = [
+    // Data contoh. Kalau controller mengirim variabel dengan nama yang sama, data controller yang dipakai.
+    $chips = $chips ?? ['Single origin', 'V60', 'Cold brew', 'Nyaman untuk kerja', 'Ada stopkontak'];
+    $strip = $strip ?? ['Single origin', 'V60', 'Espresso', 'Cold brew', 'Cafe tenang', 'Colokan tersedia', 'Susu alternatif'];
+    $steps = $steps ?? [
         ['Cari cafe',      'Filter lewat jenis beans, metode seduh, dan suasana yang kamu mau.'],
         ['Pesan dari menu', 'Lihat menu cafe dan pesan langsung dari halamannya.'],
         ['Tulis ulasan',   'Bagikan pengalamanmu supaya pecinta kopi lain tidak salah pilih.'],
     ];
-    $cafes = [
-        ['name' => 'Grind Now Coffe Bar',   'area' => 'Batam Kota',  'rating' => 4.9, 'reviews' => 120, 'tags' => ['V60', 'Single origin'], 'img' => 'cafe-1.jpg', 'bg' => '#6b4a35'],
-        ['name' => 'Meilleur Cafe & Roastery', 'area' => 'Nagoya',   'rating' => 4.8, 'reviews' => 86,  'tags' => ['Espresso', 'Stopkontak'], 'img' => 'cafe-2.jpg', 'bg' => '#8a6a55'],
-        ['name' => 'Mula Patisserie',       'area' => 'Sekupang',    'rating' => 4.7, 'reviews' => 64,  'tags' => ['Cold brew', 'Dessert'], 'img' => 'cafe-3.jpg', 'bg' => '#a3845f'],
+    $cafes = $cafes ?? [
+        ['name' => 'Grind Now Coffe Bar',      'area' => 'Batam Kota', 'rating' => 4.9, 'reviews' => 120, 'tags' => ['V60', 'Single origin'],   'img' => 'cafe-1.jpg', 'bg' => '#6b4a35'],
+        ['name' => 'Meilleur Cafe & Roastery', 'area' => 'Nagoya',     'rating' => 4.8, 'reviews' => 86,  'tags' => ['Espresso', 'Stopkontak'],  'img' => 'cafe-2.jpg', 'bg' => '#8a6a55'],
+        ['name' => 'Mula Patisserie',          'area' => 'Sekupang',   'rating' => 4.7, 'reviews' => 64,  'tags' => ['Cold brew', 'Dessert'],    'img' => 'cafe-3.jpg', 'bg' => '#a3845f'],
     ];
-    $quotes = [
+    $quotes = $quotes ?? [
         ['Aku nemu tempat V60 favoritku lewat Coffenfo. Filter beans-nya benar-benar membantu.', 'Rina · Pekerja remote'],
         ['Ulasannya jujur dan detail, jadi tidak salah pilih cafe untuk kerja seharian.', 'Dimas · Mahasiswa'],
     ];
-    $loginUrl = route('role.select');
+    $districts = ['Batam Kota', 'Nagoya', 'Sekupang', 'Lubuk Baja', 'Batu Ampar'];
+    // Link. Pakai nama route kalau ada, kalau tidak pakai URL biasa supaya tidak error.
+    $loginUrl   = route('role.select');
+    $exploreUrl = Route::has('explore') ? route('explore') : url('/explore');
+    $partnerUrl = Route::has('partnership.store') ? route('partnership.store') : url('/partnership');
 @endphp
 <!DOCTYPE html>
 <html lang="id">
@@ -40,9 +44,13 @@
 {{-- Navbar --}}
 <header class="nav">
     <div class="wrap">
-        <a href="/" class="logo"><i>c</i>Coffenfo</a>
+        <a href="{{ url('/') }}" class="logo">
+            {{-- Slot logo. Taruh file logo asli di public/images/logo.png, nanti otomatis tampil. --}}
+            <span class="logo-box"><img src="{{ asset('images/logo.png') }}"></span>
+            Coffenfo
+        </a>
         <nav class="links">
-            <a href="#">Jelajahi cafe</a>
+            <a href="{{ $exploreUrl }}">Jelajahi cafe</a>
             <a href="#">Cafe tersimpan</a>
             <a href="#mitra">Kemitraan</a>
         </nav>
@@ -61,8 +69,12 @@
             <div class="eyebrow">DARI BATAM, UNTUK PECINTA KOPI</div>
             <h1>Temukan &amp; review cafe favoritmu di Batam</h1>
             <p>Dari tegukan pertama hingga tempat langganan. Cari cafe lewat jenis beans, metode seduh, dan suasana, lalu pesan dan tulis ulasanmu.</p>
+
+            {{-- Chip jadi link filter ke halaman explore --}}
             <div class="chips">
-                @foreach ($chips as $c)<span class="chip">{{ $c }}</span>@endforeach
+                @foreach ($chips as $c)
+                    <a class="chip" href="{{ $exploreUrl }}?filter={{ urlencode($c) }}">{{ $c }}</a>
+                @endforeach
             </div>
         </div>
 
@@ -107,12 +119,12 @@
     <div class="wrap">
         <div class="sechead">
             <div><h2>Cafe pilihan minggu ini</h2><p class="sub">Dipilih dari ulasan terbaik pengunjung Batam.</p></div>
-            <a href="#">Lihat semua cafe</a>
+            <a href="{{ $exploreUrl }}">Lihat semua cafe</a>
         </div>
         <div class="cards">
             @foreach ($cafes as $cafe)
                 <article class="cafe">
-                    {{-- Ganti div ini dengan <img src="{{ asset('images/nama-foto.jpg') }}"> kalau foto sudah ada --}}
+                    {{-- Foto asli kalau file ada di public/images, kalau tidak pakai warna + ikon --}}
                     @if (file_exists(public_path('images/'.$cafe['img'])))
                         <img class="photo" src="{{ asset('images/'.$cafe['img']) }}" alt="{{ $cafe['name'] }}">
                     @else
@@ -159,14 +171,38 @@
                 </ul>
             </div>
 
-            <form class="card" method="post" action="#">
+            <form class="card" method="post" action="{{ $partnerUrl }}">
                 @csrf
                 <h3>Ajukan kemitraan</h3>
-                <label>Nama cafe<input type="text" name="cafe_name" placeholder="Contoh: Temu Kopi"></label>
-                <label>Nama pemilik<input type="text" name="owner" placeholder="Nama lengkap"></label>
-                <label>Nomor WhatsApp<input type="tel" name="phone" placeholder="08xx xxxx xxxx"></label>
+
+                @if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="alert alert-error">
+                        <ul>
+                            @foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <label>Nama cafe
+                    <input type="text" name="cafe_name" placeholder="Contoh: Temu Kopi" value="{{ old('cafe_name') }}" required>
+                </label>
+                <label>Nama pemilik
+                    <input type="text" name="owner" placeholder="Nama lengkap" value="{{ old('owner') }}" required>
+                </label>
+                <label>Nomor WhatsApp
+                    <input type="tel" name="phone" placeholder="08xx xxxx xxxx" value="{{ old('phone') }}"
+                           pattern="(\+62|62|0)8[0-9\s\-]{8,15}" title="Contoh: 081234567890" required>
+                </label>
                 <label>Kecamatan
-                    <select name="district"><option>Batam Kota</option><option>Nagoya</option><option>Sekupang</option><option>Lubuk Baja</option><option>Batu Ampar</option></select>
+                    <select name="district" required>
+                        @foreach ($districts as $d)
+                            <option value="{{ $d }}" {{ old('district') === $d ? 'selected' : '' }}>{{ $d }}</option>
+                        @endforeach
+                    </select>
                 </label>
                 <button class="btn" type="submit">Ajukan kemitraan</button>
                 <small>Tim kami akan menghubungimu dalam 2 hari kerja.</small>
@@ -175,7 +211,7 @@
     </div>
 </section>
 
-<footer><div class="wrap"><span>© 2026 Coffenfo. Dibuat di Batam.</span><span>Kebijakan privasi · Syarat layanan</span></div></footer>
+<footer><div class="wrap"><span>© {{ date('Y') }} Coffenfo. Dibuat di Batam.</span><span>Kebijakan privasi · Syarat layanan</span></div></footer>
 
 </body>
 </html>

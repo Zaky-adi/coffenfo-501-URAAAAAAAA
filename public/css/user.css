@@ -204,3 +204,44 @@ html{scroll-behavior:smooth}
 
 @media(max-width:900px){.detail{grid-template-columns:1fr}.menu-grid,.sim{grid-template-columns:1fr 1fr}.gallery{height:220px}.fine{flex-direction:column;gap:6px}}
 @media(max-width:560px){.menu-grid,.sim{grid-template-columns:1fr}.d-head{flex-direction:column}.know dl{grid-template-columns:1fr}.h-row nav a:not(.on){display:none}}
+
+/* ===== 8. Menu pengguna (dropdown logout) — dipakai oleh <x-user-menu /> ===== */
+.um{position:relative}
+.um-toggle{position:absolute;opacity:0;width:0;height:0;pointer-events:none}
+
+/* chip di pojok kanan atas */
+.um-btn{display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none;background:#f1e8d8;border-radius:99px;padding:4px 12px 4px 4px;transition:background .15s,box-shadow .15s}
+.um-btn:hover,.um-toggle:checked + .um-btn{background:#eadfca}
+.um-toggle:checked + .um-btn{box-shadow:0 0 0 3px rgba(205,127,58,.22)}
+.um-toggle:focus-visible + .um-btn{outline:2px solid var(--accent);outline-offset:2px}
+.um-avatar{width:32px;height:32px;flex:none;border-radius:50%;overflow:hidden;background:var(--ink);color:#fff;display:grid;place-items:center}
+.um-avatar svg{width:16px;height:16px}
+.um-avatar img{width:100%;height:100%;object-fit:cover}
+.um-text{line-height:1.2;text-align:left}
+.um-text b{display:block;font-size:11px;font-weight:700;color:var(--ink)}
+.um-text small{font-size:9.5px;color:var(--muted)}
+.um-chev{width:13px;height:13px;margin-left:2px;color:var(--muted);transition:transform .2s}
+.um-toggle:checked + .um-btn .um-chev{transform:rotate(180deg)}
+
+/* klik di luar menu = menu menutup */
+.um-overlay{display:none;position:fixed;inset:0;z-index:90;cursor:default}
+.um-toggle:checked ~ .um-overlay{display:block}
+
+/* panel dropdown */
+.um-panel{position:absolute;right:0;top:calc(100% + 12px);z-index:100;width:250px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:6px;box-shadow:0 14px 36px rgba(59,38,32,.16);opacity:0;visibility:hidden;transform:translateY(-6px) scale(.98);transform-origin:top right;transition:opacity .18s,transform .18s,visibility .18s}
+.um-toggle:checked ~ .um-panel{opacity:1;visibility:visible;transform:none}
+.um-panel::before{content:"";position:absolute;right:22px;top:-6px;width:10px;height:10px;background:var(--card);border-left:1px solid var(--line);border-top:1px solid var(--line);transform:rotate(45deg)}
+.um-head{display:flex;align-items:center;gap:11px;padding:11px 11px 13px;border-bottom:1px solid var(--line);margin-bottom:5px}
+.um-head .um-avatar{width:40px;height:40px}
+.um-head .um-avatar svg{width:19px;height:19px}
+.um-head b{display:block;font-size:13px;line-height:1.25}
+.um-head small{display:block;font-size:10.5px;color:var(--muted);word-break:break-all}
+.um-item{display:flex;align-items:center;gap:11px;width:100%;padding:9px 11px;border:0;background:none;border-radius:8px;cursor:pointer;text-align:left;font:inherit;font-size:12px;font-weight:500;color:var(--ink);transition:background .12s}
+.um-item svg{width:16px;height:16px;flex:none;color:var(--accent)}
+.um-item:hover{background:#f6efe3}
+.um-sep{height:1px;background:var(--line);margin:5px 3px}
+.um-item.danger,.um-item.danger svg{color:#c0392b}
+.um-item.danger:hover{background:#fdecea}
+.um form{margin:0}
+
+@media(max-width:560px){.um-text,.um-chev{display:none}.um-btn{padding:4px}}
