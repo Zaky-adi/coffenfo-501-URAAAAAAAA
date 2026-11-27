@@ -1,0 +1,20 @@
+$kind: http-request
+name: "09. POST /api/v1/reviews/{id}/reports (Laporkan Ulasan Pengguna) [Dibuat: 2026-11-26] [UNTESTED]"
+description: "Laporkan ulasan. Alasan: spam, offensive, irrelevant, inappropriate, other. Maksimal 20 laporan/hari/user."
+url: "{{base_url}}/api/v1/reviews/{{review_id}}/reports"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "reason": "spam",
+        "note": "Iklan judi online di komentar review"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{user_token}}"
+order: 9000

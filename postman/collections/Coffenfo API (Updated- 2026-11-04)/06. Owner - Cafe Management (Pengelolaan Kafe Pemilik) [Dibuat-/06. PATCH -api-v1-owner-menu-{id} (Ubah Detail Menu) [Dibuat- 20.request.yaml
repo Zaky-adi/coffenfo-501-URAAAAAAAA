@@ -1,0 +1,17 @@
+$kind: http-request
+name: "06. PATCH /api/v1/owner/menu/{id} (Ubah Detail Menu) [Dibuat: 2026-11-04] [TESTED]"
+description: Owner memperbarui informasi harga, deskripsi, atau kategori menu miliknya.
+url: "{{base_url}}/api/v1/owner/menu/{{menu_item_public_id}}"
+method: PATCH
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{owner_access_token}}
+body:
+  type: json
+  content: |-
+    {
+      "price": 38000,
+      "description": "Espresso premium dengan steamed milk dan drizzle karamel gurih."
+    }
+order: 6000

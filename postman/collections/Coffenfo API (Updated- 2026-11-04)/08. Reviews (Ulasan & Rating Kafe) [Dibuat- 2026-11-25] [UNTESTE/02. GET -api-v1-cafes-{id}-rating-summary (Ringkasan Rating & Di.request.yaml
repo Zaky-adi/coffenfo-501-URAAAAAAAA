@@ -1,0 +1,8 @@
+$kind: http-request
+name: "02. GET /api/v1/cafes/{id}/rating-summary (Ringkasan Rating & Distribusi Bintang) [Dibuat: 2026-11-25] [TESTED]"
+description: Mendapatkan ringkasan rating rata-rata, total review, dan distribusi bintang 1-5.
+url: "{{base_url}}/api/v1/cafes/{{cafe_id}}/rating-summary"
+method: GET
+headers:
+  Accept: application/json
+order: 2000

@@ -1,0 +1,19 @@
+$kind: http-request
+name: "04. PATCH /api/v1/admin/reviews/{id}/feature (Tandai Ulasan Pilihan / Featured) [Dibuat: 2026-11-26] [UNTESTED]"
+description: Tandai ulasan untuk 'Kata pecinta kopi' (is_featured = true/false).
+url: "{{base_url}}/api/v1/admin/reviews/{{review_id}}/feature"
+method: PATCH
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "is_featured": true
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{admin_token}}"
+order: 4000

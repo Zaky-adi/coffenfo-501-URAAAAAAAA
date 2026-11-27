@@ -1,0 +1,20 @@
+$kind: http-request
+name: "03. POST /api/v1/admin/cafes (Admin - Tambah Data Kafe Baru) [Dibuat: 2026-11-01] [TESTED]"
+url: "{{base_url}}/api/v1/admin/cafes"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+body:
+  type: json
+  content: |-
+    {
+      "name": "Cafe Contoh",
+      "address": "Batam Center",
+      "area_id": 1,
+      "latitude": 1.0456,
+      "longitude": 104.0305,
+      "status": "active"
+    }
+order: 3000

@@ -1,0 +1,15 @@
+$kind: http-request
+name: 07. POST /api/v1/me/search-history [TESTED]
+url: "{{base_url}}/api/v1/me/search-history"
+method: POST
+headers:
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "keyword": "kopi batam"
+    }
+order: 7000

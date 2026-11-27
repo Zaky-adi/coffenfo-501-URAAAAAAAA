@@ -1,0 +1,8 @@
+$kind: http-request
+name: "01. GET /api/v1/owner/cafes (Lihat Daftar Kafe Milik Saya) [Dibuat: 2026-11-01] [TESTED]"
+url: "{{base_url}}/api/v1/owner/cafes"
+method: GET
+headers:
+  Accept: application/json
+  Authorization: Bearer {{owner_access_token}}
+order: 1000

@@ -1,0 +1,18 @@
+$kind: http-request
+name: "01. POST /api/v1/uploads/presign (Minta Presigned Upload URL) [Dibuat: 2026-11-26] [UNTESTED]"
+description: Meminta URL sementara upload foto (berlaku 10 menit, maks 5MB, maks 5 pending upload per user, rate limit 30/jam).
+url: "{{base_url}}/api/v1/uploads/presign"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+body:
+  type: text
+  content: |-
+    {
+      "purpose": "review_photo",
+      "content_type": "image/jpeg",
+      "size_bytes": 1048576
+    }
+order: 1000

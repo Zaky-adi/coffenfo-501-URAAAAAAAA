@@ -1,0 +1,15 @@
+$kind: http-request
+name: "04. PATCH /api/v1/admin/cafes/{id} (Admin - Ubah Data / Status Verifikasi Kafe) [Dibuat: 2026-11-01] [TESTED]"
+url: "{{base_url}}/api/v1/admin/cafes/{{cafe_public_id}}"
+method: PATCH
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+body:
+  type: json
+  content: |-
+    {
+      "status": "active"
+    }
+order: 4000

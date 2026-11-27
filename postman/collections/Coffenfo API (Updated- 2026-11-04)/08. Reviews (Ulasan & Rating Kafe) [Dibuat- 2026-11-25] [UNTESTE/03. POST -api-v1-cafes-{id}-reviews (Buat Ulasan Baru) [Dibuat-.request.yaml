@@ -1,0 +1,19 @@
+$kind: http-request
+name: "03. POST /api/v1/cafes/{id}/reviews (Buat Ulasan Baru) [Dibuat: 2026-11-25] [TESTED]"
+description: Memberikan ulasan bintang 1-5 untuk kafe. Wajib pernah berkunjung (visit) dan email terverifikasi. Wajib header Idempotency-Key.
+url: "{{base_url}}/api/v1/cafes/{{cafe_id}}/reviews"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+  Idempotency-Key: review-test-001
+body:
+  type: text
+  content: |-
+    {
+      "rating": 5,
+      "comment": "Kopi enak banget dan suasana nyaman untuk ngerjain tugas.",
+      "is_anonymous": false
+    }
+order: 3000

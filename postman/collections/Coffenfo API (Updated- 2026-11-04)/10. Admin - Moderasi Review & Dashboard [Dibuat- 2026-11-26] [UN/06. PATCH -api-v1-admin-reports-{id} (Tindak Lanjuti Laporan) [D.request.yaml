@@ -1,0 +1,19 @@
+$kind: http-request
+name: "06. PATCH /api/v1/admin/reports/{id} (Tindak Lanjuti Laporan) [Dibuat: 2026-11-26] [UNTESTED]"
+description: "Tangani laporan ulasan: resolved (ulasan ditolak) atau dismissed (ulasan dipulihkan)."
+url: "{{base_url}}/api/v1/admin/reports/1"
+method: PATCH
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "status": "resolved"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{admin_token}}"
+order: 6000

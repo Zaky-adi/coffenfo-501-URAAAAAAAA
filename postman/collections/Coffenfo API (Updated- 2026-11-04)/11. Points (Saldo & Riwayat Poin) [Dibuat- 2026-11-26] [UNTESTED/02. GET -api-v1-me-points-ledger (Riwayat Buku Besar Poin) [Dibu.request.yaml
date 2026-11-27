@@ -1,0 +1,15 @@
+$kind: http-request
+name: "02. GET /api/v1/me/points/ledger (Riwayat Buku Besar Poin) [Dibuat: 2026-11-26] [UNTESTED]"
+description: Mendapatkan riwayat mutasi buku besar poin append-only (earn, redeem, revoke, dsb).
+url: "{{base_url}}/api/v1/me/points/ledger?page=1&per_page=20"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  page: "1"
+  per_page: "20"
+auth:
+  type: bearer
+  credentials:
+    token: "{{user_token}}"
+order: 2000

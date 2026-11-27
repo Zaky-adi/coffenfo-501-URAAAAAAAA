@@ -1,0 +1,18 @@
+$kind: http-request
+name: "01. POST /api/v1/partnership-requests (Kirim Pengajuan Kemitraan Baru) [Dibuat: 2026-11-01] [TESTED]"
+url: "{{base_url}}/api/v1/partnership-requests"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Idempotency-Key: "{{$guid}}"
+body:
+  type: json
+  content: |-
+    {
+      "cafe_name": "Kedai Kopi Contoh",
+      "owner_name": "Pemilik Contoh",
+      "whatsapp": "081234567890",
+      "area_id": 1
+    }
+order: 1000

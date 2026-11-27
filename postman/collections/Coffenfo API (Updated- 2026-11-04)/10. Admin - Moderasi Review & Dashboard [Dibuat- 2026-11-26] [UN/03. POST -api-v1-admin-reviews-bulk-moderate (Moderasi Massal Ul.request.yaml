@@ -1,0 +1,20 @@
+$kind: http-request
+name: "03. POST /api/v1/admin/reviews/bulk-moderate (Moderasi Massal Ulasan) [Dibuat: 2026-11-26] [UNTESTED]"
+description: Moderasi massal hingga 50 ulasan sekaligus.
+url: "{{base_url}}/api/v1/admin/reviews/bulk-moderate"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "review_ids": ["{{review_id}}"],
+        "action": "approve"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{admin_token}}"
+order: 3000

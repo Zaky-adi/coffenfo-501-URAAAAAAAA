@@ -1,0 +1,19 @@
+$kind: http-request
+name: "05. PUT /api/v1/admin/featured-cafes/{id} (Admin - Jadikan Kafe Unggulan / Featured) [Dibuat: 2026-11-01] [TESTED]"
+url: "{{base_url}}/api/v1/admin/featured-cafes/1"
+method: PUT
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+body:
+  type: json
+  content: |-
+    {
+      "cafe_id": "{{cafe_public_id}}",
+      "label": "Pilihan minggu ini",
+      "starts_on": "2026-11-01",
+      "ends_on": "2026-11-07",
+      "sort_order": 1
+    }
+order: 5000

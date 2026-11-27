@@ -1,0 +1,16 @@
+$kind: http-request
+name: "02. POST /api/v1/uploads/confirm (Konfirmasi Selesai Upload) [Dibuat: 2026-11-26] [UNTESTED]"
+description: Mengonfirmasi bahwa objek telah diunggah sehingga status berubah menjadi ready dan menghasilkan URL publik.
+url: "{{base_url}}/api/v1/uploads/confirm"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+body:
+  type: text
+  content: |-
+    {
+      "upload_id": "{{upload_id}}"
+    }
+order: 2000

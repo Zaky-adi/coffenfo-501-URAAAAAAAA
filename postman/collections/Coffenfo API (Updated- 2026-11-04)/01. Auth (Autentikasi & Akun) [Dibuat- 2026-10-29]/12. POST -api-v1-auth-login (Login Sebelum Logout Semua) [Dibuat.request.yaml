@@ -1,0 +1,23 @@
+$kind: http-request
+name: "12. POST /api/v1/auth/login (Login Sebelum Logout Semua) [Dibuat: 2026-10-29] [TESTED]"
+url: "{{base_url}}/api/v1/auth/login"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  X-Client-Platform: android
+  X-App-Version: 1.0.0
+body:
+  type: json
+  content: |-
+    {
+      "identifier": "{{login_identifier}}",
+      "password": "{{login_password}}",
+      "device": {
+        "device_id": "{{login_device_id}}",
+        "device_name": "Postman Android",
+        "platform": "android",
+        "app_version": "1.0.0"
+      }
+    }
+order: 12000

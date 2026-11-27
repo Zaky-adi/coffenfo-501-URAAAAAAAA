@@ -1,0 +1,8 @@
+$kind: http-request
+name: "02. GET /api/v1/admin/cafes/{id} (Admin - Detail Data Kafe) [Dibuat: 2026-11-01] [TESTED]"
+url: "{{base_url}}/api/v1/admin/cafes/{{cafe_public_id}}"
+method: GET
+headers:
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+order: 2000

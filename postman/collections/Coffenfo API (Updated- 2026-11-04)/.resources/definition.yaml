@@ -1,0 +1,20 @@
+$kind: collection
+name: "Coffenfo API (Updated: 2026-11-04)"
+description: Koleksi API Coffenfo. Tujuh endpoint katalog telah dicoba oleh pengguna.
+variables:
+  base_url: http://localhost:8000
+  register_email: ""
+  first_register_data: ""
+  verification_token: ""
+  reset_token: ""
+  access_token: ""
+  login_identifier: ""
+  login_invalid_identifier: unknown-login@example.test
+  login_password: ""
+  login_device_id: postman-android-device
+  refresh_token: ""
+  master_id: "1"
+  cafe_public_id: 00000000-0000-4000-8000-000000000000
+  owner_access_token: ""
+  partnership_id: 00000000-0000-4000-8000-000000000000
+  menu_item_public_id: 00000000-0000-4000-8000-000000000000

@@ -1,0 +1,15 @@
+$kind: http-request
+name: "10. POST /api/v1/auth/refresh (Perbarui Token Sesi / Refresh Token) [Dibuat: 2026-10-29] [TESTED]"
+url: "{{base_url}}/api/v1/auth/refresh"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  X-Client-Platform: android
+body:
+  type: json
+  content: |-
+    {
+      "refresh_token": "{{refresh_token}}"
+    }
+order: 10000

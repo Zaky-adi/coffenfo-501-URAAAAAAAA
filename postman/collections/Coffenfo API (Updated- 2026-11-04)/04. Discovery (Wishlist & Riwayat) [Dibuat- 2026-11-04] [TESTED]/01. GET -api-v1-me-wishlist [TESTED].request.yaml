@@ -1,0 +1,8 @@
+$kind: http-request
+name: 01. GET /api/v1/me/wishlist [TESTED]
+url: "{{base_url}}/api/v1/me/wishlist"
+method: GET
+headers:
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+order: 1000

@@ -1,0 +1,12 @@
+$kind: http-request
+name: "07. PUT /api/v1/reviews/{id}/helpful (Tandai Ulasan Bermanfaat) [Dibuat: 2026-11-26] [UNTESTED]"
+description: Tandai ulasan sebagai bermanfaat (helpful). Menambah helpful_count ulasan secara atomik.
+url: "{{base_url}}/api/v1/reviews/{{review_id}}/helpful"
+method: PUT
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{user_token}}"
+order: 7000

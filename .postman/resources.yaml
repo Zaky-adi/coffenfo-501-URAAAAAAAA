@@ -1,0 +1,12 @@
+# Use this workspace to collaborate
+workspace:
+  id: 8eba7c59-b88b-4d00-8b69-daefc4fc8ab2
+
+localResources:
+  collections: []
+
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
+cloudResources:
+  collections:
+    ../postman/collections/Coffenfo API (Updated- 2026-11-04): 410cb5ff-44b0-46bb-bc91-97cfdc8c5a40

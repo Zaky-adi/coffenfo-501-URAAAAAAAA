@@ -1,0 +1,21 @@
+$kind: http-request
+name: "06. POST /api/v1/reviews/{id}/photos (Lampirkan Foto ke Ulasan) [Dibuat: 2026-11-26] [UNTESTED]"
+description: Melampirkan foto hasil upload (status ready & purpose review_photo) ke review milik user. Maks 5 foto per ulasan.
+url: "{{base_url}}/api/v1/reviews/{{review_id}}/photos"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+body:
+  type: text
+  content: |-
+    {
+      "photos": [
+        {
+          "upload_id": "{{upload_id}}",
+          "caption": "Foto suasana kafe dan racikan espresso."
+        }
+      ]
+    }
+order: 6000

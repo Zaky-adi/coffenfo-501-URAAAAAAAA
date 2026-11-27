@@ -1,0 +1,16 @@
+$kind: http-request
+name: "04. PUT /api/v1/me/preferences (Atur Preferensi Kopi Pengguna) [Dibuat: 2026-10-31] [TESTED]"
+url: "{{base_url}}/api/v1/me/preferences"
+method: PUT
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+body:
+  type: json
+  content: |-
+    {
+      "bean_type_id": null,
+      "roast_level_id": null
+    }
+order: 4000

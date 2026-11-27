@@ -1,0 +1,20 @@
+$kind: http-request
+name: "02. POST /api/v1/owner/cafes (Daftarkan Kafe Baru Oleh Pemilik) [Dibuat: 2026-11-01] [TESTED]"
+url: "{{base_url}}/api/v1/owner/cafes"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{owner_access_token}}
+body:
+  type: json
+  content: |-
+    {
+      "name": "Cafe Pemilik",
+      "address": "Batam Center",
+      "area_id": 1,
+      "latitude": 1.0456,
+      "longitude": 104.0305,
+      "opening_hours": [{"day": 1, "open_time": "08:00", "close_time": "22:00", "is_closed": false}]
+    }
+order: 2000

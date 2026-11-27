@@ -1,0 +1,12 @@
+$kind: http-request
+name: "07. GET /api/v1/admin/dashboard/summary (Ringkasan Metriks Dashboard) [Dibuat: 2026-11-26] [UNTESTED]"
+description: Ringkasan metriks dashboard admin (total kafe aktif, ulasan pending/reported, laporan terbuka, kemitraan pending).
+url: "{{base_url}}/api/v1/admin/dashboard/summary"
+method: GET
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{admin_token}}"
+order: 7000

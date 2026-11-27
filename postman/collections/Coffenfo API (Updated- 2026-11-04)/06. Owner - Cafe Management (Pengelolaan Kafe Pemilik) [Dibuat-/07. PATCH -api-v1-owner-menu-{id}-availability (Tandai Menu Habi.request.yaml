@@ -1,0 +1,16 @@
+$kind: http-request
+name: "07. PATCH /api/v1/owner/menu/{id}/availability (Tandai Menu Habis / Tersedia) [Dibuat: 2026-11-04] [TESTED]"
+description: Owner menyetel status menu menjadi habis (false) atau tersedia kembali (true).
+url: "{{base_url}}/api/v1/owner/menu/{{menu_item_public_id}}/availability"
+method: PATCH
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{owner_access_token}}
+body:
+  type: json
+  content: |-
+    {
+      "is_available": false
+    }
+order: 7000

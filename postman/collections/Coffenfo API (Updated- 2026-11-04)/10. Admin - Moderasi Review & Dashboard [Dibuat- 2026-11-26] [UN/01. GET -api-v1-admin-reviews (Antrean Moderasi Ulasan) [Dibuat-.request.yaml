@@ -1,0 +1,16 @@
+$kind: http-request
+name: "01. GET /api/v1/admin/reviews (Antrean Moderasi Ulasan) [Dibuat: 2026-11-26] [UNTESTED]"
+description: Menampilkan daftar antrean ulasan untuk dimoderasi admin (filter status pending/approved/reported/rejected, cafe_id, q, tanggal).
+url: "{{base_url}}/api/v1/admin/reviews?status=pending&page=1&per_page=20"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  status: pending
+  page: "1"
+  per_page: "20"
+auth:
+  type: bearer
+  credentials:
+    token: "{{admin_token}}"
+order: 1000

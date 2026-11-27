@@ -1,0 +1,10 @@
+$kind: http-request
+name: "08. GET /api/v1/cafes/{id}/menu (Daftar Menu Kafe) [Dibuat: 2026-11-04] [TESTED]"
+description: Daftar menu per kafe dengan filter kategori opsional (?category=coffee). Mengembalikan item aktif dengan dukungan ETag caching.
+url: "{{base_url}}/api/v1/cafes/{{cafe_public_id}}/menu?category=coffee"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  category: coffee
+order: 8000

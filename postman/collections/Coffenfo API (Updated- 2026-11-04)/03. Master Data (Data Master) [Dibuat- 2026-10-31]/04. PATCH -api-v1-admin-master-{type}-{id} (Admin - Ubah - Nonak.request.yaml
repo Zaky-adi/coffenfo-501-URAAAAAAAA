@@ -1,0 +1,16 @@
+$kind: http-request
+name: "04. PATCH /api/v1/admin/master/{type}/{id} (Admin - Ubah / Nonaktifkan Data Master) [Dibuat: 2026-10-31] [TESTED]"
+description: Uses the numeric master id returned when creating an item; master IDs are referenced as foreign keys by the current schema.
+url: "{{base_url}}/api/v1/admin/master/areas/{{master_id}}"
+method: PATCH
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+body:
+  type: json
+  content: |-
+    {
+      "is_active": false
+    }
+order: 4000

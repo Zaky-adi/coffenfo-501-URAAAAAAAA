@@ -1,0 +1,9 @@
+$kind: http-request
+name: "08. DELETE /api/v1/owner/menu/{id} (Hapus / Nonaktifkan Menu) [Dibuat: 2026-11-04] [TESTED]"
+description: Menghapus menu (soft delete via is_active=false sesuai API_RULES).
+url: "{{base_url}}/api/v1/owner/menu/{{menu_item_public_id}}"
+method: DELETE
+headers:
+  Accept: application/json
+  Authorization: Bearer {{owner_access_token}}
+order: 8000

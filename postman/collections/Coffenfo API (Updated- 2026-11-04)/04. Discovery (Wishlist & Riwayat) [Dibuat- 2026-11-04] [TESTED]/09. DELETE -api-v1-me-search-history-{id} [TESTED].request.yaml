@@ -1,0 +1,8 @@
+$kind: http-request
+name: 09. DELETE /api/v1/me/search-history/{id} [TESTED]
+url: "{{base_url}}/api/v1/me/search-history/1"
+method: DELETE
+headers:
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+order: 9000

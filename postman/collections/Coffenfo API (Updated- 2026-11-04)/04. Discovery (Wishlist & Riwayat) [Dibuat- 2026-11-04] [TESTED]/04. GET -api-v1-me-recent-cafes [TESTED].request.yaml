@@ -1,0 +1,8 @@
+$kind: http-request
+name: 04. GET /api/v1/me/recent-cafes [TESTED]
+url: "{{base_url}}/api/v1/me/recent-cafes"
+method: GET
+headers:
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+order: 4000

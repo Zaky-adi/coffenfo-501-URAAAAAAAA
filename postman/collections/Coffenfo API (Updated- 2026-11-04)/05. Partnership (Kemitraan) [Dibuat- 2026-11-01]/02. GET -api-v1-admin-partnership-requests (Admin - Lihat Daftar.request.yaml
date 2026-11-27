@@ -1,0 +1,10 @@
+$kind: http-request
+name: "02. GET /api/v1/admin/partnership-requests (Admin - Lihat Daftar Pengajuan Kemitraan) [Dibuat: 2026-11-01] [TESTED]"
+url: "{{base_url}}/api/v1/admin/partnership-requests?status=new"
+method: GET
+headers:
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+queryParams:
+  status: new
+order: 2000

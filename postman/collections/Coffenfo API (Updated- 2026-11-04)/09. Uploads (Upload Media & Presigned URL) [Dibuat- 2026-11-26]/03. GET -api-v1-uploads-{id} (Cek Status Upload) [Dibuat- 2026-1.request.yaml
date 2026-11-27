@@ -1,0 +1,9 @@
+$kind: http-request
+name: "03. GET /api/v1/uploads/{id} (Cek Status Upload) [Dibuat: 2026-11-26] [UNTESTED]"
+description: Mengecek status upload foto (pending, ready, expired) milik user login.
+url: "{{base_url}}/api/v1/uploads/{{upload_id}}"
+method: GET
+headers:
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+order: 3000

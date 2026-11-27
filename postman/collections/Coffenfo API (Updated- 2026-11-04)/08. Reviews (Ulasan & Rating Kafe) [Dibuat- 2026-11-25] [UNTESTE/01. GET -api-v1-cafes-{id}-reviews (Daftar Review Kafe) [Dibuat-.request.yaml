@@ -1,0 +1,23 @@
+$kind: http-request
+name: "01. GET /api/v1/cafes/{id}/reviews (Daftar Review Kafe) [Dibuat: 2026-11-25] [TESTED]"
+description: Melihat daftar review kafe publik dengan filter rating, foto, dan sortir.
+url: "{{base_url}}/api/v1/cafes/{{cafe_id}}/reviews?page=1&per_page=10&sort=newest"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: page
+    value: "1"
+  - key: per_page
+    value: "10"
+  - key: sort
+    value: newest
+    description: newest | highest | lowest | helpful
+  - key: rating
+    value: "5"
+    disabled: true
+    description: 1-5
+  - key: has_photo
+    value: "true"
+    disabled: true
+order: 1000

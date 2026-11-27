@@ -1,0 +1,17 @@
+$kind: http-request
+name: "04. PATCH /api/v1/reviews/{id} (Ubah Ulasan Sendiri) [Dibuat: 2026-11-25] [TESTED]"
+description: Mengedit ulasan milik sendiri. Mengembalikan status ke pending dan menghitung ulang rating kafe.
+url: "{{base_url}}/api/v1/reviews/{{review_id}}"
+method: PATCH
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+body:
+  type: text
+  content: |-
+    {
+      "rating": 4,
+      "comment": "Kopi mantap, tapi wifi agak lambat pas ramai."
+    }
+order: 4000

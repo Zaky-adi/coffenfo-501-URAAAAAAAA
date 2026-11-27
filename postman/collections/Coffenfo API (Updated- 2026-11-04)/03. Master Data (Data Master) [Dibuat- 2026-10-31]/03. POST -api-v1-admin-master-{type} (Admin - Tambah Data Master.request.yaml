@@ -1,0 +1,18 @@
+$kind: http-request
+name: "03. POST /api/v1/admin/master/{type} (Admin - Tambah Data Master) [Dibuat: 2026-10-31] [TESTED]"
+url: "{{base_url}}/api/v1/admin/master/areas"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+body:
+  type: json
+  content: |-
+    {
+      "name": "Area Baru",
+      "slug": "area-baru",
+      "latitude": 1.05,
+      "longitude": 104.02
+    }
+order: 3000

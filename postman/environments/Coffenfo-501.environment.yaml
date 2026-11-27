@@ -1,0 +1,4 @@
+name: Coffenfo-501
+values:
+  - key: '{{base_url}}'
+    value: ''

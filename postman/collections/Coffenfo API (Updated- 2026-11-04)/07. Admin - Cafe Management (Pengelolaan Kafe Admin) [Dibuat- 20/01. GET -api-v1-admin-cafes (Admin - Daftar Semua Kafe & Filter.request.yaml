@@ -1,0 +1,10 @@
+$kind: http-request
+name: "01. GET /api/v1/admin/cafes (Admin - Daftar Semua Kafe & Filter Status) [Dibuat: 2026-11-01] [TESTED]"
+url: "{{base_url}}/api/v1/admin/cafes?status=pending"
+method: GET
+headers:
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+queryParams:
+  status: pending
+order: 1000

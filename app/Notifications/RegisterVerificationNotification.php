@@ -21,7 +21,7 @@ class RegisterVerificationNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $verificationUrl = route('auth.email.verify.link', ['token' => $this->token]);
+        $verificationUrl = rtrim((string) config('app.url'), '/') . '/verify-email/' . rawurlencode($this->token);
 
         return (new MailMessage())
             ->subject('Verifikasi email Coffenfo')

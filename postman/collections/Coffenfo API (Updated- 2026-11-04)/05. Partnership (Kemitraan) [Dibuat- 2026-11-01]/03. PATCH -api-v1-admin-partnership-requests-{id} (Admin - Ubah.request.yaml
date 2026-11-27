@@ -1,0 +1,16 @@
+$kind: http-request
+name: "03. PATCH /api/v1/admin/partnership-requests/{id} (Admin - Ubah Status Pengajuan Kemitraan) [Dibuat: 2026-11-01] [TESTED]"
+url: "{{base_url}}/api/v1/admin/partnership-requests/{{partnership_id}}"
+method: PATCH
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+body:
+  type: json
+  content: |-
+    {
+      "status": "contacted",
+      "admin_note": "Sudah dihubungi"
+    }
+order: 3000

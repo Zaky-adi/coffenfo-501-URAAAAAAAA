@@ -99,12 +99,17 @@ class LoginController extends Controller
                 return ['status' => 'invalid'];
             }
 
-            if ($lockedUser->locked_until && now()->lt($lockedUser->locked_until)) {
-                $this->recordAttempt($identifierHash, $ipAddress, false, $request->userAgent());
-                return ['status' => 'locked'];
-            }
-
             if (!Hash::check($password, (string) $lockedUser->password)) {
+                if ($lockedUser->locked_until && now()->lt($lockedUser->locked_until)) {
+                    $this->recordAttempt($identifierHash, $ipAddress, false, $request->userAgent());
+                    return ['status' => 'invalid'];
+                }
+
+                if ($lockedUser->locked_until !== null) {
+                    $lockedUser->failed_login_count = 0;
+                    $lockedUser->locked_until = null;
+                }
+
                 $maxAttempts = max(1, (int) (DB::table('app_settings')
                     ->where('setting_key', 'login_max_attempts')
                     ->value('setting_value') ?? 5));
@@ -132,7 +137,7 @@ class LoginController extends Controller
                         'created_at' => now(),
                     ]);
 
-                    return ['status' => 'locked_after_failure'];
+                    return ['status' => 'invalid'];
                 }
 
                 return ['status' => 'invalid'];
@@ -143,11 +148,15 @@ class LoginController extends Controller
                 return ['status' => 'invalid'];
             }
 
-            $lockedUser->forceFill([
+            $loginUpdates = [
                 'failed_login_count' => 0,
                 'locked_until' => null,
                 'last_login_at' => now(),
-            ])->save();
+            ];
+            if (Hash::needsRehash((string) $lockedUser->password)) {
+                $loginUpdates['password'] = Hash::make($password);
+            }
+            $lockedUser->forceFill($loginUpdates)->save();
             $this->recordAttempt($identifierHash, $ipAddress, true, $request->userAgent());
 
             if ($platform !== 'web' && $deviceId !== null) {
@@ -219,10 +228,6 @@ class LoginController extends Controller
                 'refresh_token' => $refreshToken,
             ];
         });
-
-        if ($result['status'] === 'locked') {
-            return $this->errorResponse('ACCOUNT_LOCKED', 'Akun dikunci sementara.', 423, [], $requestId);
-        }
 
         if ($result['status'] !== 'success') {
             return $this->invalidCredentials($requestId);

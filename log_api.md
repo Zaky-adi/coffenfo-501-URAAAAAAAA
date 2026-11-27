@@ -1,6 +1,191 @@
+### Modul 13 & 07 - Verifikasi Task 19 (Uploads & Presign) dan Task 22 (Saldo & Riwayat Poin)
+- **Status:** Tested (Task 19 & Task 22 terverifikasi berhasil oleh pengguna melalui Postman)
+- **Date:** 2026-11-27
+- **Work done:**
+  - Pengguna mengonfirmasi seluruh endpoint pada Folder 09. Uploads (POST /uploads/presign, POST /uploads/confirm, GET /uploads/{id}, POST /reviews/{id}/photos) dan Folder 11. Points (GET /me/points, GET /me/points/ledger) telah diuji dan berhasil.
+  - Memperbarui tag folder dan request terkait di Coffenfo.postman_collection.json menjadi [TESTED].
+  - Memperbarui status Task 19 dan Task 22 pada api_task.md menjadi **Selesai**.
+- **Prompt:** "09. Uploads (Upload Media & Presigned URL) [Dibuat: 2026-11-26] [UNTESTED]\n11. Points (Saldo & Riwayat Poin) [Dibuat: 2026-11-26] [UNTESTED]\n\nuntuk api ini sudah saya test"
+### Modul 07 - Saldo dan Buku Besar Poin (Task 22)
+- **Status:** Implemented (Endpoint GET /me/points dan GET /me/points/ledger selesai dibuat, menunggu verifikasi runtime/Postman)
+- **Date:** 2026-11-26
+- **Work done:**
+  - Membuat PointController.php dengan method getBalance() (mengembalikan saldo aktif dan lifetime_earned dari user_points) dan getLedger() (mengembalikan riwayat mutasi points_ledger dengan paginasi).
+  - Mendaftarkan rute GET /api/v1/me/points dan GET /api/v1/me/points/ledger di outes/api.php di bawah middleware uth:sanctum.
+  - Menambahkan folder baru 11. Points (Saldo & Riwayat Poin) ke Coffenfo.postman_collection.json bertanda [UNTESTED].
+  - Memperbarui status Task 22 pada pi_task.md menjadi **Revisi**.
+- **Prompt:** "sekarang kita lanjut ke task 22"
+### Modul 06 & 09 - Helpful & Laporan Review serta Moderasi Admin dan Dashboard (Task 20 & 21)
+- **Status:** Implemented (Endpoint Task 20 Helpful/Reports & Task 21 Moderasi/Admin Reports/Dashboard selesai dibuat, menunggu verifikasi runtime/Postman)
+- **Date:** 2026-11-26
+- **Work done:**
+  - Task 20: Menambahkan method oteHelpful(), emoveHelpful(), dan eport() pada ReviewController.php (validasi CANNOT_VOTE_OWN_REVIEW, CANNOT_REPORT_OWN_REVIEW, batasan 20 laporan/hari/user, transisi status ulasan ke eported atau ejected jika akumulasi laporan $\ge 3$ pelapor unik).
+  - Task 21: Membuat AdminReviewController.php dengan method index() (antrean moderasi & filter status/cafe/kata kunci/tanggal beserta jumlah laporan), moderate() (setujui/tolak ulasan, penambahan/pencabutan poin di points_ledger & user_points, sp_recalc_cafe_rating, audit logs, notifikasi), ulkModerate() (moderasi massal maks 50 item), 	oggleFeature() (featured review testimoni), eportsIndex() (antrean laporan ulasan), handleReport() (penanganan laporan esolved / dismissed), dan dashboardSummary() (agregasi metriks dashboard admin).
+  - Mendaftarkan rute terkait pada outes/api.php di bawah middleware autentikasi user dan admin.
+  - Memperbarui koleksi Postman Coffenfo.postman_collection.json dengan request Task 20 dan folder baru 10. Admin - Moderasi Review & Dashboard bertanda [UNTESTED].
+  - Memperbarui status Task 20 dan Task 21 pada pi_task.md menjadi **Revisi**.
+- **Prompt:** "lanjut ke task 20 dan 21, setelah selesai berikan daftar list api yang perlu saya test nanti"
+### Modul 13 & 06 - Foto Review dan Presigned Upload (Task 19)
+- **Status:** Implemented (Endpoint POST /uploads/presign, POST /uploads/confirm, GET /uploads/{id}, dan POST /reviews/{id}/photos selesai dibuat, verifikasi runtime/Postman menunggu)
+- **Date:** 2026-11-26
+- **Work done:**
+  - Membuat UploadController dengan method presign() (validasi purpose review_photo/cafe_photo/menu_photo/avatar, content_type jpeg/png/webp, ukuran maks 5MB, batas 5 pending upload per user, rate limit 30/jam, masa berlaku 10 menit).
+  - Menambahkan method confirm() (validasi kepemilikan upload, cek kedaluwarsa, transisi status ke ready dan pembuatan public storage URL).
+  - Menambahkan method show() (cek status upload pending/ready/expired dan atribut konsumsi).
+  - Menambahkan method attachReviewPhotos() (melampirkan 1-5 foto ke review milik user, validasi status ready, validasi purpose review_photo, update status uploads.consumed_at dan reviews.has_photo).
+  - Menambahkan rute terkait pada routes/api.php di bawah middleware auth:sanctum.
+  - Menambahkan folder 09. Uploads (Upload Media & Presigned URL) dan request foto review pada Coffenfo.postman_collection.json bertanda [UNTESTED].
+  - Memperbarui status Task 19 di api_task.md menjadi Revisi.
+- **Prompt:** " ayok kita kerjakan task 19\
+
+Ã¯Â»Â¿### Modul 06 - Verifikasi Task 18 (Buat, Edit, Hapus Review)
+- **Status:** Tested (Task 18 terverifikasi berhasil oleh pengguna melalui Postman)
+- **Date:** 2026-11-26
+- **Work done:**
+  - Pengguna mengonfirmasi seluruh 3 endpoint pada Task 18 (POST ulasan baru dengan syarat visit & email, PATCH ubah ulasan, DELETE soft-delete ulasan) telah ditest dan berhasil.
+  - Menandai request 03, 04, 05 pada folder Reviews di Coffenfo.postman_collection.json sebagai [TESTED].
+  - Memperbarui status Task 18 di api_task.md menjadi **Selesai**.
+- **Prompt:** " task 18 sudah saya test selanjutnya task apa lagi yang belum kita kerjakan list sesuai urutan pengerjaan\
+
+Ã¯Â»Â¿### Modul 06 - Buat, Edit, dan Hapus Review (Task 18 + Verifikasi Task 17)
+- **Status:** Implemented (Task 17 Selesai/Tested, Task 18 selesai dibuat, verifikasi runtime/Postman menunggu)
+- **Date:** 2026-11-25
+- **Work done:**
+  - Menandai Task 17 sebagai Selesai setelah pengujian berhasil oleh pengguna.
+  - Menambahkan method store() pada ReviewController dengan validasi rating 1-5, komentar maks 500, syarat kunjungan (visits), syarat verifikasi email, proteksi ulasan ganda (1 ulasan/cafe), rate limit 10/hari, dan Idempotency-Key.
+  - Menambahkan method update() (edit ulasan sendiri, reset ke pending, pembaruan rating kafe) dan destroy() (soft-delete, pembaruan rating kafe).
+  - Menambahkan 3 request baru ke folder 08. Reviews pada Coffenfo.postman_collection.json bertanda [UNTESTED].
+  - Memperbarui status Task 18 di api_task.md menjadi Revisi.
+- **Prompt:** " api untuk task 17 sudah saya test selanjutnya kita bikin task 18\
+
+
+### Modul 06 Ã¢â‚¬Â Buat, Edit, dan Hapus Review (Task 18)
+- **Status;Ã¯Â¿Â½* Implemented (Endpoint POST /cafes/{id}/reviews, PATCH /reviews/{id}, dan DELETE /reviews/{id} selesai dibuat, verifikasi runtime/Postman menunggu)
+- **Date:** 2026-11-25
+- **Work done:**
+  - Menandai Task 17 sebagai Selesai setelah pengujian berhasil oleh pengguna.
+  - Menambahkan method store() pada ReviewController dengan validasi rating 1-5, komentar maks 500, syarat kunjungan (visits), syarat verifikasi email, proteksi ulasan ganda (1 ulasan/cafe), rate limit 10/hari, dan Idempotency-Key.
+  - Menambahkan method update() (edit ulasan sendiri, reset ke pending, pembauruan rating kafe) dan destroy() (soft-delete, pembauruan rating kafe).
+  - Menambahkan 3 request baru ke folder 08. Reviews pada Coffenfo.postman_collection.json bertanda [UNTESTED].
+  - Memperbarwi status Task 18 di api_task.md menjadi Revisi.
+- **Prompt:** "api untuk task 17 sudah saya test, selanjutnya kita bikin task 18"
+
+### Modul 06 Ã¢â‚¬â€ Baca Review dan Ringkasan Rating (Task 17)
+- **Status;Ã¯Â¿Â½* Implemented (Endpoint GET /cafes/{id}/reviews dan GET /cafes/{id}/rating-summary selesai dibuat, menunggu verifikasi runtime/Postman)
+- **Date:** 2026-11-25
+- **Work done:**
+  - Membuat ReviewController dengan method index() (pagination, sort newest/highest/lowest/helpful, filter rating & has_photo, proteksi nama/avatar anonim) dan ratingSummary() (rata-rata rating, total review, distribusi bintang 1 s/d 5)
+  - Menambahkan rute publik dengan throttle 120/menit dan validasi UULD cafe: GET /api/v1/cafes/{id}/reviews dan GET /api/v1/cafes/{id}/rating-summary
+  - Menambahkan folder baru 08. Reviews ke Coffenfo.postman_collection.json berisi 2 request baru dengan tag [UNTESTED]
+  - Memperbarwi status Task 17 di api_task.md menjadi Revisi
+- **Prompt:** "ayok kita bikin task 17"
+
+### Modul 05 - Hasil Pengujian Discovery (Wishlist, Recent Views, Search History)
+- **Status:** Tested (Task 14, 15, 16 terverifikasi berhasil oleh pengguna setelah fix OFFSET limit)
+- **Date:** 2026-11-25
+- **Work done:**
+  - Menambahkan method helper success() dan error() pada DiscoveryController.
+  - Memperbaiki SQL syntax OFFSET tanpa LIMIT pada pruning riwayat pencarian (menambahkan ->take(100)).
+  - Pengguna mengonfirmasi seluruh 9 endpoint pada Modul Discovery telah ditest dan berhasil semua.
+  - Menandai folder 04. Discovery pada Coffenfo.postman_collection.json sebagai [TESTED].
+  - Memperbarui status Task 14, 15, dan 16 pada api_task.md menjadi **Selesai**.
+- **Prompt:** " oke semua api sudah saya test sekarang kita lanjut ke task berikutnya berikan saya daftarnya\n
+### Modul 03 & 04 - Hasil Pengujian Owner Cafe Management dan Menu Cafe
+- **Status:** Tested (Task 11 Owner, Task 12 & 13 berhasil diuji oleh pengguna melalui Postman)
+- **Date:** 2026-11-25
+- **Work done:**
+  - Pengguna mengonfirmasi seluruh endpoint pengelolaan kafe pemilik (/owner/cafes, accepts-orders) serta menu kafe (GET /cafes/{id}/menu publik, owner CRUD menu, availability toggle, soft delete) telah ditest dan berhasil.
+  - Menandai request pada folder 06. Owner - Cafe Management dan GET menu kafe publik pada Coffenfo.postman_collection.json sebagai [TESTED].
+  - Memperbarui status Task 12 dan Task 13 di api_task.md menjadi **Selesai**.
+- **Prompt:** " Owner - Pengelolaan Kafe dan Menu Kafe sudah saya test\n
+### Modul 03 - Hasil Pengujian Partnership dan Admin Cafe Management
+- **Status:** Tested (Task 10 & 11 berhasil diuji oleh pengguna melalui Postman)
+- **Date:** 2026-11-25
+- **Work done:**
+  - Pengguna mengonfirmasi seluruh endpoint pada Task 10 (Partnership Requests user & admin) dan Task 11 (Admin & Owner Cafe Management, Featured cafe) telah ditest dan berhasil.
+  - Menandai request di folder 05. Partnership dan 07. Admin - Cafe Management pada Coffenfo.postman_collection.json sebagai [TESTED].
+  - Memperbarui status Task 10 dan Task 11 di api_task.md menjadi **Selesai**.
+- **Prompt:** " patnership dan admin sudah saya test\n
+Ã¯Â»Â¿### Modul 03 - Hasil Pengujian Katalog Kafe Publik
+- **Status:** Tested (Task 9 - Seluruh 7 endpoint katalog kafe publik terverifikasi berhasil oleh pengguna)
+- **Date:** 2026-11-25
+- **Work done:**
+  - Pengguna mengonfirmasi seluruh 7 endpoint pada Modul 03 (Katalog Kafe Publik: GET /cafes, /cafes/nearby, /cafes/popular, /cafes/featured, /cafes/{id}, /cafes/{id}/similar, dan /testimonials) telah ditest dan berhasil semua.
+  - Memperbarui status Task 9 pada api_task.md menjadi **Selesai**.
+- **Prompt:** " katalog kafe sudah saya test berhasil semua\
+
+### Modul 01 & 02 Ã¢â‚¬â€ Verifikasi Auth, Profile, dan Master Data
+- **Status:** Tested (Task 1-8 berhasil diuji oleh pengguna melalui Postman)
+- **Date:** 2026-11-25
+- **Work done:**
+  - Pengguna mengonfirmasi seluruh endpoint pada Modul 02 (Auth & Sesi: Register, Verify Email, Reset Password, Login, Refresh, Logout, Logout-all), Modul 02 (Profile: Get/Patch Me, Password, Preferences, Delete Me), serta Modul 01 (Master Data: Get Master & Admin Master CRUD) telah ditest dan berhasil.
+  - Memperbarui status Task 1 s/d 8 di api_task.md menjadi **Selesai**.
+  - Menandai request terkait di Postman collection Coffenfo.postman_collection.json sebagai [TESTED].
+- **Prompt:** untuk bagian auth, profile, master data itu sudah saya test dan berhasil jadi perbarui lagi task yang sudah, dan belumnya
+
 ## API Development Log
 
-### Module 03 — Endpoint detail admin cafe
+### Security Ã¯Â¿Â½ Perbaikan login lockout dan host tautan email
+- **Status:** Fixed (perlu verifikasi perilaku melalui Postman dan konfigurasi deployment)
+- **Date:** 2026-11-04
+- **Work done:**
+  - Login tidak lagi menolak password yang benar hanya karena `locked_until` aktif; respons kredensial salah tetap generik agar status lock tidak membocorkan keberadaan akun.
+  - Setelah masa lockout lewat, hitungan gagal direset sebelum dihitung kembali sehingga satu percobaan gagal tidak langsung memulai lockout baru.
+  - Mengaktifkan middleware `TrustHosts` dan membatasi host ke host `APP_URL` yang dikonfigurasi.
+  - URL verifikasi email dan reset password sekarang dibangun dari `APP_URL`, bukan host request yang dapat dikontrol klien.
+  - Mengalihkan hash password baru ke Argon2id (native PHP tersedia), memigrasikan hash lama saat login berhasil, dan menghindari batas 72 byte bcrypt untuk password baru.
+  - Memeriksa sintaks PHP pada file yang berubah; belum menjalankan tes integrasi atau mengirim request ke server.
+- **AI:** Codex
+- **Prompt:** "perbaiki celah keamanannya, masukan ke dalam log perbaikannya"
+### Modul 03 Ã¯Â¿Â½ Hasil tes katalog cafe publik
+- **Status:** Tested (7 request katalog publik sudah dicoba oleh pengguna melalui Postman)
+- **Date:** 2026-11-04
+- **Work done:**
+  - Pengguna mengonfirmasi sudah mengetes `GET /api/v1/cafes?sort=rating`, `GET /api/v1/cafes/nearby?lat=1.0456&lng=104.0305&radius_km=10`, `GET /api/v1/cafes/popular`, `GET /api/v1/cafes/featured`, `GET /api/v1/cafes/{id}`, `GET /api/v1/cafes/{id}/similar`, dan `GET /api/v1/testimonials`.
+  - Mengubah penanda request yang bersangkutan menjadi `[TESTED]` di workspace collection Postman dan file impor `Coffenfo.postman_collection.json`.
+  - Status hanya mencatat bahwa request telah dicoba; hasil/status HTTP tiap request tidak disertakan.
+- **AI:** Codex
+- **Prompt:** "ini yang sudah saya test, kok sekarang Coffenfo.postman_collection.json nya malah hilang, mejadi folder Coffenfo API (Updated- 2026-11-04), kenapa bisa seperti itu?"
+### Modul 05 Ã¯Â¿Â½ Discovery
+- **Status:** Implemented (endpoint dan request Postman ditambahkan; verifikasi database/Postman menunggu)
+- **Date:** 2026-11-04
+- **Work done:**
+  - Menambahkan wishlist terautentikasi: daftar, tambah idempoten, dan hapus cafe.
+  - Menambahkan `GET /me/recent-cafes` dan `POST /cafes/{id}/view`; `GET /cafes/{id}` juga mencatat view otomatis untuk user login.
+  - Menambahkan search history: lihat, simpan keyword minimal 2 karakter, deduplikasi tanpa membedakan kapital, batas 20 entri, hapus satu atau semua. Pencarian katalog user login ikut memperbarui riwayat.
+  - Event `view`, `search`, `wishlist_add`, `wishlist_remove` hanya disimpan saat user mengaktifkan personalisasi.
+  - Menambahkan 9 request berlabel `[UNTESTED]` ke `Coffenfo.postman_collection.json`.
+  - Memeriksa sintaks PHP dan registrasi route Laravel. Belum menjalankan request terhadap database aktif.
+- **AI:** Codex
+- **Prompt:** "kita bikin discovery"
+### Module 04 Ã¯Â¿Â½ Pengelolaan Menu Pemilik Kafe
+- **Status:** Revisi (endpoints added; database request verification pending)
+- **Date:** 2026-11-04
+- **Work done:**
+  - Added authenticated cafe owner endpoints:
+    - `GET /api/v1/owner/cafes/{id}/menu`: Menampilkan daftar menu milik kafe owner.
+    - `POST /api/v1/owner/cafes/{id}/menu`: Tambah menu baru dengan validasi kategori, harga, dan kepemilikan kafe.
+    - `PATCH /api/v1/owner/menu/{id}`: Ubah nama, harga, kategori, deskripsi, gambar menu.
+    - `PATCH /api/v1/owner/menu/{id}/availability`: Toggle status ketersediaan menu (is_available).
+    - `DELETE /api/v1/owner/menu/{id}`: Soft-delete menu (is_active = false) sesuai ketentuan API_RULES.
+  - Added transaction support and append-only audit logging (`audit_logs`) for menu mutations.
+  - Added 5 request items to Postman collection folder `06. Owner - Cafe Management` and labeled unverified endpoints from recent work as `[UNTESTED]`.
+- **AI:** Codex
+- **Prompt:** "sekarang kita bikin api modul 4 bagian owner cafe, dan juga berikan tanda untuk api yang kita bikin dan yang terakhir kita commit belum saya test jadi tandain sebagai untested di file .jsonnya untuk yang saya tandai tadi"
+
+### Module 04 Ã¯Â¿Â½ Menu Cafe (Publik)
+- **Status:** Revisi (route and handler implemented; database runtime verification pending)
+- **Date:** 2026-11-04
+- **Work done:**
+  - Added public `GET /api/v1/cafes/{id}/menu` with UUID route constraint, 120 req/min rate limit, and optional `?category={slug}` filter.
+  - Queries active items from `menu_items` joined with `menu_categories`, sorted by category sort order, item sort order, and item name.
+  - Exposed only public fields (`public_id`, `name`, `description`, `price`, `image_url`, `is_available`, and category detail); internal numeric IDs are not exposed for items.
+  - Added ETag calculation and `Cache-Control: public, max-age=3600` support (returns 304 Not Modified when `If-None-Match` matches).
+  - Added request to Postman collection folder `04. Cafe Catalog (Katalog Kafe Publik)` with cache header test assertion.
+- **AI:** Codex
+- **Prompt:** "kerjakan modul 04 tapi kita kerjakan yang public dulu"
+
+### Module 03 Ã¢â‚¬â€ Endpoint detail admin cafe
 - **Status:** Revisi (GET detail added; database request verification pending)
 - **Date:** 2026-11-01
 - **Work done:**
@@ -10,7 +195,7 @@
 - **AI:** Codex
 - **Prompt:** "{{base_url}}api/v1/admin/cafes/322e0bcc-d464-4843-acee-8968b4a9f52e untuk link ini hasilnya 200ok tapi tidak menampilkan apapun dari database"
 
-### Module 03 — Katalog cafe, kemitraan, dan pengelolaan cafe
+### Module 03 Ã¢â‚¬â€ Katalog cafe, kemitraan, dan pengelolaan cafe
 - **Status:** Revisi (routes/handlers/Postman added; database migrations and end-to-end requests pending)
 - **Date:** 2026-11-01
 - **Work done:**
@@ -25,7 +210,7 @@
 - **AI:** Codex
 - **Prompt:** "oke, sekarang kita buat endpoint katalog cafe, kemitraan, dan pengelolaan cafenya"
 
-### Module 01 — Master Data
+### Module 01 Ã¢â‚¬â€ Master Data
 - **Status:** Revisi (routes and handlers implemented; migration/runtime verification pending)
 - **Date:** 2026-10-31
 - **Work done:**
@@ -38,7 +223,7 @@
 - **AI:** Codex
 - **Prompt:** "sekarang kita kerjakan master data apinya"
 
-### Module 01 — Perbaikan urutan endpoint areas
+### Module 01 Ã¢â‚¬â€ Perbaikan urutan endpoint areas
 - **Status:** Revisi (query tidak lagi mengasumsikan semua tabel punya `sort_order`; migrasi perlu dijalankan)
 - **Date:** 2026-10-31
 - **Work done:**
@@ -48,7 +233,7 @@
 - **AI:** Codex
 - **Prompt:** "\"message\": \"SQLSTATE[42S22]: Column not found: 1054 Unknown column 'sort_order' in 'order clause' ...\" ini error dari postman saat saya mau test api master/areas"
 
-### Module 02 — Profil & Preferensi Pengguna
+### Module 02 Ã¢â‚¬â€ Profil & Preferensi Pengguna
 - **Status:** Revisi (endpoint telah dibuat; verifikasi database/Postman dan alur avatar menunggu modul presigned upload)
 - **Date:** 2026-10-31
 - **Work done:**
@@ -62,7 +247,7 @@
 - **AI:** Codex
 - **Prompt:** "kerjakan yang profil dan preferensi pengguna, jangan lupa catat log nya ya, nanti list apa yang baru dibuat"
 
-### Module 02 – Auth & User
+### Module 02 Ã¢â‚¬â€œ Auth & User
 - **Status:** Completed (Register API implemented)
 - **Date:** 2026-10-26
 - **Work done:**
@@ -72,7 +257,7 @@
   - Added Postman collection entry `Auth / Register` (see `Coffenfo.postman_collection.json`).
 - **Prompt:** "sekarang kita mulai dengan membuat api register, untuk setiap api yang telah kita bikin buat juga cara pengetesannya di postman, dan catat log pembuat api, bikin file .md dengan nama log_api.md, catat nomor modulnya, status pengerjaan, tanggal pengerjaan, apa yang dikerjakan, serta prompt yang di berikan"
 
-### Module 02 – Auth & User
+### Module 02 Ã¢â‚¬â€œ Auth & User
 - **Status:** Updated (Register API aligned with `API_RULES.md` and `PRD.md`; common-password screening still needs follow-up)
 - **Date:** 2026-10-28
 - **Work done:**
@@ -88,7 +273,7 @@
 - **AI:** Codex
 - **Prompt:** "baca API_RUPES.md dan PRD.md, coba liat api register yang dibikin sudah sesuai dengan ketentuan yang ada di file .md itu, kalo belum saya izin kan untuk mengubahnya setiap perubahan dicatat dilog_api.md ikuti format penulisan di log+api.md dan tulis saya menggunakan ai apa sebagai contoh saya menggunakan codex untuk menheksekusi prompt ini"
 
-### Module 02 – Auth & User
+### Module 02 Ã¢â‚¬â€œ Auth & User
 - **Status:** Revisi (email verification and password recovery endpoints implemented; live database/email verification pending)
 - **Date:** 2026-10-28
 - **Work done:**
@@ -102,7 +287,7 @@
 - **AI:** Codex
 - **Prompt:** "oke ayo kita bikin verify email dan forgot password"
 
-### Module 02 – Auth & User
+### Module 02 Ã¢â‚¬â€œ Auth & User
 - **Status:** Revisi (register validation fatal error fixed)
 - **Date:** 2026-10-28
 - **Work done:**
@@ -112,7 +297,7 @@
 - **Prompt:** "{\"success\": false, \"error\": {\"code\": \"VALIDATION_ERROR\", \"message\": \"Data tidak valid.\", \"details\": [{\"field\": \"token\", \"message\": \"The token field is required.\"}]}, \"request_id\": \"50d851d5-ade4-4dd3-86a3-8ef52a8682d5\"} bagaimana melakukan pengetesan untuk verify email nya dipostman"
 - **Follow-up prompt:** "{\"message\": \"Could not check compatibility between App\\\\Http\\\\Requests\\\\RegisterRequest::withValidator(App\\\\Http\\\\Requests\\\\Validator $validator): void and App\\\\Http\\\\Requests\\\\ApiFormRequest::withValidator(Illuminate\\\\Contracts\\\\Validation\\\\Validator $validator): void, because class App\\\\Http\\\\Requests\\\\Validator is not available\"} ini kenapa"
 
-### Module 02 – Auth & User
+### Module 02 Ã¢â‚¬â€œ Auth & User
 - **Status:** Revisi (resend-verification endpoint added; real email delivery awaits an active SMTP service)
 - **Date:** 2026-10-28
 - **Work done:**
@@ -123,7 +308,7 @@
 - **AI:** Codex
 - **Prompt:** "kalo langsung bikinkan yang bisa kirim link verify email ke email langsung bagaimana, kita buat langsung"
 
-### Module 02 – Auth & User
+### Module 02 Ã¢â‚¬â€œ Auth & User
 - **Status:** Revisi (Brevo SMTP transport configured; account credentials and verified sender are still required)
 - **Date:** 2026-10-28
 - **Work done:**
@@ -134,7 +319,7 @@
 - **AI:** Codex
 - **Prompt:** "untuk smtpnya saya mau gunakan brevo, konfigurasikan sekarang"
 
-### Module 02 – Auth & User
+### Module 02 Ã¢â‚¬â€œ Auth & User
 - **Status:** Revisi (Brevo selected; mail transport configuration restored and unverified registrations can request a fresh token through register)
 - **Date:** 2026-10-28
 - **Work done:**
@@ -145,7 +330,7 @@
 - **AI:** Codex
 - **Prompt:** "saya sudah setting dienv tetap belum masuk link verifynya"
 
-### Module 02 – Auth & User
+### Module 02 Ã¢â‚¬â€œ Auth & User
 - **Status:** Revisi (GET verification link route added; browser flow pending end-to-end check)
 - **Date:** 2026-10-28
 - **Work done:**
@@ -157,7 +342,7 @@
 - **AI:** Codex
 - **Prompt:** "sudah bisa, tapi klik urlnya not found"
 
-### Module 02 – Auth & User
+### Module 02 Ã¢â‚¬â€œ Auth & User
 - **Status:** Revisi (halaman tautan reset password ditambahkan; perlu dicoba dari email pada server lokal)
 - **Date:** 2026-10-29
 - **Work done:**
@@ -169,7 +354,7 @@
 - **AI:** Codex
 - **Prompt:** "dibagian reset password berhasil mengirim link ke email untuk reset tapi masi not found saat dipencet"
 
-### Module 02 – Auth & User
+### Module 02 Ã¢â‚¬â€œ Auth & User
 - **Status:** Revisi (reset password kini mencatat waktu perubahan pada `users.password_changed_at`; perlu verifikasi melalui reset aktual)
 - **Date:** 2026-10-29
 - **Work done:**
@@ -181,7 +366,7 @@
 - **Prompt:** "oke, sekarang sisi database, ketika user berhasil mereset password dibagian kolom password_changed_at tidak ada tanggal password ditunggal berapa"
 
 
-### Module 02 – Auth & User
+### Module 02 Ã¢â‚¬â€œ Auth & User
 - **Status:** Revisi (login endpoint implemented; database/Postman end-to-end verification and JWT contract alignment remain open)
 - **Date:** 2026-10-29
 - **Work done:**
@@ -194,7 +379,7 @@
   - Did not run automated tests. PRD/API_RULES specify JWT; this repository currently uses Sanctum and has no JWT package, so the task remains Revisi pending a stack/contract decision and end-to-end verification.
 - **AI:** Codex
 - **Prompt:** "kita bikin endpoint login dulu"
-### Module 02 – Auth & User
+### Module 02 Ã¢â‚¬â€œ Auth & User
 - **Status:** Revisi (perbaikan bug pemanggilan method login; verifikasi runtime database masih perlu dilakukan)
 - **Date:** 2026-10-29
 - **Work done:**
@@ -203,7 +388,7 @@
   - Postman/database runtime verification remains outstanding.
 - **AI:** Codex
 - **Prompt:** "{\"message\": \"Method App\\\\Http\\\\Controllers\\\\Auth\\\\LoginController::insertAttempt does not exist.\"} ini error karna apa?"
-### Module 02 / 13 – Auth, Refresh & Sesi
+### Module 02 / 13 Ã¢â‚¬â€œ Auth, Refresh & Sesi
 - **Status:** Revisi (refresh, logout current session, and logout-all implemented; live database/Postman verification pending)
 - **Date:** 2026-10-29
 - **Work done:**

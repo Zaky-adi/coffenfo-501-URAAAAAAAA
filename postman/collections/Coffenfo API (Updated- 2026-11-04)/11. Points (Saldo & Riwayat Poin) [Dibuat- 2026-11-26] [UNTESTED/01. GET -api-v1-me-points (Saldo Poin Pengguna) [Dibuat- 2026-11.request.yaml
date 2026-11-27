@@ -1,0 +1,12 @@
+$kind: http-request
+name: "01. GET /api/v1/me/points (Saldo Poin Pengguna) [Dibuat: 2026-11-26] [UNTESTED]"
+description: Mendapatkan saldo poin saat ini dan total poin yang pernah diperoleh (lifetime_earned).
+url: "{{base_url}}/api/v1/me/points"
+method: GET
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{user_token}}"
+order: 1000

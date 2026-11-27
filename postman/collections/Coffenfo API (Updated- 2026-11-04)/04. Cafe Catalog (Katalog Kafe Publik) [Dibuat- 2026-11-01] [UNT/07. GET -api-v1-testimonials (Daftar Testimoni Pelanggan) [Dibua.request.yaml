@@ -1,0 +1,7 @@
+$kind: http-request
+name: "07. GET /api/v1/testimonials (Daftar Testimoni Pelanggan) [Dibuat: 2026-11-01] [TESTED]"
+url: "{{base_url}}/api/v1/testimonials"
+method: GET
+headers:
+  Accept: application/json
+order: 7000

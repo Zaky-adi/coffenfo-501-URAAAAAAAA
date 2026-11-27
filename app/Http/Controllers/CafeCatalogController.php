@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Http\Controllers\DiscoveryController;
 
 class CafeCatalogController extends Controller
 {
@@ -35,7 +36,7 @@ class CafeCatalogController extends Controller
                 $q->where('cafes.name', 'like', $term)->orWhere('cafes.tagline', 'like', $term)
                     ->orWhereExists(fn ($sub) => $sub->selectRaw('1')->from('menu_items')->whereColumn('menu_items.cafe_id', 'cafes.id')->where('menu_items.name', 'like', $term)->where('menu_items.is_active', true));
             });
-            $this->recordSearch($request, $data['q']);
+            if ($request->user()) (new DiscoveryController())->recordSearch($request, $data['q']);
         }
         foreach (['area_id', 'has_self_roasting'] as $field) {
             $input = $field === 'has_self_roasting' ? 'self_roasting' : $field;
@@ -114,10 +115,16 @@ class CafeCatalogController extends Controller
         return $this->listResponse($rows, 20);
     }
 
-    public function show(string $id): JsonResponse
+    public function show(Request $request, string $id): JsonResponse
     {
         $cafe = DB::table('cafes')->where('public_id', $id)->where('status', 'active')->whereNull('deleted_at')->first();
         if (!$cafe) return $this->error('NOT_FOUND', 'Cafe tidak ditemukan.', 404);
+        if ($request->user()) {
+            DB::statement('INSERT INTO user_cafe_views (user_id, cafe_id, view_count, first_viewed_at, last_viewed_at) VALUES (?, ?, 1, UTC_TIMESTAMP(), UTC_TIMESTAMP()) ON DUPLICATE KEY UPDATE view_count = view_count + 1, last_viewed_at = UTC_TIMESTAMP()', [$request->user()->id, $cafe->id]);
+            if (DB::table('user_privacy_settings')->where('user_id', $request->user()->id)->value('personalization_enabled')) {
+                DB::table('user_events')->insert(['user_id' => $request->user()->id, 'cafe_id' => $cafe->id, 'event_type' => 'view', 'created_at' => now()]);
+            }
+        }
         $data = $this->cafeItem($cafe);
         $data['photos'] = DB::table('cafe_photos')->where('cafe_id', $cafe->id)->orderByDesc('is_cover')->orderBy('id')->get(['path as url', 'caption', 'is_cover']);
         $data['opening_hours'] = DB::table('opening_hours')->where('cafe_id', $cafe->id)->orderBy('day')->get(['day', 'open_time', 'close_time', 'is_closed']);
@@ -163,14 +170,6 @@ class CafeCatalogController extends Controller
         ])->all());
     }
 
-    private function recordSearch(Request $request, string $term): void
-    {
-        $user = $request->user();
-        if ($user && mb_strlen(trim($term)) >= 2 && DB::table('user_privacy_settings')->where('user_id', $user->id)->value('personalization_enabled')) {
-            DB::table('user_events')->insert(['user_id' => $user->id, 'event_type' => 'search', 'query_text' => mb_substr($term, 0, 100), 'created_at' => now()]);
-        }
-    }
-
     private function whereOpenNow($query): void
     {
         $now = now('Asia/Jakarta');
@@ -198,6 +197,72 @@ class CafeCatalogController extends Controller
             $nextCursor = $sort ? $this->encodeCafeCursor($last, $sort) : $this->encodeCursor((int) $last->id);
         }
         return response()->json(['success' => true, 'data' => $items, 'meta' => ['limit' => $limit, 'has_more' => $hasMore, 'next_cursor' => $nextCursor], 'request_id' => (string) Str::uuid()]);
+    }
+
+
+    public function menu(Request $request, string $id): JsonResponse
+    {
+        $cafe = DB::table('cafes')->where('public_id', $id)->where('status', 'active')->whereNull('deleted_at')->first();
+        if (!$cafe) {
+            return $this->error('NOT_FOUND', 'Cafe tidak ditemukan.', 404);
+        }
+
+        $query = DB::table('menu_items')
+            ->join('menu_categories', 'menu_items.category_id', '=', 'menu_categories.id')
+            ->where('menu_items.cafe_id', $cafe->id)
+            ->where('menu_items.is_active', true);
+
+        if ($request->filled('category')) {
+            $query->where('menu_categories.slug', (string) $request->query('category'));
+        }
+
+        $items = $query->orderBy('menu_categories.sort_order')
+            ->orderBy('menu_items.sort_order')
+            ->orderBy('menu_items.name')
+            ->get([
+                'menu_items.public_id',
+                'menu_items.name',
+                'menu_items.description',
+                'menu_items.price',
+                'menu_items.image_url',
+                'menu_items.is_available',
+                'menu_categories.id as category_id',
+                'menu_categories.name as category_name',
+                'menu_categories.slug as category_slug',
+            ])
+            ->map(fn (object $row): array => [
+                'public_id' => $row->public_id,
+                'name' => $row->name,
+                'description' => $row->description,
+                'price' => (int) $row->price,
+                'image_url' => $row->image_url,
+                'is_available' => (bool) $row->is_available,
+                'category' => [
+                    'id' => (int) $row->category_id,
+                    'name' => $row->category_name,
+                    'slug' => $row->category_slug,
+                ],
+            ])
+            ->values()
+            ->all();
+
+        $etag = '"' . hash('sha256', json_encode($items, JSON_THROW_ON_ERROR)) . '"';
+        if ($request->header('If-None-Match') === $etag) {
+            return response()->noContent(304)->withHeaders([
+                'ETag' => $etag,
+                'Cache-Control' => 'public, max-age=3600',
+            ]);
+        }
+
+        // ponytail: flat category list response; upgrade to grouped-by-category if requested by frontend
+        return response()->json([
+            'success' => true,
+            'data' => $items,
+            'request_id' => (string) Str::uuid(),
+        ])->withHeaders([
+            'ETag' => $etag,
+            'Cache-Control' => 'public, max-age=3600',
+        ]);
     }
 
     private function cafeItem(object $row): array

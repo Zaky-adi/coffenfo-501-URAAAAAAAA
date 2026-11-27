@@ -1,0 +1,9 @@
+$kind: http-request
+name: "05. DELETE /api/v1/reviews/{id} (Hapus Ulasan Sendiri) [Dibuat: 2026-11-25] [TESTED]"
+description: Soft-delete ulasan milik sendiri dan menghitung ulang rating kafe.
+url: "{{base_url}}/api/v1/reviews/{{review_id}}"
+method: DELETE
+headers:
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+order: 5000

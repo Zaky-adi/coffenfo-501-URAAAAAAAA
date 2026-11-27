@@ -1,0 +1,7 @@
+$kind: http-request
+name: "05. GET /api/v1/cafes/{id} (Detail Informasi Lengkap Kafe) [Dibuat: 2026-11-01] [TESTED]"
+url: "{{base_url}}/api/v1/cafes/{{cafe_public_id}}"
+method: GET
+headers:
+  Accept: application/json
+order: 5000

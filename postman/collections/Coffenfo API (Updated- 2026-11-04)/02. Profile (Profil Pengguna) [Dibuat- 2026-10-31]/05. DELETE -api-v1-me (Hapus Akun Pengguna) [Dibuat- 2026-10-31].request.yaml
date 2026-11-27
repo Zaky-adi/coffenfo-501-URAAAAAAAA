@@ -1,0 +1,15 @@
+$kind: http-request
+name: "05. DELETE /api/v1/me (Hapus Akun Pengguna) [Dibuat: 2026-10-31] [TESTED]"
+url: "{{base_url}}/api/v1/me"
+method: DELETE
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+body:
+  type: json
+  content: |-
+    {
+      "password": "{{login_password}}"
+    }
+order: 5000

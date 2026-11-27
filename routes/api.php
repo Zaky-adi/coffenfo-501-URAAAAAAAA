@@ -25,8 +25,14 @@ use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\MasterDataController;
 use App\Http\Controllers\CafeCatalogController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\PartnershipController;
 use App\Http\Controllers\CafeManagementController;
+use App\Http\Controllers\CafeMenuManagementController;
+use App\Http\Controllers\DiscoveryController;
+use App\Http\Controllers\UploadController;
+use App\Http\Controllers\AdminReviewController;
+use App\Http\Controllers\PointController;
 
 Route::post('/v1/auth/register', [RegisterController::class, '__invoke'])
     ->middleware('throttle:5,60');
@@ -73,13 +79,48 @@ Route::get('/v1/testimonials', [CafeCatalogController::class, 'testimonials'])->
 Route::get('/v1/cafes', [CafeCatalogController::class, 'index'])->middleware('throttle:120,1');
 Route::get('/v1/cafes/{id}/similar', [CafeCatalogController::class, 'similar'])->whereUuid('id');
 Route::get('/v1/cafes/{id}', [CafeCatalogController::class, 'show'])->whereUuid('id');
+Route::get('/v1/cafes/{id}/menu', [CafeCatalogController::class, 'menu'])->whereUuid('id')->middleware('throttle:120,1');
+Route::get('/v1/cafes/{id}/reviews', [ReviewController::class, 'index'])->whereUuid('id')->middleware('throttle:120,1');
+Route::get('/v1/cafes/{id}/rating-summary', [ReviewController::class, 'ratingSummary'])->whereUuid('id')->middleware('throttle:120,1');
+Route::middleware(['auth:sanctum', 'throttle:300,1'])->group(function (): void {
+    Route::get('/v1/me/wishlist', [DiscoveryController::class, 'wishlist']);
+    Route::put('/v1/me/wishlist/{cafePublicId}', [DiscoveryController::class, 'addWishlist'])->whereUuid('cafePublicId');
+    Route::delete('/v1/me/wishlist/{cafePublicId}', [DiscoveryController::class, 'removeWishlist'])->whereUuid('cafePublicId');
+    Route::get('/v1/me/recent-cafes', [DiscoveryController::class, 'recentCafes']);
+    Route::post('/v1/cafes/{cafePublicId}/view', [DiscoveryController::class, 'recordView'])->whereUuid('cafePublicId');
+    Route::get('/v1/me/search-history', [DiscoveryController::class, 'searchHistory']);
+    Route::post('/v1/me/search-history', [DiscoveryController::class, 'storeSearchHistory']);
+    Route::delete('/v1/me/search-history', [DiscoveryController::class, 'deleteSearchHistory']);
+    Route::delete('/v1/me/search-history/{id}', [DiscoveryController::class, 'deleteSearchHistory'])->whereNumber('id');
+    Route::post('/v1/cafes/{id}/reviews', [ReviewController::class, 'store'])->whereUuid('id');
+    Route::patch('/v1/reviews/{id}', [ReviewController::class, 'update'])->whereUuid('id');
+    Route::delete('/v1/reviews/{id}', [ReviewController::class, 'destroy'])->whereUuid('id');
+    Route::post('/v1/reviews/{id}/photos', [UploadController::class, 'attachReviewPhotos'])->whereUuid('id');
+    Route::post('/v1/uploads/presign', [UploadController::class, 'presign']);
+    Route::post('/v1/uploads/confirm', [UploadController::class, 'confirm']);
+    Route::get('/v1/me/points', [PointController::class, 'getBalance']);
+    Route::get('/v1/me/points/ledger', [PointController::class, 'getLedger']);
+    Route::put('/v1/reviews/{id}/helpful', [ReviewController::class, 'voteHelpful'])->whereUuid('id');
+    Route::delete('/v1/reviews/{id}/helpful', [ReviewController::class, 'removeHelpful'])->whereUuid('id');
+    Route::post('/v1/reviews/{id}/reports', [ReviewController::class, 'report'])->whereUuid('id');
+    Route::get('/v1/uploads/{id}', [UploadController::class, 'show'])->whereUuid('id');
+});
 Route::post('/v1/partnership-requests', [PartnershipController::class, 'store'])->middleware('throttle:3,60');
 
-Route::middleware(['auth:sanctum', 'cafe_owner', 'throttle:300,1'])->prefix('/v1/owner/cafes')->group(function (): void {
-    Route::get('/', [CafeManagementController::class, 'ownerIndex']);
-    Route::post('/', [CafeManagementController::class, 'ownerCreate']);
-    Route::patch('/{publicId}', [CafeManagementController::class, 'ownerUpdate'])->whereUuid('publicId');
-    Route::put('/{publicId}/accepts-orders', [CafeManagementController::class, 'setAcceptsOrders'])->whereUuid('publicId');
+Route::middleware(['auth:sanctum', 'cafe_owner', 'throttle:300,1'])->prefix('/v1/owner')->group(function (): void {
+    Route::prefix('cafes')->group(function (): void {
+        Route::get('/', [CafeManagementController::class, 'ownerIndex']);
+        Route::post('/', [CafeManagementController::class, 'ownerCreate']);
+        Route::patch('/{publicId}', [CafeManagementController::class, 'ownerUpdate'])->whereUuid('publicId');
+        Route::put('/{publicId}/accepts-orders', [CafeManagementController::class, 'setAcceptsOrders'])->whereUuid('publicId');
+        Route::get('/{publicId}/menu', [CafeMenuManagementController::class, 'index'])->whereUuid('publicId');
+        Route::post('/{publicId}/menu', [CafeMenuManagementController::class, 'store'])->whereUuid('publicId');
+    });
+    Route::prefix('menu')->group(function (): void {
+        Route::patch('/{publicId}', [CafeMenuManagementController::class, 'update'])->whereUuid('publicId');
+        Route::delete('/{publicId}', [CafeMenuManagementController::class, 'destroy'])->whereUuid('publicId');
+        Route::patch('/{publicId}/availability', [CafeMenuManagementController::class, 'setAvailability'])->whereUuid('publicId');
+    });
 });
 Route::middleware(['auth:sanctum', 'admin', 'throttle:300,1'])->prefix('/v1/admin')->group(function (): void {
     Route::get('/cafes', [CafeManagementController::class, 'adminIndex']);
@@ -90,4 +131,11 @@ Route::middleware(['auth:sanctum', 'admin', 'throttle:300,1'])->prefix('/v1/admi
     Route::delete('/featured-cafes/{id}', [CafeManagementController::class, 'deleteFeatured'])->whereNumber('id');
     Route::get('/partnership-requests', [PartnershipController::class, 'index']);
     Route::patch('/partnership-requests/{publicId}', [PartnershipController::class, 'update'])->whereUuid('publicId');
+    Route::get('/reviews', [AdminReviewController::class, 'index']);
+    Route::patch('/reviews/{publicId}/moderate', [AdminReviewController::class, 'moderate'])->whereUuid('publicId');
+    Route::post('/reviews/bulk-moderate', [AdminReviewController::class, 'bulkModerate']);
+    Route::patch('/reviews/{publicId}/feature', [AdminReviewController::class, 'toggleFeature'])->whereUuid('publicId');
+    Route::get('/reports', [AdminReviewController::class, 'reportsIndex']);
+    Route::patch('/reports/{id}', [AdminReviewController::class, 'handleReport'])->whereNumber('id');
+    Route::get('/dashboard/summary', [AdminReviewController::class, 'dashboardSummary']);
 });

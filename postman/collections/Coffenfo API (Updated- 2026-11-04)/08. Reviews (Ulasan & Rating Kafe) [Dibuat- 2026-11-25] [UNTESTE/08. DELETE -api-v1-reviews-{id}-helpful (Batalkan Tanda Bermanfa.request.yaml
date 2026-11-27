@@ -1,0 +1,12 @@
+$kind: http-request
+name: "08. DELETE /api/v1/reviews/{id}/helpful (Batalkan Tanda Bermanfaat) [Dibuat: 2026-11-26] [UNTESTED]"
+description: Membatalkan tanda bermanfaat ulasan. Mengurangi helpful_count.
+url: "{{base_url}}/api/v1/reviews/{{review_id}}/helpful"
+method: DELETE
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{user_token}}"
+order: 8000

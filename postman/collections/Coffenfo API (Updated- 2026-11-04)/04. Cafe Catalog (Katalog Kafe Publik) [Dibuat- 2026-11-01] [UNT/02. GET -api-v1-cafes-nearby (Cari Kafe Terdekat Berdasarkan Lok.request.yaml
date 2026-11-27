@@ -1,0 +1,11 @@
+$kind: http-request
+name: "02. GET /api/v1/cafes/nearby (Cari Kafe Terdekat Berdasarkan Lokasi) [Dibuat: 2026-11-01] [TESTED]"
+url: "{{base_url}}/api/v1/cafes/nearby?lat=1.0456&lng=104.0305&radius_km=10"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  lat: "1.0456"
+  lng: "104.0305"
+  radius_km: "10"
+order: 2000

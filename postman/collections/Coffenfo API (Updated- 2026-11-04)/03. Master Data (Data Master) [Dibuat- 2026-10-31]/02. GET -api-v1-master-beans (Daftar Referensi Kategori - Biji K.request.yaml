@@ -1,0 +1,8 @@
+$kind: http-request
+name: "02. GET /api/v1/master/beans (Daftar Referensi Kategori / Biji Kopi / Fasilitas) [Dibuat: 2026-10-31] [TESTED]"
+description: Duplicate this request and change the final path segment to species, roast-levels, brew-methods, facilities, or menu-categories.
+url: "{{base_url}}/api/v1/master/beans"
+method: GET
+headers:
+  Accept: application/json
+order: 2000
