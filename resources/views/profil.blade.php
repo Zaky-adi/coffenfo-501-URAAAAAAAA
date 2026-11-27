@@ -9,10 +9,17 @@
         <a href="{{ route('explore') }}" class="pf-logo"><img src="{{ asset('images/logo_icon.png') }}" alt="">Coffenfo</a>
         <div class="pf-right">
             <button type="button" class="pf-bell" aria-label="Notifikasi"><svg class="icon"><use href="#pf-bell"/></svg></button>
-            <div class="pf-pill">
-                <span class="pf-av sm" id="pf-hav"></span>
-                <div><b id="pf-hname">Tamu</b><small>Pengguna</small></div>
-                <svg class="icon"><use href="#pf-down"/></svg>
+            <div class="pf-menuwrap">
+                <button type="button" class="pf-pill" id="pf-pill" aria-haspopup="true" aria-expanded="false" aria-controls="pf-menu">
+                    <span class="pf-av sm" id="pf-hav"></span>
+                    <div><b id="pf-hname">Tamu</b><small>Pengguna</small></div>
+                    <svg class="icon"><use href="#pf-down"/></svg>
+                </button>
+                <div class="pf-menu" id="pf-menu" role="menu" hidden>
+                    <a href="{{ Route::has('profile') ? route('profile') : '#' }}" role="menuitem"><svg class="icon"><use href="#pf-user"/></svg>Profil Saya</a>
+                    <hr>
+                    <button type="button" class="out" role="menuitem" data-open="out"><svg class="icon"><use href="#pf-logout"/></svg>Keluar</button>
+                </div>
             </div>
         </div>
     </div>
@@ -21,18 +28,27 @@
 
 @section('content')
 @php
-    // ----- Data awal AKUN KOSONG. Kalau sudah ada login sungguhan, nama & email otomatis terisi dari akun itu. -----
+    // ----- Data diambil dari akun yang sedang login (tabel users). -----
+    $u = auth()->user();
+    $months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
     $user = [
-        'name'   => auth()->user()->name  ?? '',
-        'email'  => auth()->user()->email ?? '',
-        'bean'   => 'Semua',
-        'roast'  => 'Medium',
-        'review' => 0,
-        'fav'    => 0,
-        'since'  => '',
+        'name'   => $u->name  ?? '',
+        'email'  => $u->email ?? '',
+        'bean'   => $u->bean  ?? 'Semua',
+        'roast'  => $u->roast ?? 'Medium',
+        'review' => 0,          // nanti dihitung dari tabel review
+        'fav'    => 0,          // nanti dihitung dari tabel cafe favorit
+        'since'  => $u ? $months[$u->created_at->month - 1].' '.$u->created_at->year : '',
+        'photo'  => (string) ($u->photo ?? ''),
     ];
     $beans = ['Semua', 'Single Origin', 'Blend'];
     $roasts = ['Light', 'Medium', 'Dark'];
+    $urls = [
+        'update'   => Route::has('profile.update')   ? route('profile.update')   : '#',
+        'password' => Route::has('profile.password') ? route('profile.password') : '#',
+        'destroy'  => Route::has('profile.destroy')  ? route('profile.destroy')  : '#',
+        'logout'   => Route::has('logout')           ? route('logout')           : '#',
+    ];
 @endphp
 
 {{-- Ikon khusus halaman ini --}}
@@ -40,6 +56,7 @@
     <symbol id="pf-bell" viewBox="0 0 24 24"><path d="M6 17V11a6 6 0 0112 0v6l1.5 2h-15L6 17zM10 21h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="pf-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 11V8a4 4 0 018 0v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
     <symbol id="pf-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="pf-logout" viewBox="0 0 24 24"><path d="M10 4H6a2 2 0 00-2 2v12a2 2 0 002 2h4M16 8l4 4-4 4M20 12H9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="pf-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </svg>
 
@@ -49,6 +66,16 @@
     .pf-bar-in{display:flex;justify-content:space-between;align-items:center;height:60px}
     .pf-logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px}
     .pf-logo img{width:22px;height:22px;object-fit:contain}
+    [hidden]{display:none!important}   /* atribut hidden harus selalu menyembunyikan (pesan galat tidak boleh tampil sebelum waktunya) */
+    .pf-menuwrap{position:relative}
+    .pf-pill{border:0;font-family:inherit;color:#3b2620;text-align:left;cursor:pointer}
+    .pf-pill:focus-visible{outline:2px solid #3b2620;outline-offset:2px}
+    .pf-menu{position:absolute;right:0;top:calc(100% + 8px);z-index:50;min-width:190px;padding:6px;border:1px solid #eae2d3;border-radius:12px;background:#fff;box-shadow:0 12px 30px rgba(59,38,32,.14)}
+    .pf-menu a,.pf-menu button{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:0;border-radius:8px;background:none;font:500 11px 'Plus Jakarta Sans',sans-serif;color:#3b2620;text-align:left;text-decoration:none;cursor:pointer}
+    .pf-menu a:hover,.pf-menu button:hover{background:#f4ede2}
+    .pf-menu .icon{font-size:14px}
+    .pf-menu .out{color:#c0392b}.pf-menu .out:hover{background:#fdeceb}
+    .pf-menu hr{margin:4px 0;border:0;border-top:1px solid #eae2d3}
     .pf-right{display:flex;align-items:center;gap:12px}
     .pf-bell{display:grid;place-items:center;width:30px;height:30px;border:1px solid #eae2d3;border-radius:50%;background:#fff;color:#3b2620;font-size:14px;cursor:pointer}
     .pf-pill{display:flex;align-items:center;gap:8px;padding:4px 12px 4px 4px;border-radius:99px;background:#f1e9dc;font-size:10px}
@@ -179,6 +206,15 @@
             </div>
         </section>
 
+        {{-- ===== Sesi akun ===== --}}
+        <section class="pf-card">
+            <h2>Sesi Akun</h2>
+            <div class="pf-danger">
+                <div><b>Keluar dari akun</b><small>Kamu akan keluar dari akun ini di perangkat ini.</small></div>
+                <button type="button" class="pf-btn" data-open="out">Keluar</button>
+            </div>
+        </section>
+
         {{-- ===== Zona Berbahaya ===== --}}
         <section class="pf-card">
             <h2>Zona Berbahaya</h2>
@@ -208,6 +244,16 @@
     </form>
 </div>
 
+{{-- ===== Modal: konfirmasi keluar ===== --}}
+<div class="pf-modal" id="m-out" role="dialog" aria-modal="true" aria-labelledby="mo-t" hidden>
+    <div class="pf-box">
+        <h3 id="mo-t">Keluar dari akun?</h3>
+        <p>Kamu perlu masuk lagi untuk memesan dan menulis review.</p>
+        <div class="pf-mf" style="margin-top:6px"><button type="button" class="pf-btn" data-close>Batal</button><button type="button" class="pf-btn dark" id="out-ok">Ya, keluar</button></div>
+    </div>
+</div>
+<form id="logout-form" method="post" action="{{ $urls['logout'] }}" hidden>@csrf</form>
+
 {{-- ===== Modal: konfirmasi hapus akun ===== --}}
 <div class="pf-modal" id="m-del" role="dialog" aria-modal="true" aria-labelledby="md-t" hidden>
     <div class="pf-box">
@@ -221,20 +267,28 @@
 <script id="profile-js">
     (function () {
         const $ = id => document.getElementById(id);
-        const KEY = 'coffenfo.profile';          // tempat profil disimpan di browser ini
-        const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        const TOKEN = @json(csrf_token());
+        const URLS = @json($urls);
         const initialsOf = n => n.trim().split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
         const USER_ICON = '<svg class="icon"><use href="#pf-user"/></svg>';
 
-        // Profil tersimpan = apa yang ada di browser, kalau belum ada pakai data awal dari server (kosong)
+        // Data akun dari server (database)
         let saved = Object.assign({ name: '', email: '', bean: 'Semua', roast: 'Medium', review: 0, fav: 0, since: '', photo: '' }, @json($user));
-        try { Object.assign(saved, JSON.parse(localStorage.getItem(KEY) || 'null') || {}); } catch (e) {}
         let pendingPhoto = '';
 
-        function persist() {
-            try { localStorage.setItem(KEY, JSON.stringify(saved)); }
-            catch (e) { toast('Penyimpanan browser penuh, foto tidak ikut tersimpan.'); }
+        // Kirim data ke server (Laravel), jawabannya JSON
+        async function api(url, method, body) {
+            const res = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': TOKEN },
+                body: JSON.stringify(body || {})
+            });
+            let data = {};
+            try { data = await res.json(); } catch (e) {}
+            return { ok: res.ok, status: res.status, data };
         }
+        const firstError = (data, key) => (data.errors && data.errors[key] && data.errors[key][0]) || '';
+
         function toast(msg) {
             const t = $('pf-toast'); t.textContent = msg; t.hidden = false;
             clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2800);
@@ -247,7 +301,7 @@
                 else el.innerHTML = USER_ICON;
             });
         }
-        // Tampilkan semua data tersimpan ke halaman
+        const chips = () => { $('chip-bean').textContent = 'Beans: ' + $('pf-bean').value; $('chip-roast').textContent = 'Roast: ' + $('pf-roast').value; };
         function render() {
             $('pf-name').textContent = saved.name || 'Nama belum diisi';
             $('pf-name').classList.toggle('pf-muted', !saved.name);
@@ -263,10 +317,9 @@
             chips();
             paintAvatars(saved.photo, saved.name);
         }
-        const chips = () => { $('chip-bean').textContent = 'Beans: ' + $('pf-bean').value; $('chip-roast').textContent = 'Roast: ' + $('pf-roast').value; };
 
-        const modals = { pass: $('m-pass'), del: $('m-del') };
-        document.body.append(modals.pass, modals.del, $('pf-toast'));
+        const modals = { pass: $('m-pass'), del: $('m-del'), out: $('m-out') };
+        document.body.append(modals.pass, modals.del, modals.out, $('pf-toast'));
 
         // --- Ubah foto: validasi, kecilkan ke 256 px, tampilkan pratinjau ---
         function shrink(file) {
@@ -304,27 +357,33 @@
             if (!(pendingPhoto || saved.photo)) paintAvatars('', $('pf-fullname').value);
         });
 
-        // --- Simpan perubahan ---
-        $('pf-form').addEventListener('submit', e => {
-            e.preventDefault();   // SEMENTARA: disimpan di browser ini saja. Nanti dikirim ke server / database.
-            const name = $('pf-fullname').value.trim();
+        // --- Simpan perubahan ke database ---
+        $('pf-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            const name = $('pf-fullname').value.trim(), email = $('pf-email').value.trim();
+            $('err-name').textContent = 'Nama minimal 2 karakter.';
+            $('err-email').textContent = 'Masukkan email yang valid, atau username minimal 3 karakter.';
             $('err-name').hidden = name.length >= 2;
             if (name.length < 2) { $('pf-fullname').focus(); return; }
-
-            // Email / username: kalau ada "@" harus berbentuk email, kalau tidak minimal 3 karakter (huruf, angka, . _ -)
-            const email = $('pf-email').value.trim();
             const emailOk = email.includes('@') ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) : /^[A-Za-z0-9._-]{3,}$/.test(email);
             $('err-email').hidden = emailOk;
             if (!emailOk) { $('pf-email').focus(); return; }
 
-            const d = new Date();
-            Object.assign(saved, {
-                name, email, bean: $('pf-bean').value, roast: $('pf-roast').value,
-                photo: pendingPhoto || saved.photo,
-                since: saved.since || (MONTHS[d.getMonth()] + ' ' + d.getFullYear())
-            });
+            const btn = e.submitter; if (btn) btn.disabled = true;
+            const r = await api(URLS.update, 'PUT', { name, login: email, bean: $('pf-bean').value, roast: $('pf-roast').value, photo: pendingPhoto });
+            if (btn) btn.disabled = false;
+
+            if (!r.ok) {
+                const eName = firstError(r.data, 'name'), eMail = firstError(r.data, 'login'), ePhoto = firstError(r.data, 'photo');
+                if (eName)  { $('err-name').textContent = eName;  $('err-name').hidden = false; }
+                if (eMail)  { $('err-email').textContent = eMail; $('err-email').hidden = false; }
+                if (ePhoto) { $('err-photo').textContent = ePhoto; $('err-photo').hidden = false; }
+                if (!eName && !eMail && !ePhoto) toast(r.status === 401 || r.status === 419 ? 'Sesi habis, silakan masuk lagi.' : 'Gagal menyimpan, coba lagi.');
+                return;
+            }
+            Object.assign(saved, r.data.user);
             pendingPhoto = '';
-            persist(); render();
+            render();
             toast('Perubahan disimpan.');
         });
 
@@ -335,8 +394,22 @@
             render();
         });
 
+        // --- Menu kartu profil (Profil Saya / Keluar) ---
+        const pill = $('pf-pill'), menu = $('pf-menu');
+        function closeMenu() { menu.hidden = true; pill.setAttribute('aria-expanded', 'false'); }
+        pill.addEventListener('click', e => {
+            e.stopPropagation();
+            menu.hidden = !menu.hidden;
+            pill.setAttribute('aria-expanded', String(!menu.hidden));
+        });
+        document.addEventListener('click', e => { if (!menu.contains(e.target)) closeMenu(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+
+        // --- Keluar: setelah dikonfirmasi, kirim permintaan logout ke server ---
+        $('out-ok').addEventListener('click', () => { $('out-ok').disabled = true; $('logout-form').submit(); });
+
         // --- Modal: buka / tutup ---
-        function openModal(key) { modals[key].hidden = false; document.body.style.overflow = 'hidden'; const f = modals[key].querySelector('input'); if (f) f.focus(); }
+        function openModal(key) { closeMenu(); modals[key].hidden = false; document.body.style.overflow = 'hidden'; const f = modals[key].querySelector('input'); if (f) f.focus(); }
         function closeModals() { Object.values(modals).forEach(m => m.hidden = true); document.body.style.overflow = ''; }
         document.addEventListener('click', e => {
             const o = e.target.closest('[data-open]');
@@ -345,20 +418,25 @@
         });
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModals(); });
 
-        // --- Ubah kata sandi ---
-        $('pass-form').addEventListener('submit', e => {
-            e.preventDefault();   // SEMENTARA: nanti dikirim ke server
+        // --- Ubah kata sandi (diperiksa di server) ---
+        $('pass-form').addEventListener('submit', async e => {
+            e.preventDefault();
             const err = $('err-pass'), a = $('pw-old').value, b = $('pw-new').value, c = $('pw-new2').value;
-            const msg = !a ? 'Isi kata sandi saat ini.' : b.length < 8 ? 'Kata sandi baru minimal 8 karakter.' : b !== c ? 'Pengulangan kata sandi tidak sama.' : '';
-            err.textContent = msg; err.hidden = !msg;
-            if (msg) return;
-            $('pass-form').reset(); closeModals(); toast('Kata sandi diperbarui.');
+            const local = !a ? 'Isi kata sandi saat ini.' : b.length < 8 ? 'Kata sandi baru minimal 8 karakter.' : b !== c ? 'Pengulangan kata sandi tidak sama.' : '';
+            if (local) { err.textContent = local; err.hidden = false; return; }
+            const r = await api(URLS.password, 'PUT', { current: a, password: b, password_confirmation: c });
+            if (!r.ok) {
+                err.textContent = firstError(r.data, 'current') || firstError(r.data, 'password') || 'Gagal mengubah kata sandi.';
+                err.hidden = false; return;
+            }
+            err.hidden = true; $('pass-form').reset(); closeModals(); toast('Kata sandi diperbarui.');
         });
 
-        // --- Hapus akun: hapus profil dari browser lalu kembali ke beranda ---
-        $('del-ok').addEventListener('click', () => {   // SEMENTARA: nanti hapus akun di server
-            try { localStorage.removeItem(KEY); } catch (e) {}
-            location.href = @json(url('/'));
+        // --- Hapus akun permanen dari database ---
+        $('del-ok').addEventListener('click', async () => {
+            const r = await api(URLS.destroy, 'DELETE');
+            if (r.ok) location.href = r.data.redirect || '/';
+            else toast('Gagal menghapus akun, coba lagi.');
         });
 
         render();

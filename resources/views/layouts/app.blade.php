@@ -50,7 +50,7 @@
         </form>
 
         <button class="loc" type="button"><svg class="icon"><use href="#i-pin"/></svg>Batam Center<svg class="icon"><use href="#i-down"/></svg></button>
-        <a href="{{ Route::has('profile') ? route('profile') : '#' }}" class="avatar" id="nav-avatar" title="Profil Saya" aria-label="Profil Saya">@if (auth()->check()){{ strtoupper(mb_substr(auth()->user()->name, 0, 2)) }}@else<svg class="icon" viewBox="0 0 24 24" style="font-size:15px"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>@endif</a>
+        <a href="{{ Route::has('profile') ? route('profile') : '#' }}" class="avatar" id="nav-avatar" title="Profil Saya" aria-label="Profil Saya"@if (auth()->check() && auth()->user()->photo) style="background:url('{{ auth()->user()->photo }}') center/cover"@endif>@if (auth()->check())@unless (auth()->user()->photo){{ collect(explode(' ', auth()->user()->name))->filter()->map(fn ($w) => mb_strtoupper(mb_substr($w, 0, 1)))->take(2)->join('') }}@endunless @else<svg class="icon" viewBox="0 0 24 24" style="font-size:15px"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>@endif</a>
     </div>
 </header>
 @endif
@@ -60,18 +60,6 @@
         @yield('content')
     </div>
 </main>
-
-<script id="nav-avatar-script">
-    // Avatar di navbar: tampilkan foto / inisial dari profil yang tersimpan di browser (kalau sudah diisi)
-    (function () {
-        try {
-            const p = JSON.parse(localStorage.getItem('coffenfo.profile') || 'null'), a = document.getElementById('nav-avatar');
-            if (!p || !a) return;
-            if (p.photo) { a.textContent = ''; a.style.background = "url('" + p.photo + "') center/cover"; }
-            else if (p.name && p.name.trim()) a.textContent = p.name.trim().split(/\s+/).slice(0, 2).map(w => w[0].toUpperCase()).join('');
-        } catch (e) {}
-    })();
-</script>
 
 @stack('scripts')
 </body>
