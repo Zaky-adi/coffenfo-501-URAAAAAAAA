@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\EmailVerificationLinkController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\DashboardController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 
 /*
@@ -23,6 +25,27 @@ use App\Http\Controllers\DashboardController;
 
 // Landing page Coffenfo
 Route::view('/', 'welcome')->name('home');
+
+// Form "Ajukan kemitraan" di landing page
+Route::post('/partnership', function (Request $request) {
+    // SEMENTARA: baru memvalidasi, belum menyimpan ke database.
+    // Nanti diganti dengan PartnershipController@store.
+    $request->validate([
+        'cafe_name' => 'required|string|max:100',
+        'owner'     => 'required|string|max:100',
+        'phone'     => ['required', 'regex:/^(\+62|62|0)8[0-9\s\-]{8,15}$/'],
+        'district'  => 'required|string|max:50',
+    ], [
+        'cafe_name.required' => 'Nama cafe wajib diisi.',
+        'owner.required'     => 'Nama pemilik wajib diisi.',
+        'phone.required'     => 'Nomor WhatsApp wajib diisi.',
+        'phone.regex'        => 'Format nomor WhatsApp tidak valid.',
+        'district.required'  => 'Kecamatan wajib dipilih.',
+    ]);
+
+    return redirect(url('/') . '#mitra')
+        ->with('success', 'Terima kasih! Pengajuan kemitraanmu sudah kami terima.');
+})->name('partnership.store');
 
 
 // ===== 2. AUTENTIKASI =====
@@ -52,6 +75,14 @@ Route::post('/register', function () {
     return redirect()->route('login');
 });
 
+// Logout: harus POST (tombol "Keluar" di menu pengguna).
+Route::post('/logout', function (Request $request) {
+    Auth::logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+    return redirect()->route('home');
+})->name('logout');
+
 // Tautan dari email (verifikasi email & reset password)
 Route::get('/verify-email/{token}', EmailVerificationLinkController::class)
     ->where('token', '[A-Za-z0-9]+')
@@ -73,6 +104,11 @@ Route::post('/checkout', function () {
     return redirect()->route('orders');
 })->name('checkout.pay');
 Route::view('/pesanan',   'pesanan')->name('orders');        // Semua pesanan (riwayat lengkap)
+Route::view('/profil',    'profil')->name('profile');        // Profil pengguna
+Route::post('/profil', function () {
+    // SEMENTARA: belum menyimpan perubahan profil. Nanti diganti proses update sungguhan.
+    return redirect()->route('profile')->with('success', 'Profil berhasil disimpan.');
+})->name('profile.update');
 
 
 // ===== 4. HALAMAN ADMIN =====
@@ -96,11 +132,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/kelolabeans', [DashboardController::class, 'kelolabeans'])
         ->name('kelolabeans');
-    
+
     Route::get('/review', [DashboardController::class, 'review'])
         ->name('review');
-    
-    Route::get('/laporan',[DashboardController::class, "laporan"])
+
+    Route::get('/laporan', [DashboardController::class, 'laporan'])
         ->name('laporan');
 
     Route::get('/pengaturan', [DashboardController::class, 'pengaturan'])
